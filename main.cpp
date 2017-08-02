@@ -1,6 +1,7 @@
 #include "SDL/SDL.h"
 #include <iostream>
 #include <libcryptsetup.h>
+#include <string>
 #include <unistd.h>
 
 using namespace std;
@@ -57,7 +58,7 @@ int main(int argc, char **args) {
   char dev_name_default[] = "TEST-DISK";
   char *path = NULL;
   char *dev_name = NULL;
-  char *passphrase;
+  string passphrase;
 
   bool testmode = false;
 
@@ -110,6 +111,16 @@ int main(int argc, char **args) {
 
   // Set up screen
   screen = SDL_SetVideoMode(WIDTH, HEIGHT, 32, SDL_SWSURFACE);
+
+  // TODO: Determine good keyboard size for landscape devices
+  int keyboardHeight = HEIGHT / 3 * 2;
+  if (HEIGHT > WIDTH) {
+    // Keyboard height is screen width / max number of keys per row * rows
+    keyboardHeight = WIDTH / 2;
+  }
+
+  int inputHeight = WIDTH / 10;
+
   /*
    * If this fails, try to swap height/width in case device is in
    * 'landscape' mode
@@ -128,6 +139,9 @@ int main(int argc, char **args) {
   SDL_Flip(screen);
 
   auto keyboardColor = SDL_MapRGB(screen->format, 30, 30, 30);
+  auto inputColor = SDL_MapRGB(screen->format, 255, 255, 255);
+  auto dotColor = SDL_MapRGB(screen->format, 0, 0, 0);
+
   next_time = SDL_GetTicks() + TICK_INTERVAL;
 
   while (unlocked == false) {
@@ -140,7 +154,7 @@ int main(int argc, char **args) {
         switch (event.key.keysym.sym) {
         case SDLK_RETURN:
           /* One day this will be sufficient */
-          unlocked = !unlock_crypt_dev(path, dev_name, passphrase);
+          unlocked = !unlock_crypt_dev(path, dev_name, passphrase.c_str());
           printf("unlocked: %i\n", unlocked);
           /* for development usage */
           unlocked = true;
@@ -156,6 +170,7 @@ int main(int argc, char **args) {
         yMouse = event.button.y;
         /* Debug output only */
         printf("xMouse: %i\tyMouse: %i\n", xMouse, yMouse);
+        passphrase.append("*");
         break;
       }
     }
@@ -167,11 +182,32 @@ int main(int argc, char **args) {
       }
       SDL_Rect keyboardRect;
       keyboardRect.x = 0;
-      keyboardRect.y = (int)(HEIGHT - ((HEIGHT / 2) * keyboardPosition));
+      keyboardRect.y = (int)(HEIGHT - (keyboardHeight * keyboardPosition));
       keyboardRect.w = WIDTH;
-      keyboardRect.h = (int)(HEIGHT / 2 * keyboardPosition);
+      keyboardRect.h = (int)(keyboardHeight * keyboardPosition);
       SDL_FillRect(screen, &keyboardRect, keyboardColor);
     }
+
+    // Draw empty password box
+    int topHalf = HEIGHT - (keyboardHeight * keyboardPosition);
+    SDL_Rect inputRect;
+    inputRect.x = WIDTH / 20;
+    inputRect.y = (topHalf / 2) - (inputHeight / 2);
+    inputRect.w = WIDTH * 0.9;
+    inputRect.h = inputHeight;
+    SDL_FillRect(screen, &inputRect, inputColor);
+
+    // Draw password dots
+    int dotSize = WIDTH * 0.02;
+    for(int i=0;i<passphrase.length();i++){
+      SDL_Rect dotRect;
+      dotRect.x = (WIDTH / 10)+(i*WIDTH/30);
+      dotRect.y = (topHalf / 2) - (dotSize / 2);
+      dotRect.w = dotSize;
+      dotRect.h = dotSize;
+      SDL_FillRect(screen, &dotRect, dotColor);
+    }
+
     SDL_Delay(time_left());
     next_time += TICK_INTERVAL;
     SDL_UpdateRect(screen, 0, 0, 0, 0);
