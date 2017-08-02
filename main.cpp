@@ -1,4 +1,4 @@
-#include "SDL/SDL.h"
+#include "SDL2/SDL.h"
 #include <iostream>
 #include <libcryptsetup.h>
 #include <string>
@@ -66,7 +66,10 @@ int main(int argc, char **args) {
   SDL_Event event;
   float keyboardPosition = 0;
   float keyboardTargetPosition = 1;
+  SDL_Window *display = NULL;
   SDL_Surface *screen = NULL;
+  SDL_Renderer *renderer = NULL;
+  SDL_RendererInfo *renderer_info = NULL;
   int WIDTH = 480;
   int HEIGHT = 800;
   int opt;
@@ -104,15 +107,30 @@ int main(int argc, char **args) {
   if (!testmode) {
     // Switch to the resolution of the framebuffer if not running
     // in test mode.
-    const SDL_VideoInfo *info = SDL_GetVideoInfo();
-    WIDTH = info->current_w;
-    HEIGHT = info->current_h;
+    SDL_DisplayMode mode = { SDL_PIXELFORMAT_UNKNOWN, 0, 0, 0, 0};
+    if(SDL_GetDisplayMode(0, 0, &mode) != 0){
+      printf("Unable to get display resolution!\n");
+      return -1;
+    }
+    WIDTH = mode.w;
+    HEIGHT = mode.h;
   }
 
-  // Set up screen
-  screen = SDL_SetVideoMode(WIDTH, HEIGHT, 32, SDL_SWSURFACE);
+  /*
+   * Set up display, renderer, & screen
+   * TODO: Look at using SDL_WINDOW_FULLSCREEN_DESKTOP
+   */
+  display = SDL_CreateWindow("OSK SDL",
+                            SDL_WINDOWPOS_UNDEFINED,
+                            SDL_WINDOWPOS_UNDEFINED,
+                            WIDTH, HEIGHT,
+                            SDL_WINDOW_FULLSCREEN);
+  renderer = SDL_CreateRenderer(display, -1, SDL_RENDERER_SOFTWARE);
+  SDL_GetRendererInfo(renderer, renderer_info);
 
-  // TODO: Determine good keyboard size for landscape devices
+  screen = SDL_GetWindowSurface(display);
+
+  /* TODO: Determine good keyboard size for landscape devices */
   int keyboardHeight = HEIGHT / 3 * 2;
   if (HEIGHT > WIDTH) {
     // Keyboard height is screen width / max number of keys per row * rows
@@ -120,23 +138,9 @@ int main(int argc, char **args) {
   }
 
   int inputHeight = WIDTH / 10;
-
-  /*
-   * If this fails, try to swap height/width in case device is in
-   * 'landscape' mode
-   */
-  if (screen == NULL) {
-    screen = SDL_SetVideoMode(HEIGHT, WIDTH, 32, SDL_SWSURFACE);
-    int t = HEIGHT;
-    HEIGHT = WIDTH;
-    WIDTH = t;
-  }
-  if (screen == NULL) {
-    printf("Unable to set up video mode!\n");
-    return -1;
-  }
   SDL_FillRect(screen, NULL, SDL_MapRGB(screen->format, 255, 128, 0));
-  SDL_Flip(screen);
+  /* TODO: find equivalent in SDL2 */
+  //SDL_Flip(screen);
 
   auto keyboardColor = SDL_MapRGB(screen->format, 30, 30, 30);
   auto inputColor = SDL_MapRGB(screen->format, 255, 255, 255);
@@ -212,7 +216,8 @@ int main(int argc, char **args) {
 
     SDL_Delay(time_left());
     next_time += TICK_INTERVAL;
-    SDL_UpdateRect(screen, 0, 0, 0, 0);
+    /* Update */
+    SDL_RenderPresent(renderer);
   }
   SDL_Quit();
   return 0;
