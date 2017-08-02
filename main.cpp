@@ -55,8 +55,8 @@ int main(int argc, char **args) {
    */
   char path_default[] = "/home/user/disk";
   char dev_name_default[] = "TEST-DISK";
-  char *path;
-  char *dev_name;
+  char *path = NULL;
+  char *dev_name = NULL;
   char *passphrase;
 
   bool testmode = false;
@@ -87,6 +87,16 @@ int main(int argc, char **args) {
       fprintf(stdout, "Usage: osk_mouse [-t] [-d /dev/sda] [-n device_name]\n");
       return -1;
     }
+
+  if (!path) {
+    fprintf(stderr, "No device path specified, use -d [path] or -t\n");
+    exit(1);
+  }
+
+  if (!dev_name) {
+    fprintf(stderr, "No device name specified, use -n [name] or -n\n");
+    exit(1);
+  }
 
   SDL_Init(SDL_INIT_EVERYTHING);
 
