@@ -53,9 +53,13 @@ int main(int argc, char **args) {
    * These strings are for development only
    * TODO: Make these mandatory after calling getopts
    */
-  char *path = "/home/user/disk";
-  char *dev_name = "TEST-DISK";
-  char *passphrase = "p";
+  char path_default[] = "/home/user/disk";
+  char dev_name_default[] = "TEST-DISK";
+  char *path;
+  char *dev_name;
+  char *passphrase;
+
+  bool testmode = false;
 
   bool unlocked = false;
   SDL_Event event;
@@ -66,8 +70,13 @@ int main(int argc, char **args) {
   int HEIGHT = 800;
   int opt;
 
-  while ((opt = getopt(argc, args, "d:n:")) != -1)
+  while ((opt = getopt(argc, args, "td:n:")) != -1)
     switch (opt) {
+    case 't':
+      path = path_default;
+      dev_name = dev_name_default;
+      testmode = true;
+      break;
     case 'd':
       path = optarg;
       break;
@@ -75,11 +84,19 @@ int main(int argc, char **args) {
       dev_name = optarg;
       break;
     default:
-      fprintf(stdout, "Usage: osk_mouse [-d /dev/sda] [-n device_name]\n");
+      fprintf(stdout, "Usage: osk_mouse [-t] [-d /dev/sda] [-n device_name]\n");
       return -1;
     }
 
   SDL_Init(SDL_INIT_EVERYTHING);
+
+  if (!testmode) {
+    // Switch to the resolution of the framebuffer if not running
+    // in test mode.
+    const SDL_VideoInfo *info = SDL_GetVideoInfo();
+    WIDTH = info->current_w;
+    HEIGHT = info->current_h;
+  }
 
   // Set up screen
   screen = SDL_SetVideoMode(WIDTH, HEIGHT, 32, SDL_SWSURFACE);
@@ -117,6 +134,9 @@ int main(int argc, char **args) {
           printf("unlocked: %i\n", unlocked);
           /* for development usage */
           unlocked = true;
+          break;
+        case SDLK_ESCAPE:
+          exit(1);
           break;
         }
         break;
