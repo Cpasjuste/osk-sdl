@@ -118,13 +118,20 @@ int main(int argc, char **args) {
 
   /*
    * Set up display, renderer, & screen
-   * TODO: Look at using SDL_WINDOW_FULLSCREEN_DESKTOP
+   * Use windowed mode in test mode and device resolution otherwise
    */
+  int windowFlags = 0;
+  if(testmode){
+    windowFlags = SDL_WINDOW_RESIZABLE;
+  }else{
+    windowFlags = SDL_WINDOW_FULLSCREEN;
+  }
+
   display = SDL_CreateWindow("OSK SDL",
                             SDL_WINDOWPOS_UNDEFINED,
                             SDL_WINDOWPOS_UNDEFINED,
                             WIDTH, HEIGHT,
-                            SDL_WINDOW_FULLSCREEN);
+                            windowFlags);
   renderer = SDL_CreateRenderer(display, -1, SDL_RENDERER_SOFTWARE);
   SDL_GetRendererInfo(renderer, renderer_info);
 
