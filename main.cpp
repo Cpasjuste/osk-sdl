@@ -6,7 +6,7 @@
 
 using namespace std;
 
-#define TICK_INTERVAL 30
+#define TICK_INTERVAL 16
 
 static Uint32 next_time;
 
@@ -188,9 +188,9 @@ int main(int argc, char **args) {
     }
     if (keyboardPosition != keyboardTargetPosition) {
       if (keyboardPosition > keyboardTargetPosition) {
-        keyboardPosition -= (keyboardPosition - keyboardTargetPosition) / 3;
+        keyboardPosition -= (keyboardPosition - keyboardTargetPosition) / 10;
       } else {
-        keyboardPosition += (keyboardTargetPosition - keyboardPosition) / 5;
+        keyboardPosition += (keyboardTargetPosition - keyboardPosition) / 10;
       }
       SDL_Rect keyboardRect;
       keyboardRect.x = 0;
