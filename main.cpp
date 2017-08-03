@@ -69,7 +69,7 @@ int main(int argc, char **args) {
   SDL_Window *display = NULL;
   SDL_Surface *screen = NULL;
   SDL_Renderer *renderer = NULL;
-  SDL_RendererInfo *renderer_info = NULL;
+  SDL_RendererInfo renderer_info = {0};
   int WIDTH = 480;
   int HEIGHT = 800;
   int opt;
@@ -122,7 +122,7 @@ int main(int argc, char **args) {
    */
   int windowFlags = 0;
   if(testmode){
-    windowFlags = SDL_WINDOW_RESIZABLE;
+    windowFlags = SDL_WINDOW_RESIZABLE | SDL_WINDOW_SHOWN;
   }else{
     windowFlags = SDL_WINDOW_FULLSCREEN;
   }
@@ -133,7 +133,8 @@ int main(int argc, char **args) {
                             WIDTH, HEIGHT,
                             windowFlags);
   renderer = SDL_CreateRenderer(display, -1, SDL_RENDERER_SOFTWARE);
-  SDL_GetRendererInfo(renderer, renderer_info);
+
+  SDL_GetRendererInfo(renderer, &renderer_info);
 
   screen = SDL_GetWindowSurface(display);
 
