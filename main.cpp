@@ -138,7 +138,6 @@ int main(int argc, char **args) {
 
   screen = SDL_GetWindowSurface(display);
 
-  /* TODO: Determine good keyboard size for landscape devices */
   int keyboardHeight = HEIGHT / 3 * 2;
   if (HEIGHT > WIDTH) {
     // Keyboard height is screen width / max number of keys per row * rows
@@ -147,8 +146,6 @@ int main(int argc, char **args) {
 
   int inputHeight = WIDTH / 10;
   SDL_FillRect(screen, NULL, SDL_MapRGB(screen->format, 255, 128, 0));
-  /* TODO: find equivalent in SDL2 */
-  //SDL_Flip(screen);
 
   auto keyboardColor = SDL_MapRGB(screen->format, 30, 30, 30);
   auto inputColor = SDL_MapRGB(screen->format, 255, 255, 255);
