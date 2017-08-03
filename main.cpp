@@ -155,8 +155,9 @@ int main(int argc, char **args) {
   auto dotColor = SDL_MapRGB(screen->format, 0, 0, 0);
 
   next_time = SDL_GetTicks() + TICK_INTERVAL;
-  /* Disable mouse cursor */
-  SDL_ShowCursor(false);
+
+  /* Disable mouse cursor if not in testmode */
+  SDL_ShowCursor(testmode);
 
   while (unlocked == false) {
     SDL_FillRect(screen, NULL, SDL_MapRGB(screen->format, 255, 128, 0));
