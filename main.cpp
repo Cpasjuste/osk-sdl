@@ -69,7 +69,6 @@ int main(int argc, char **args) {
   SDL_Window *display = NULL;
   SDL_Surface *screen = NULL;
   SDL_Renderer *renderer = NULL;
-  SDL_RendererInfo renderer_info = {0};
   int WIDTH = 480;
   int HEIGHT = 800;
   int opt;
@@ -89,28 +88,31 @@ int main(int argc, char **args) {
       break;
     default:
       fprintf(stdout, "Usage: osk_mouse [-t] [-d /dev/sda] [-n device_name]\n");
-      return -1;
+      return 1;
     }
 
   if (!path) {
     fprintf(stderr, "No device path specified, use -d [path] or -t\n");
-    exit(1);
+    return 1;
   }
 
   if (!dev_name) {
     fprintf(stderr, "No device name specified, use -n [name] or -n\n");
-    exit(1);
+    return 1;
   }
 
-  SDL_Init(SDL_INIT_EVERYTHING);
+  if(SDL_Init(SDL_INIT_EVERYTHING)!=0){
+    fprintf(stderr, "Unable to initialize SDL: %s\n", SDL_GetError());
+    return 1;
+  }
 
   if (!testmode) {
     // Switch to the resolution of the framebuffer if not running
     // in test mode.
     SDL_DisplayMode mode = { SDL_PIXELFORMAT_UNKNOWN, 0, 0, 0, 0};
     if(SDL_GetDisplayMode(0, 0, &mode) != 0){
-      printf("Unable to get display resolution!\n");
-      return -1;
+      fprintf(stderr, "Unable to get display resolution: %s\n", SDL_GetError());
+      return 1;
     }
     WIDTH = mode.w;
     HEIGHT = mode.h;
@@ -132,11 +134,24 @@ int main(int argc, char **args) {
                             SDL_WINDOWPOS_UNDEFINED,
                             WIDTH, HEIGHT,
                             windowFlags);
+  if(display == NULL){
+    fprintf(stderr, "Could not create window/display: %s\n", SDL_GetError());
+    return 1;
+  }
+
   renderer = SDL_CreateRenderer(display, -1, SDL_RENDERER_SOFTWARE);
 
-  SDL_GetRendererInfo(renderer, &renderer_info);
+  if(renderer == NULL){
+    fprintf(stderr, "Could not create renderer: %s\n", SDL_GetError());
+    return 1;
+  }
 
   screen = SDL_GetWindowSurface(display);
+
+  if(screen == NULL){
+    fprintf(stderr, "Could not get window surface: %s\n", SDL_GetError());
+    return 1;
+  }
 
   int keyboardHeight = HEIGHT / 3 * 2;
   if (HEIGHT > WIDTH) {
@@ -145,7 +160,12 @@ int main(int argc, char **args) {
   }
 
   int inputHeight = WIDTH / 10;
-  SDL_FillRect(screen, NULL, SDL_MapRGB(screen->format, 255, 128, 0));
+  auto backgroundColor = SDL_MapRGB(screen->format, 255, 128, 0);
+
+  if(SDL_FillRect(screen, NULL, backgroundColor)!=0){
+    fprintf(stderr, "Could not fill background color: %s\n", SDL_GetError());
+    return 1;
+  }
 
   auto keyboardColor = SDL_MapRGB(screen->format, 30, 30, 30);
   auto inputColor = SDL_MapRGB(screen->format, 255, 255, 255);
@@ -154,7 +174,10 @@ int main(int argc, char **args) {
   next_time = SDL_GetTicks() + TICK_INTERVAL;
 
   /* Disable mouse cursor if not in testmode */
-  SDL_ShowCursor(testmode);
+  if(SDL_ShowCursor(testmode) < 0) {
+    fprintf(stderr, "Setting cursor visibility failed: %s\n", SDL_GetError());
+    // Not stopping here, this is a pretty recoverable error.
+  }
 
   while (unlocked == false) {
     SDL_FillRect(screen, NULL, SDL_MapRGB(screen->format, 255, 128, 0));
