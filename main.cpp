@@ -49,6 +49,19 @@ Uint32 time_left(void) {
     return next_time - now;
 }
 
+void draw_circle(SDL_Renderer *renderer, SDL_Point center, int radius) {
+  SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
+  for (int w = 0; w < radius * 2; w++) {
+    for (int h = 0; h < radius * 2; h++) {
+      int dx = radius - w; // horizontal offset
+      int dy = radius - h; // vertical offset
+      if ((dx * dx + dy * dy) <= (radius * radius)) {
+        SDL_RenderDrawPoint(renderer, center.x + dx, center.y + dy);
+      }
+    }
+  }
+}
+
 int main(int argc, char **args) {
   /*
    * These strings are for development only
@@ -101,7 +114,7 @@ int main(int argc, char **args) {
     return 1;
   }
 
-  if(SDL_Init(SDL_INIT_EVERYTHING)!=0){
+  if (SDL_Init(SDL_INIT_EVERYTHING) != 0) {
     fprintf(stderr, "Unable to initialize SDL: %s\n", SDL_GetError());
     return 1;
   }
@@ -109,8 +122,8 @@ int main(int argc, char **args) {
   if (!testmode) {
     // Switch to the resolution of the framebuffer if not running
     // in test mode.
-    SDL_DisplayMode mode = { SDL_PIXELFORMAT_UNKNOWN, 0, 0, 0, 0};
-    if(SDL_GetDisplayMode(0, 0, &mode) != 0){
+    SDL_DisplayMode mode = {SDL_PIXELFORMAT_UNKNOWN, 0, 0, 0, 0};
+    if (SDL_GetDisplayMode(0, 0, &mode) != 0) {
       fprintf(stderr, "Unable to get display resolution: %s\n", SDL_GetError());
       return 1;
     }
@@ -123,32 +136,30 @@ int main(int argc, char **args) {
    * Use windowed mode in test mode and device resolution otherwise
    */
   int windowFlags = 0;
-  if(testmode){
+  if (testmode) {
     windowFlags = SDL_WINDOW_RESIZABLE | SDL_WINDOW_SHOWN;
-  }else{
+  } else {
     windowFlags = SDL_WINDOW_FULLSCREEN;
   }
 
-  display = SDL_CreateWindow("OSK SDL",
-                            SDL_WINDOWPOS_UNDEFINED,
-                            SDL_WINDOWPOS_UNDEFINED,
-                            WIDTH, HEIGHT,
-                            windowFlags);
-  if(display == NULL){
+  display =
+      SDL_CreateWindow("OSK SDL", SDL_WINDOWPOS_UNDEFINED,
+                       SDL_WINDOWPOS_UNDEFINED, WIDTH, HEIGHT, windowFlags);
+  if (display == NULL) {
     fprintf(stderr, "Could not create window/display: %s\n", SDL_GetError());
     return 1;
   }
 
   renderer = SDL_CreateRenderer(display, -1, SDL_RENDERER_SOFTWARE);
 
-  if(renderer == NULL){
+  if (renderer == NULL) {
     fprintf(stderr, "Could not create renderer: %s\n", SDL_GetError());
     return 1;
   }
 
   screen = SDL_GetWindowSurface(display);
 
-  if(screen == NULL){
+  if (screen == NULL) {
     fprintf(stderr, "Could not get window surface: %s\n", SDL_GetError());
     return 1;
   }
@@ -162,7 +173,7 @@ int main(int argc, char **args) {
   int inputHeight = WIDTH / 10;
   auto backgroundColor = SDL_MapRGB(screen->format, 255, 128, 0);
 
-  if(SDL_FillRect(screen, NULL, backgroundColor)!=0){
+  if (SDL_FillRect(screen, NULL, backgroundColor) != 0) {
     fprintf(stderr, "Could not fill background color: %s\n", SDL_GetError());
     return 1;
   }
@@ -174,7 +185,7 @@ int main(int argc, char **args) {
   next_time = SDL_GetTicks() + TICK_INTERVAL;
 
   /* Disable mouse cursor if not in testmode */
-  if(SDL_ShowCursor(testmode) < 0) {
+  if (SDL_ShowCursor(testmode) < 0) {
     fprintf(stderr, "Setting cursor visibility failed: %s\n", SDL_GetError());
     // Not stopping here, this is a pretty recoverable error.
   }
@@ -215,12 +226,14 @@ int main(int argc, char **args) {
       } else {
         keyboardPosition += (keyboardTargetPosition - keyboardPosition) / 10;
       }
+
       SDL_Rect keyboardRect;
       keyboardRect.x = 0;
       keyboardRect.y = (int)(HEIGHT - (keyboardHeight * keyboardPosition));
       keyboardRect.w = WIDTH;
-      keyboardRect.h = (int)(keyboardHeight * keyboardPosition);
-      SDL_FillRect(screen, &keyboardRect, keyboardColor);
+      keyboardRect.h = (int)(keyboardHeight * keyboardPosition) + 1;
+      SDL_SetRenderDrawColor(renderer, 30, 30, 30, 255);
+      SDL_RenderFillRect(renderer, &keyboardRect);
     }
 
     // Draw empty password box
@@ -230,17 +243,16 @@ int main(int argc, char **args) {
     inputRect.y = (topHalf / 2) - (inputHeight / 2);
     inputRect.w = WIDTH * 0.9;
     inputRect.h = inputHeight;
-    SDL_FillRect(screen, &inputRect, inputColor);
+    SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+    SDL_RenderFillRect(renderer, &inputRect);
 
     // Draw password dots
     int dotSize = WIDTH * 0.02;
-    for(int i=0;i<passphrase.length();i++){
-      SDL_Rect dotRect;
-      dotRect.x = (WIDTH / 10)+(i*WIDTH/30);
-      dotRect.y = (topHalf / 2) - (dotSize / 2);
-      dotRect.w = dotSize;
-      dotRect.h = dotSize;
-      SDL_FillRect(screen, &dotRect, dotColor);
+    for (int i = 0; i < passphrase.length(); i++) {
+      SDL_Point dotPos;
+      dotPos.x = (WIDTH / 10) + (i * dotSize * 3);
+      dotPos.y = (topHalf / 2);
+      draw_circle(renderer, dotPos, dotSize);
     }
 
     SDL_Delay(time_left());
