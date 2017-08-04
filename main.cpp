@@ -114,18 +114,31 @@ int main(int argc, char **args) {
     return 1;
   }
 
-  if (SDL_Init(SDL_INIT_EVERYTHING) != 0) {
-    fprintf(stderr, "Unable to initialize SDL: %s\n", SDL_GetError());
-    return 1;
+  SDL_LogSetAllPriority(SDL_LOG_PRIORITY_INFO);
+  if (!SDL_Init(SDL_INIT_EVERYTHING)) {
+    printf("*****************\n");
+    SDL_Log("SDL_Init failed: %s", SDL_GetError());
+    SDL_Quit();
+    printf("*****************\n");
+    return -1;
+  }
+
+  for (int a=0; a<SDL_GetNumVideoDrivers(); ++a)
+    printf("SDL Vid driver: %s\n", SDL_GetVideoDriver(a));
+
+  if (SDL_VideoInit(NULL) != 0) {
+    printf("Error initializing SDL video:  %s\n", SDL_GetError());
+    return -1;
   }
 
   if (!testmode) {
     // Switch to the resolution of the framebuffer if not running
     // in test mode.
-    SDL_DisplayMode mode = {SDL_PIXELFORMAT_UNKNOWN, 0, 0, 0, 0};
-    if (SDL_GetDisplayMode(0, 0, &mode) != 0) {
-      fprintf(stderr, "Unable to get display resolution: %s\n", SDL_GetError());
-      return 1;
+    SDL_DisplayMode mode = { SDL_PIXELFORMAT_UNKNOWN, 0, 0, 0, 0};
+    if(SDL_GetDisplayMode(0, 0, &mode) != 0){
+      printf("Unable to get display resolution!\n");
+      SDL_Log("SDL_GetDisplayMode failed: %s", SDL_GetError());
+      return -1;
     }
     WIDTH = mode.w;
     HEIGHT = mode.h;
@@ -195,7 +208,7 @@ int main(int argc, char **args) {
     if (SDL_PollEvent(&event)) {
       /* an event was found */
       switch (event.type) {
-      /* handle the keyboard */
+        /* handle the keyboard */
       case SDL_KEYDOWN:
         switch (event.key.keysym.sym) {
         case SDLK_RETURN:
