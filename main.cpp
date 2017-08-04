@@ -3,6 +3,7 @@
 #include <libcryptsetup.h>
 #include <string>
 #include <unistd.h>
+#include "keyboard.h"
 
 using namespace std;
 
@@ -203,6 +204,9 @@ int main(int argc, char **args) {
     // Not stopping here, this is a pretty recoverable error.
   }
 
+  SDL_Surface* keyboard = makeKeyboard(WIDTH, keyboardHeight);
+  SDL_Texture* keyboardTexture =  SDL_CreateTextureFromSurface(renderer, keyboard);
+
   while (unlocked == false) {
     SDL_FillRect(screen, NULL, SDL_MapRGB(screen->format, 255, 128, 0));
     if (SDL_PollEvent(&event)) {
@@ -245,8 +249,15 @@ int main(int argc, char **args) {
       keyboardRect.y = (int)(HEIGHT - (keyboardHeight * keyboardPosition));
       keyboardRect.w = WIDTH;
       keyboardRect.h = (int)(keyboardHeight * keyboardPosition) + 1;
+
+      SDL_Rect srcRect;
+      srcRect.x=0;
+      srcRect.y=0;
+      srcRect.w = WIDTH;
+      srcRect.h = keyboardRect.h;
+
       SDL_SetRenderDrawColor(renderer, 30, 30, 30, 255);
-      SDL_RenderFillRect(renderer, &keyboardRect);
+      SDL_RenderCopy(renderer, keyboardTexture, &srcRect, &keyboardRect);
     }
 
     // Draw empty password box
