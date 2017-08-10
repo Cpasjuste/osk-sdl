@@ -73,6 +73,7 @@ int main(int argc, char **args) {
   char dev_name_default[] = "TEST-DISK";
   char *path = NULL;
   char *dev_name = NULL;
+  char *config_file = NULL;
   string passphrase;
 
   Config config;
@@ -90,7 +91,7 @@ int main(int argc, char **args) {
   int HEIGHT = 800;
   int opt;
 
-  while ((opt = getopt(argc, args, "td:n:")) != -1)
+  while ((opt = getopt(argc, args, "td:n:c:")) != -1)
     switch (opt) {
     case 't':
       path = path_default;
@@ -103,8 +104,14 @@ int main(int argc, char **args) {
     case 'n':
       dev_name = optarg;
       break;
+    case 'c':
+      config_file = optarg;
+      if(!config.Read(config_file)){
+        return 1;
+      }
+      break;
     default:
-      fprintf(stdout, "Usage: osk_mouse [-t] [-d /dev/sda] [-n device_name]\n");
+      fprintf(stdout, "Usage: osk_mouse [-t] [-d /dev/sda] [-n device_name] [-c /etc/osk.conf]\n");
       return 1;
     }
 
