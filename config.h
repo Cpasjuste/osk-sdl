@@ -9,6 +9,12 @@ class Config {
 public:
   Config();
   bool Read(string path);
+
+  string keyboardBackground;
+  string wallpaper;
+  string keyboardFont;
+  string keyboardMap;
+
 private:
   bool Parse(istream & file);
 

@@ -1,10 +1,16 @@
 #include "config.h"
 #include <fstream>
 #include <iostream>
+#include <map>
 #include <sstream>
 #include <string>
 
-Config::Config() {}
+Config::Config() {
+  Config::wallpaper = "#FF9900";
+  Config::keyboardBackground = "#333333";
+  Config::keyboardMap = "us";
+  Config::keyboardFont = "DejaVu";
+}
 
 bool Config::Read(string path) {
   std::ifstream is(path, std::ifstream::binary);
@@ -17,11 +23,31 @@ bool Config::Read(string path) {
     return false;
   }
 
+  auto it = Config::options.find("wallpaper");
+  if (it != Config::options.end()) {
+    Config::wallpaper = Config::options["wallpaper"];
+  }
+
+  it = Config::options.find("keyboard-background");
+  if (it != Config::options.end()) {
+    Config::keyboardBackground = Config::options["keyboard-background"];
+  }
+
+  it = Config::options.find("keyboard-font");
+  if (it != Config::options.end()) {
+    Config::keyboardFont = Config::options["keyboard-font"];
+  }
+
+  it = Config::options.find("keyboard-map");
+  if (it != Config::options.end()) {
+    Config::keyboardMap = Config::options["keyboard-map"];
+  }
+
   return true;
 }
 
 bool Config::Parse(istream &file) {
-  int lineno=0;
+  int lineno = 0;
   for (std::string line; std::getline(file, line);) {
     lineno++;
 
