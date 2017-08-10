@@ -4,6 +4,7 @@
 #include <string>
 #include <unistd.h>
 #include "keyboard.h"
+#include "config.h"
 
 using namespace std;
 
@@ -73,6 +74,8 @@ int main(int argc, char **args) {
   char *path = NULL;
   char *dev_name = NULL;
   string passphrase;
+
+  Config config;
 
   bool testmode = false;
 
