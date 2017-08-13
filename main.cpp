@@ -2,6 +2,7 @@
 #include <iostream>
 #include <libcryptsetup.h>
 #include <string>
+#include <cstdlib>
 #include <unistd.h>
 #include "keyboard.h"
 #include "config.h"
@@ -91,6 +92,19 @@ int main(int argc, char **args) {
   int HEIGHT = 800;
   int opt;
 
+  /*
+   * This is a workaround for: https://bugzilla.libsdl.org/show_bug.cgi?id=3751
+   */
+  putenv(const_cast<char *>("SDL_DIRECTFB_LINUX_INPUT=1"));
+
+  /*
+   * DirectFB arguments
+   *
+   * TODO: don't explicitly set linux-input-devices here, since this is specific
+   * to the N900.. deviceinfo should specify these devices and generate /etc/directfbrc
+   */
+  putenv(const_cast<char *>("DFBARGS=system=fbdev,linux-input-devices=/dev/input/event1,/dev/input/event3,no-cursor"));
+
   while ((opt = getopt(argc, args, "td:n:c:")) != -1)
     switch (opt) {
     case 't':
@@ -125,21 +139,12 @@ int main(int argc, char **args) {
     return 1;
   }
 
-  SDL_LogSetAllPriority(SDL_LOG_PRIORITY_INFO);
-  if (!SDL_Init(SDL_INIT_EVERYTHING)) {
-    printf("*****************\n");
+  SDL_LogSetAllPriority(SDL_LOG_PRIORITY_ERROR);
+
+  if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_JOYSTICK | SDL_INIT_EVENTS |
+               SDL_INIT_TIMER | SDL_INIT_HAPTIC | SDL_INIT_GAMECONTROLLER) < 0) {
     SDL_Log("SDL_Init failed: %s", SDL_GetError());
     SDL_Quit();
-    printf("*****************\n");
-    return -1;
-  }
-
-  for (int a=0; a<SDL_GetNumVideoDrivers(); ++a)
-    printf("SDL Vid driver: %s\n", SDL_GetVideoDriver(a));
-
-  if (SDL_VideoInit(NULL) != 0) {
-    printf("Error initializing SDL video:  %s\n", SDL_GetError());
-    return -1;
   }
 
   if (!testmode) {
@@ -149,6 +154,7 @@ int main(int argc, char **args) {
     if(SDL_GetDisplayMode(0, 0, &mode) != 0){
       printf("Unable to get display resolution!\n");
       SDL_Log("SDL_GetDisplayMode failed: %s", SDL_GetError());
+      SDL_Quit();
       return -1;
     }
     WIDTH = mode.w;
@@ -235,13 +241,18 @@ int main(int argc, char **args) {
         case SDLK_ESCAPE:
           exit(1);
           break;
+        default:
+          if (!event.key.repeat)
+            /* TODO: handle key modifiers & alphanumberic/symbol presses */
+            passphrase.append("*");
+          break;
         }
         break;
       case SDL_MOUSEBUTTONUP:
         unsigned int xMouse, yMouse;
         xMouse = event.button.x;
         yMouse = event.button.y;
-        /* Debug output only */
+        /* TODO: handle taps on keycaps */
         printf("xMouse: %i\tyMouse: %i\n", xMouse, yMouse);
         passphrase.append("*");
         break;
