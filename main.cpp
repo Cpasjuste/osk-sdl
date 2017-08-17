@@ -127,6 +127,9 @@ int main(int argc, char **args) {
   int WIDTH = 480;
   int HEIGHT = 800;
   int opt;
+  //Keyboard key repeat rate in ms
+  int repeat_delay_ms = 100;
+  int prev_key_timestamp = 0;
 
   /*
    * This is a workaround for: https://bugzilla.libsdl.org/show_bug.cgi?id=3751
@@ -311,7 +314,14 @@ int main(int argc, char **args) {
         }
         break;
       case SDL_TEXTINPUT:
-        passphrase.append(event.text.text);
+        /*
+         * Only register text input if time since last text input has exceeded
+         * the keyboard repeat delay rate
+         */
+        if ((event.text.timestamp - repeat_delay_ms) > prev_key_timestamp){
+          prev_key_timestamp = event.text.timestamp;
+          passphrase.append(event.text.text);
+        }
         break;
       }
     }
