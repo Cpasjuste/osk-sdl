@@ -273,7 +273,7 @@ int main(int argc, char **args) {
 
   while (unlocked == false) {
     SDL_RenderCopy(renderer, wallpaperTexture, NULL, NULL);
-    if (SDL_PollEvent(&event)) {
+    while (SDL_PollEvent(&event)) {
       /* an event was found */
       switch (event.type) {
         /* handle the keyboard */
