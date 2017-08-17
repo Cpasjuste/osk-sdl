@@ -256,11 +256,18 @@ int main(int argc, char **args) {
     // Not stopping here, this is a pretty recoverable error.
   }
 
-  SDL_Surface* keyboard = makeKeyboard(WIDTH, keyboardHeight);
+  SDL_Surface* keyboard = makeKeyboard(WIDTH, keyboardHeight, &config);
   SDL_Texture* keyboardTexture =  SDL_CreateTextureFromSurface(renderer, keyboard);
+
+  // Make SDL send text editing events for textboxes
+  SDL_StartTextInput();
 
   SDL_Surface* wallpaper = make_wallpaper(renderer, &config, WIDTH, HEIGHT);
   SDL_Texture* wallpaperTexture = SDL_CreateTextureFromSurface(renderer, wallpaper);
+
+  int offsetYMouse;
+  char tapped;
+
   while (unlocked == false) {
     SDL_RenderCopy(renderer, wallpaperTexture, NULL, NULL);
     if (SDL_PollEvent(&event)) {
@@ -276,13 +283,11 @@ int main(int argc, char **args) {
           /* for development usage */
           unlocked = true;
           break;
+        case SDLK_BACKSPACE:
+          passphrase.pop_back();
+          break;
         case SDLK_ESCAPE:
           exit(1);
-          break;
-        default:
-          if (!event.key.repeat)
-            /* TODO: handle key modifiers & alphanumberic/symbol presses */
-            passphrase.append("*");
           break;
         }
         break;
@@ -290,9 +295,23 @@ int main(int argc, char **args) {
         unsigned int xMouse, yMouse;
         xMouse = event.button.x;
         yMouse = event.button.y;
-        /* TODO: handle taps on keycaps */
         printf("xMouse: %i\tyMouse: %i\n", xMouse, yMouse);
-        passphrase.append("*");
+
+        offsetYMouse = yMouse - (int)(HEIGHT - (keyboardHeight * keyboardPosition));
+        tapped = getCharForCoordinates(xMouse, offsetYMouse);
+        if(tapped == '\n'){
+          unlocked = !unlock_crypt_dev(path, dev_name, passphrase.c_str());
+          printf("unlocked: %i\n", unlocked);
+          /* for development usage */
+          unlocked = true;
+        }
+        if(tapped != '\0'){
+          printf("Char: %i\n", tapped);
+          passphrase.push_back(tapped);
+        }
+        break;
+      case SDL_TEXTINPUT:
+        passphrase.append(event.text.text);
         break;
       }
     }
