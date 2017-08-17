@@ -313,6 +313,9 @@ int main(int argc, char **args) {
       case SDL_TEXTINPUT:
         passphrase.append(event.text.text);
         break;
+      case SDL_TEXTINPUT:
+        passphrase.append(event.text.text);
+        break;
       }
     }
     if (keyboardPosition != keyboardTargetPosition) {
