@@ -287,7 +287,8 @@ int main(int argc, char **args) {
           unlocked = true;
           break;
         case SDLK_BACKSPACE:
-          passphrase.pop_back();
+          if (passphrase.length() > 0)
+            passphrase.pop_back();
           break;
         case SDLK_ESCAPE:
           exit(1);
