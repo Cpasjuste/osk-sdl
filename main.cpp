@@ -102,12 +102,9 @@ SDL_Surface* make_wallpaper(SDL_Renderer *renderer, Config *config, int width, i
 }
 
 int main(int argc, char **args) {
-  /*
-   * These strings are for development only
-   * TODO: Make these mandatory after calling getopts
-   */
   char path_default[] = "/home/user/disk";
-  char dev_name_default[] = "TEST-DISK";
+  char dev_name_default[] = "root";
+  char config_file_default[] = "/etc/osk.conf";
   char *path = NULL;
   char *dev_name = NULL;
   char *config_file = NULL;
