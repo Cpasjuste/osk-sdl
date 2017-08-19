@@ -283,8 +283,6 @@ int main(int argc, char **args) {
           /* One day this will be sufficient */
           unlocked = !unlock_crypt_dev(path, dev_name, passphrase.c_str());
           printf("unlocked: %i\n", unlocked);
-          /* for development usage */
-          unlocked = true;
           break;
         case SDLK_BACKSPACE:
           if (passphrase.length() > 0)
@@ -306,8 +304,6 @@ int main(int argc, char **args) {
         if(tapped == '\n'){
           unlocked = !unlock_crypt_dev(path, dev_name, passphrase.c_str());
           printf("unlocked: %i\n", unlocked);
-          /* for development usage */
-          unlocked = true;
         }
         if(tapped != '\0'){
           printf("Char: %i\n", tapped);
