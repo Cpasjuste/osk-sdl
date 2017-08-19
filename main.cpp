@@ -132,6 +132,13 @@ int main(int argc, char **args) {
    * This is a workaround for: https://bugzilla.libsdl.org/show_bug.cgi?id=3751
    */
   putenv(const_cast<char *>("SDL_DIRECTFB_LINUX_INPUT=1"));
+  /*
+   * SDL2's directfb code looks, by default, for libGL.so. On recent
+   * versions of mesa-gl it seems that this file is now located at libGL.so.1
+   * TODO: file upstream bug with SDL2 (their opengl backend already looks at
+   * this alternative path)
+   */
+  putenv(const_cast<char *>("SDL_VIDEO_GL_DRIVER=libGL.so.1"));
 
   /*
    * DirectFB arguments
