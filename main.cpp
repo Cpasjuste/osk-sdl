@@ -37,6 +37,11 @@ static int unlock_crypt_dev(const char *path, const char *device_name,
   ret = crypt_activate_by_passphrase(
       cd, device_name, CRYPT_ANY_SLOT, passphrase, sizeof(passphrase),
       CRYPT_ACTIVATE_ALLOW_DISCARDS); /* Enable TRIM support */
+  if (ret < 0){
+    printf("crypt_activate_by_passphrase failed on device. Errno %i\n", ret);
+    crypt_free(cd);
+    return ret;
+  }
   printf("Successfully unlocked device %s\n", path);
   crypt_free(cd);
   return 0;
