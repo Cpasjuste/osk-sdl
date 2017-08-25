@@ -5,5 +5,5 @@ Lightweight On-Screen-Keyboard based on SDL2
 
 This keyboard will be used to unlock the encrypted root partition in [postmarketOS](https://postmarketos.org), and maybe for other purposes once that works.
 
-![samsung-i9070](https://user-images.githubusercontent.com/6033024/29296403-99512b4a-8149-11e7-8174-61611dacf20f.jpg)
+![n900](https://user-images.githubusercontent.com/1474209/29724945-5035d652-897f-11e7-88ea-148265c799a1.jpg)
 
