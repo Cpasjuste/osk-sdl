@@ -11,6 +11,7 @@
 using namespace std;
 
 #define TICK_INTERVAL 16
+#define MIN_UNLOCK_TIME_MS 1000
 
 static Uint32 next_time;
 bool unlocked = false;
@@ -29,6 +30,8 @@ static int unlock_crypt_dev(void *data){
   int ret;
   unlock_data *uld = (unlock_data*) data;
   unlock_running = true;
+
+  usleep(MIN_UNLOCK_TIME_MS * 1000);
 
   /* Initialize crypt device */
   ret = crypt_init(&cd, uld->path);
