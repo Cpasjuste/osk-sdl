@@ -1,14 +1,16 @@
 #include "SDL2/SDL.h"
 #include "config.h"
+#include "keyboard.h"
 #include <SDL2/SDL_ttf.h>
 #include <string>
 #include <vector>
+#include <list>
 
 
 using namespace std;
 
 struct touchArea {
-  char keyChar;
+  string keyChar;
   int x1;
   int x2;
   int y1;
@@ -18,17 +20,15 @@ struct touchArea {
 vector<touchArea> keyList;
 
 void drawRow(SDL_Surface *surface, int x, int y, int width, int height,
-             char *keys, int padding, TTF_Font *font) {
+             list<string> *keys, int padding, TTF_Font *font) {
 
   auto keyBackground = SDL_MapRGB(surface->format, 15, 15, 15);
   auto keyColor = SDL_MapRGB(surface->format, 200, 200, 200);
   SDL_Color textColor = {255, 255, 255, 0};
 
   int i = 0;
-
-  string chars(keys);
-
-  for (char &keyCap : chars) {
+  list<string>::const_iterator keyCap;
+  for (keyCap = keys->begin(); keyCap != keys->end(); ++keyCap) {
     SDL_Rect keyRect;
     keyRect.x = x + (i * width) + padding;
     keyRect.y = y + padding;
@@ -38,11 +38,9 @@ void drawRow(SDL_Surface *surface, int x, int y, int width, int height,
     SDL_Surface *textSurface;
 
     keyList.push_back(
-        {keyCap, x + (i * width), x + (i * width) + width, y, y + height});
+        {*keyCap, x + (i * width), x + (i * width) + width, y, y + height});
 
-    char text[] = "a";
-    text[0] = keyCap;
-    textSurface = TTF_RenderText_Blended(font, text, textColor);
+    textSurface = TTF_RenderUTF8_Blended(font, keyCap->c_str(), textColor);
 
     SDL_Rect keyCapRect;
     keyCapRect.x = keyRect.x + ((keyRect.w / 2) - (textSurface->w / 2));
@@ -55,7 +53,7 @@ void drawRow(SDL_Surface *surface, int x, int y, int width, int height,
   }
 }
 
-void drawKey(SDL_Surface *surface, int x, int y, int width, int height, char *cap, char key, int padding, TTF_Font *font){
+void drawKey(SDL_Surface *surface, int x, int y, int width, int height, char *cap, string key, int padding, TTF_Font *font){
   auto keyBackground = SDL_MapRGB(surface->format, 15, 15, 15);
   auto keyColor = SDL_MapRGB(surface->format, 200, 200, 200);
   SDL_Color textColor = {255, 255, 255, 0};
@@ -111,10 +109,10 @@ SDL_Surface *makeKeyboard(int width, int height, Config *config) {
   SDL_FillRect(surface, NULL, keyboardColor);
 
   int rowHeight = height / 5;
-  char row1[] = "1234567890";
-  char row2[] = "qwertyuiop";
-  char row3[] = "asdfghjkl";
-  char row4[] = "zxcvbnm";
+  list<string> row1 {"1", "2", "3", "4", "5", "6", "7", "8", "9", "0"};
+  list<string> row2 {"q", "w", "e", "r", "t", "y", "u", "i", "o", "p"};
+  list<string> row3 {"a", "s", "d", "f", "g", "h", "j", "k", "l"};
+  list<string> row4 {KEYCAP_SHIFT, "z", "x", "c", "v", "b", "n", "m", KEYCAP_BACKSPACE};
 
   if (TTF_Init() == -1) {
     printf("TTF_Init: %s\n", TTF_GetError());
@@ -128,31 +126,31 @@ SDL_Surface *makeKeyboard(int width, int height, Config *config) {
     exit(1);
   }
 
-  drawRow(surface, 0, 0, width / 10, rowHeight, row1, width / 100, font);
-  drawRow(surface, 0, rowHeight, width / 10, rowHeight, row2, width / 100,
+  drawRow(surface, 0, 0, width / 10, rowHeight, &row1, width / 100, font);
+  drawRow(surface, 0, rowHeight, width / 10, rowHeight, &row2, width / 100,
           font);
-  drawRow(surface, width / 20, rowHeight * 2, width / 10, rowHeight, row3,
+  drawRow(surface, width / 20, rowHeight * 2, width / 10, rowHeight, &row3,
           width / 100, font);
-  drawRow(surface, width / 10, rowHeight * 3, width / 10, rowHeight, row4,
+  drawRow(surface, width / 20, rowHeight * 3, width / 10, rowHeight, &row4,
           width / 100, font);
 
   // Divide the bottom row in 20 columns and use that for calculations
   int colw = width/20;
   char space[] = " ";
-  drawKey(surface, colw*5, rowHeight * 4, colw*10, rowHeight, space, ' ', width/100, font);
+  drawKey(surface, colw*5, rowHeight * 4, colw*10, rowHeight, space, " ", width/100, font);
 
   char enter[] = "OK";
-  drawKey(surface, colw*15, rowHeight * 4,  colw*5, rowHeight, enter, '\n', width/100, font);
+  drawKey(surface, colw*15, rowHeight * 4,  colw*5, rowHeight, enter, "\n", width/100, font);
 
   return surface;
 }
 
-char getCharForCoordinates(int x, int y) {
+string getCharForCoordinates(int x, int y) {
   for (vector<touchArea>::iterator it = keyList.begin(); it != keyList.end();
        ++it) {
     if(x > it->x1 && x < it->x2 && y > it->y1 && y < it->y2){
       return it->keyChar;
     }
   }
-  return '\0';
+  return "\0";
 }
