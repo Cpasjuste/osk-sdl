@@ -92,3 +92,42 @@ SDL_Surface* make_wallpaper(SDL_Renderer *renderer, Config *config,
   }
   return surface;
 }
+
+
+void draw_circle(SDL_Renderer *renderer, SDL_Point center, int radius) {
+  SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
+  for (int w = 0; w < radius * 2; w++) {
+    for (int h = 0; h < radius * 2; h++) {
+      int dx = radius - w; // horizontal offset
+      int dy = radius - h; // vertical offset
+      if ((dx * dx + dy * dy) <= (radius * radius)) {
+        SDL_RenderDrawPoint(renderer, center.x + dx, center.y + dy);
+      }
+    }
+  }
+}
+
+void draw_password_box(SDL_Renderer *renderer, int numDots, int screenHeight,
+                       int screenWidth, int inputHeight, int keyboardHeight,
+                       float keyboardPos){
+
+  SDL_Rect inputRect;
+  // Draw empty password box
+  int topHalf = screenHeight - (keyboardHeight * keyboardPos);
+  inputRect.x = screenWidth / 20;
+  inputRect.y = (topHalf / 2) - (inputHeight / 2);
+  inputRect.w = screenWidth * 0.9;
+  inputRect.h = inputHeight;
+  SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+  SDL_RenderFillRect(renderer, &inputRect);
+
+  // Draw password dots
+  int dotSize = screenWidth * 0.02;
+  for (int i = 0; i < numDots; i++) {
+    SDL_Point dotPos;
+    dotPos.x = (screenWidth / 10) + (i * dotSize * 3);
+    dotPos.y = (topHalf / 2);
+    draw_circle(renderer, dotPos, dotSize);
+  }
+  return;
+}

@@ -120,8 +120,7 @@ int main(int argc, char **args) {
   }
 
   /* Initialize virtual keyboard */
-  Keyboard *keyboard = new Keyboard(0, 1, WIDTH, keyboardHeight, inputHeight,
-                                    &config, renderer);
+  Keyboard *keyboard = new Keyboard(0, 1, WIDTH, keyboardHeight, &config, renderer);
   keyboard->setKeyboardColor(30, 30, 30);
   keyboard->setInputColor(255, 255, 255);
   keyboard->setDotColor(0, 0, 0);
@@ -196,6 +195,22 @@ int main(int argc, char **args) {
             }
             continue;
           }
+          /* Shift pressed */
+          else if (tapped.compare(KEYCAP_SHIFT) == 0){
+            if (keyboard->getActiveLayer() > 1){
+              keyboard->setActiveLayer(0);
+            }else{
+              keyboard->setActiveLayer(!keyboard->getActiveLayer());
+            }
+          }
+          /* Symbols key pressed */
+          else if (tapped.compare(KEYCAP_SYMBOLS) == 0){
+            keyboard->setActiveLayer(2);
+          }
+          /* ABC key was pressed */
+          else if (tapped.compare(KEYCAP_ABC) == 0){
+            keyboard->setActiveLayer(0);
+          }
           /* handle other key presses */
           else if (tapped.compare("\0") != 0){
             passphrase.push_back(tapped);
@@ -221,7 +236,10 @@ int main(int argc, char **args) {
     /* Hide keyboard if unlock luks thread is running */
     keyboard->setTargetPosition(!luksDev->unlockRunning());
 
-    keyboard->draw(renderer, HEIGHT, passphrase.size());
+    keyboard->draw(renderer, HEIGHT);
+
+    draw_password_box(renderer, passphrase.size(), HEIGHT, WIDTH, inputHeight,
+                       keyboard->getHeight(), keyboard->getPosition());
 
     SDL_Delay(time_left(SDL_GetTicks(), next_time));
     next_time += TICK_INTERVAL;

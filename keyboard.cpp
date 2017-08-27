@@ -3,23 +3,31 @@
 using namespace std;
 
 Keyboard::Keyboard(int pos, int targetPos, int width,
-                   int height, int inputHeight, Config *config,
+                   int height, Config *config,
                    SDL_Renderer *renderer){
 
-  this->keyboard = makeKeyboard(width, height, config);
-  this->keyboardTexture = SDL_CreateTextureFromSurface(renderer, keyboard);
+  list<KeyboardLayer>::iterator layer;
+
   this->position = pos;
   this->targetPosition = targetPos;
   this->keyboardWidth = width;
   this->keyboardHeight = height;
-  this->inputHeight = inputHeight;
+  this->activeLayer = 0;
+
+  loadKeymap("");
+  for (layer = this->keyboard.begin(); layer != this->keyboard.end(); ++layer){
+    (*layer).surface = makeKeyboard(width, height, config, &(*layer));
+    (*layer).texture = SDL_CreateTextureFromSurface(renderer, layer->surface);
+  }
 
 }
 
 
 Keyboard::~Keyboard(){
-  delete this->keyboard;
-  this->keyboard = NULL;
+  list<KeyboardLayer>::iterator layer;
+  for (layer = keyboard.begin(); layer != keyboard.end(); ++layer){
+    delete (*layer).surface;
+  }
 }
 
 
@@ -74,8 +82,9 @@ float Keyboard::getHeight(){
 }
 
 
-void Keyboard::draw(SDL_Renderer *renderer, int screenHeight, int numDots){
-  SDL_Rect keyboardRect, srcRect, inputRect;
+void Keyboard::draw(SDL_Renderer *renderer, int screenHeight){
+  list<KeyboardLayer>::iterator layer;
+  SDL_Rect keyboardRect, srcRect;
 
   if (this->position != this->targetPosition){
     if (this->position > this->targetPosition){
@@ -94,31 +103,22 @@ void Keyboard::draw(SDL_Renderer *renderer, int screenHeight, int numDots){
     srcRect.h = keyboardRect.h;
 
     SDL_SetRenderDrawColor(renderer, 30, 30, 30, 255);
-    SDL_RenderCopy(renderer, this->keyboardTexture, &srcRect, &keyboardRect);
-  }
 
-  // Draw empty password box
-  int topHalf = screenHeight - (this->keyboardHeight * this->position);
-  inputRect.x = this->keyboardWidth / 20;
-  inputRect.y = (topHalf / 2) - (this->inputHeight / 2);
-  inputRect.w = this->keyboardWidth * 0.9;
-  inputRect.h = this->inputHeight;
-  SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
-  SDL_RenderFillRect(renderer, &inputRect);
 
-  // Draw password dots
-  int dotSize = this->keyboardWidth * 0.02;
-  for (int i = 0; i < numDots; i++) {
-    SDL_Point dotPos;
-    dotPos.x = (this->keyboardWidth / 10) + (i * dotSize * 3);
-    dotPos.y = (topHalf / 2);
-    draw_circle(renderer, dotPos, dotSize);
+    for (layer = keyboard.begin(); layer != keyboard.end(); ++layer){
+      if ((*layer).layerNum == this->activeLayer){
+        SDL_RenderCopy(renderer, (*layer).texture,
+                       &srcRect, &keyboardRect);
+      }
+    }
   }
   return;
 }
 
 
-void Keyboard::drawRow(SDL_Surface *surface, int x, int y, int width, int height, list<string> *keys, int padding, TTF_Font *font) {
+void Keyboard::drawRow(SDL_Surface *surface, vector<touchArea> *keyList, int x,
+                       int y, int width, int height, list<string> *keys,
+                       int padding, TTF_Font *font) {
 
   auto keyBackground = SDL_MapRGB(surface->format, 15, 15, 15);
   auto keyColor = SDL_MapRGB(surface->format, 200, 200, 200);
@@ -135,7 +135,7 @@ void Keyboard::drawRow(SDL_Surface *surface, int x, int y, int width, int height
     SDL_FillRect(surface, &keyRect, keyBackground);
     SDL_Surface *textSurface;
 
-    this->keyList.push_back(
+    keyList->push_back(
         {*keyCap, x + (i * width), x + (i * width) + width, y, y + height});
 
     textSurface = TTF_RenderUTF8_Blended(font, keyCap->c_str(), textColor);
@@ -152,7 +152,9 @@ void Keyboard::drawRow(SDL_Surface *surface, int x, int y, int width, int height
 }
 
 
-void Keyboard::drawKey(SDL_Surface *surface, int x, int y, int width, int height, char *cap, string key, int padding, TTF_Font *font){
+void Keyboard::drawKey(SDL_Surface *surface, vector<touchArea> *keyList, int x,
+                       int y, int width, int height, char *cap, string key,
+                       int padding, TTF_Font *font){
   auto keyBackground = SDL_MapRGB(surface->format, 15, 15, 15);
   auto keyColor = SDL_MapRGB(surface->format, 200, 200, 200);
   SDL_Color textColor = {255, 255, 255, 0};
@@ -165,7 +167,7 @@ void Keyboard::drawKey(SDL_Surface *surface, int x, int y, int width, int height
   SDL_FillRect(surface, &keyRect, keyBackground);
   SDL_Surface *textSurface;
 
-  this->keyList.push_back({key, x, x + width, y, y + height});
+  keyList->push_back({key, x, x + width, y, y + height});
 
   textSurface = TTF_RenderText_Blended(font, cap, textColor);
 
@@ -177,7 +179,8 @@ void Keyboard::drawKey(SDL_Surface *surface, int x, int y, int width, int height
   SDL_BlitSurface(textSurface, NULL, surface, &keyCapRect);
 }
 
-SDL_Surface *Keyboard::makeKeyboard(int width, int height, Config *config) {
+SDL_Surface *Keyboard::makeKeyboard(int width, int height, Config *config,
+                                    KeyboardLayer *layer) {
   SDL_Surface *surface;
   Uint32 rmask, gmask, bmask, amask;
 
@@ -208,10 +211,6 @@ SDL_Surface *Keyboard::makeKeyboard(int width, int height, Config *config) {
                                          keyboardColor.g, keyboardColor.b));
 
   int rowHeight = height / 5;
-  list<string> row1 {"1", "2", "3", "4", "5", "6", "7", "8", "9", "0"};
-  list<string> row2 {"q", "w", "e", "r", "t", "y", "u", "i", "o", "p"};
-  list<string> row3 {"a", "s", "d", "f", "g", "h", "j", "k", "l"};
-  list<string> row4 {KEYCAP_SHIFT, "z", "x", "c", "v", "b", "n", "m", KEYCAP_BACKSPACE};
 
   if (TTF_Init() == -1) {
     printf("TTF_Init: %s\n", TTF_GetError());
@@ -225,46 +224,105 @@ SDL_Surface *Keyboard::makeKeyboard(int width, int height, Config *config) {
     exit(1);
   }
 
-  drawRow(surface, 0, 0, width / 10, rowHeight, &row1, width / 100, font);
-  drawRow(surface, 0, rowHeight, width / 10, rowHeight, &row2, width / 100,
-          font);
-  drawRow(surface, width / 20, rowHeight * 2, width / 10, rowHeight, &row3,
+  drawRow(surface, &layer->keyList, 0, 0, width / 10, rowHeight, &layer->row1,
           width / 100, font);
-  drawRow(surface, width / 20, rowHeight * 3, width / 10, rowHeight, &row4,
-          width / 100, font);
+  drawRow(surface, &layer->keyList, 0, rowHeight, width / 10, rowHeight,
+          &layer->row2, width / 100, font);
+  drawRow(surface, &layer->keyList, width / 20, rowHeight * 2, width / 10,
+          rowHeight, &layer->row3, width / 100, font);
+  drawRow(surface, &layer->keyList, width / 20, rowHeight * 3, width / 10,
+          rowHeight, &layer->row4, width / 100, font);
 
   // Divide the bottom row in 20 columns and use that for calculations
   int colw = width/20;
+
+  /* Draw symbols or ABC key based on which layer we are creating */
+  if (layer->layerNum < 2){
+    char symb[] = "=\\<";
+    drawKey(surface, &layer->keyList, colw, rowHeight * 4, colw*3, rowHeight,
+            symb, KEYCAP_SYMBOLS, width/100, font);
+  }else if (layer->layerNum == 2){
+    char abc[] = "abc";
+    drawKey(surface, &layer->keyList, colw, rowHeight * 4, colw*3, rowHeight, abc,
+            KEYCAP_ABC, width/100, font);
+  }
+
   char space[] = " ";
-  drawKey(surface, colw*5, rowHeight * 4, colw*10, rowHeight, space, " ", width/100, font);
+  drawKey(surface, &layer->keyList, colw*5, rowHeight * 4, colw*10, rowHeight, space,
+          KEYCAP_SPACE, width/100, font);
 
   char enter[] = "OK";
-  drawKey(surface, colw*15, rowHeight * 4,  colw*5, rowHeight, enter, "\n", width/100, font);
+  drawKey(surface, &layer->keyList, colw*15, rowHeight * 4,  colw*5, rowHeight, enter,
+          KEYCAP_RETURN, width/100, font);
 
   return surface;
 }
 
+void setLayout(int layoutNum){
 
-string Keyboard::getCharForCoordinates(int x, int y) {
-  for (vector<touchArea>::iterator it = this->keyList.begin(); it != this->keyList.end();
-       ++it) {
-    if(x > it->x1 && x < it->x2 && y > it->y1 && y < it->y2){
-      return it->keyChar;
-    }
+}
+
+void Keyboard::setActiveLayer(int layerNum){
+  if (layerNum <= keyboard.size() - 1 ){
+    this->activeLayer = layerNum;
+  }else{
+    fprintf(stderr, "Unknown layer number: %i\n", layerNum);
   }
-  return "\0";
 }
 
 
-void Keyboard::draw_circle(SDL_Renderer *renderer, SDL_Point center, int radius) {
-  SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
-  for (int w = 0; w < radius * 2; w++) {
-    for (int h = 0; h < radius * 2; h++) {
-      int dx = radius - w; // horizontal offset
-      int dy = radius - h; // vertical offset
-      if ((dx * dx + dy * dy) <= (radius * radius)) {
-        SDL_RenderDrawPoint(renderer, center.x + dx, center.y + dy);
+int Keyboard::getActiveLayer(){
+  return this->activeLayer;
+}
+
+/*
+ * This function is not actually parsing any external keymaps, it's currently
+ * filling in the keyboardKeymap object with a US/QWERTY layout until parsing
+ * from a file is implemented
+ */
+void Keyboard::loadKeymap(string keymapPath){
+  KeyboardLayer layer0, layer1, layer2;
+  list<string> row1, row2, row3, row4;
+  this->keyboard.clear();
+
+  layer0.row1 = {"1", "2", "3", "4", "5", "6", "7", "8", "9", "0"};
+  layer0.row2 = {"q", "w", "e", "r", "t", "y", "u", "i", "o", "p"};
+  layer0.row3 = {"a", "s", "d", "f", "g", "h", "j", "k", "l"};
+  layer0.row4 = {KEYCAP_SHIFT, "z", "x", "c", "v", "b", "n", "m", KEYCAP_BACKSPACE};
+  layer0.layerNum = 0;
+
+  layer1.row1 = {"!", "@", "#", "$", "%", "^", "&", "*", "(", ")"};
+  layer1.row2 = {"Q", "W", "E", "R", "T", "Y", "U", "I", "O", "P"};
+  layer1.row3 = {"A", "S", "D", "F", "G", "H", "J", "K", "L"};
+  layer1.row4 = {KEYCAP_SHIFT, "Z", "X", "C", "V", "B", "N", "M", KEYCAP_BACKSPACE};
+  layer1.layerNum = 1;
+
+  layer2.row1 = {"!", "@", "#", "$", "%", "^", "&", "*", "(", ")"};
+  layer2.row2 = {";", ":", "'", "\"", ",", ".", "<", ">", "/", "?"};
+  layer2.row3 = {"-", "_", "=", "+", "[", "]", "{", "}", "\\"};
+  layer2.row4 = {KEYCAP_SHIFT, "|", "\u20a4", "\u20ac", "\u2211", "\u221e", "\u221a", "\u2248", KEYCAP_BACKSPACE};
+  layer2.layerNum = 2;
+
+  this->keyboard.push_back(layer0);
+  this->keyboard.push_back(layer1);
+  this->keyboard.push_back(layer2);
+
+  return;
+}
+
+
+string Keyboard::getCharForCoordinates(int x, int y) {
+  list<KeyboardLayer>::iterator layer;
+  vector<touchArea>::iterator it;
+
+  for (layer = this->keyboard.begin(); layer != this->keyboard.end(); ++layer){
+    if ((*layer).layerNum == this->activeLayer){
+      for (it = (*layer).keyList.begin(); it != (*layer).keyList.end(); ++it) {
+        if(x > it->x1 && x < it->x2 && y > it->y1 && y < it->y2){
+          return it->keyChar;
+        }
       }
     }
   }
+  return "\0";
 }

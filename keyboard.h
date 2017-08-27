@@ -5,12 +5,13 @@
 #include <vector>
 #include <list>
 
+
 const string KEYCAP_BACKSPACE = "\u2190";
 const string KEYCAP_SHIFT     = "\u2191";
-
-struct keyboardLayout{
-  /* Stub */
-};
+const string KEYCAP_SYMBOLS   = "SYM";
+const string KEYCAP_ABC       = "abc";
+const string KEYCAP_SPACE     = " ";
+const string KEYCAP_RETURN    = "\n";
 
 struct touchArea {
   string keyChar;
@@ -33,16 +34,25 @@ struct argb{
   int b;
 };
 
+struct KeyboardLayer{
+  SDL_Surface *surface;
+  SDL_Texture *texture;
+  list<string> row1;
+  list<string> row2;
+  list<string> row3;
+  list<string> row4;
+  vector<touchArea> keyList;
+  int layerNum;
+};
 
 class Keyboard {
 
   public:
     Keyboard(int pos, int targetPos, int width,
-             int height, int inputHeight, Config *config,
+             int height, Config *config,
              SDL_Renderer *renderer);
     ~Keyboard();
     string getCharForCoordinates(int x, int y);
-    int setLayout(keyboardLayout *layout);
     int setKeyboardColor(int r, int g, int b);
     int setInputColor(int r, int g, int b);
     int setDotColor(int r, int g, int b);
@@ -51,11 +61,12 @@ class Keyboard {
     float getTargetPosition();
     void setTargetPosition(float p);
     float getHeight();
-    void draw(SDL_Renderer *renderer, int screenHeight, int numDots);
-
+    void draw(SDL_Renderer *renderer, int screenHeight);
+    int getActiveLayer();
+    void setActiveLayer(int layerNum);
+    int setLayout(int layoutNum);
 
   private:
-    vector<touchArea> keyList;
     rgb keyboardColor;
     rgb inputColor;
     rgb dotColor;
@@ -63,16 +74,18 @@ class Keyboard {
     float targetPosition;
     int keyboardWidth;
     int keyboardHeight;
-    int inputHeight;
-    SDL_Surface *keyboard;
-    SDL_Texture *keyboardTexture;
+    int activeLayer;
+    list<KeyboardLayer> keyboard;
 
-    void drawRow(SDL_Surface *surface, int x, int y, int width, int height,
-                 list<string> *keys, int padding, TTF_Font *font);
-    void drawKey(SDL_Surface *surface, int x, int y, int width, int height,
-                 char *cap, string key, int padding, TTF_Font *font);
+    void drawRow(SDL_Surface *surface, vector<touchArea> *keyList, int x, int y,
+                 int width, int height, list<string> *keys, int padding,
+                 TTF_Font *font);
+    void drawKey(SDL_Surface *surface, vector<touchArea> *keyList, int x, int y,
+                 int width, int height, char *cap, string key, int padding,
+                 TTF_Font *font);
     void draw_circle(SDL_Renderer *renderer, SDL_Point center, int radius);
-    SDL_Surface *makeKeyboard(int width, int height, Config *config);
-
+    SDL_Surface *makeKeyboard(int width, int height, Config *config,
+                              KeyboardLayer *layer);
+    void loadKeymap(string keymapPath);
 };
 

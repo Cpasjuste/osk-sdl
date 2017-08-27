@@ -30,3 +30,9 @@ string strList2str(list<string> strList);
 
 SDL_Surface* make_wallpaper(SDL_Renderer *renderer, Config *config,
                             int width, int height);
+
+void draw_circle(SDL_Renderer *renderer, SDL_Point center, int radius);
+
+void draw_password_box(SDL_Renderer *renderer, int numDots, int screenHeight,
+                       int screenWidth, int inputHeight, int keyboardHeight,
+                       float keyboardPos);
