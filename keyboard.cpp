@@ -3,23 +3,14 @@
 using namespace std;
 
 Keyboard::Keyboard(int pos, int targetPos, int width,
-                   int height, Config *config,
-                   SDL_Renderer *renderer){
-
-  list<KeyboardLayer>::iterator layer;
+                   int height, Config *config){
 
   this->position = pos;
   this->targetPosition = targetPos;
   this->keyboardWidth = width;
   this->keyboardHeight = height;
   this->activeLayer = 0;
-
-  loadKeymap("");
-  for (layer = this->keyboard.begin(); layer != this->keyboard.end(); ++layer){
-    (*layer).surface = makeKeyboard(width, height, config, &(*layer));
-    (*layer).texture = SDL_CreateTextureFromSurface(renderer, layer->surface);
-  }
-
+  this->config = config;
 }
 
 
@@ -29,6 +20,30 @@ Keyboard::~Keyboard(){
     delete (*layer).surface;
   }
 }
+
+
+int Keyboard::init(SDL_Renderer *renderer){
+  list<KeyboardLayer>::iterator layer;
+
+  loadKeymap("");
+
+  for (layer = this->keyboard.begin(); layer != this->keyboard.end(); ++layer){
+    (*layer).surface = makeKeyboard(&(*layer));
+    if (!(*layer).surface){
+      fprintf(stderr, "ERROR: Unable to generate keyboard surface\n");
+      return 1;
+    }
+    (*layer).texture = SDL_CreateTextureFromSurface(renderer, layer->surface);
+    if (!(*layer).texture){
+      fprintf(stderr, "ERROR: Unable to generate keyboard texture\n");
+      return 1;
+    }
+  }
+
+  return 0;
+}
+
+
 
 
 float Keyboard::getPosition(){
@@ -179,8 +194,7 @@ void Keyboard::drawKey(SDL_Surface *surface, vector<touchArea> *keyList, int x,
   SDL_BlitSurface(textSurface, NULL, surface, &keyCapRect);
 }
 
-SDL_Surface *Keyboard::makeKeyboard(int width, int height, Config *config,
-                                    KeyboardLayer *layer) {
+SDL_Surface *Keyboard::makeKeyboard(KeyboardLayer *layer) {
   SDL_Surface *surface;
   Uint32 rmask, gmask, bmask, amask;
 
@@ -198,68 +212,69 @@ SDL_Surface *Keyboard::makeKeyboard(int width, int height, Config *config,
   amask = 0xff000000;
 #endif
 
-  surface = SDL_CreateRGBSurface(SDL_SWSURFACE, width, height, 32, rmask, gmask,
+  surface = SDL_CreateRGBSurface(SDL_SWSURFACE, this->keyboardWidth,
+                                 this->keyboardHeight, 32, rmask, gmask,
                                  bmask, amask);
 
   if (surface == NULL) {
     fprintf(stderr, "CreateRGBSurface failed: %s\n", SDL_GetError());
-    SDL_Quit();
-    exit(1);
+    return NULL;
   }
 
-  SDL_FillRect(surface, NULL, SDL_MapRGB(surface->format, keyboardColor.r,
-                                         keyboardColor.g, keyboardColor.b));
+  SDL_FillRect(surface, NULL, SDL_MapRGB(surface->format, this->keyboardColor.r,
+                                         this->keyboardColor.g,
+                                         this->keyboardColor.b));
 
-  int rowHeight = height / 5;
+  int rowHeight = this->keyboardHeight / 5;
 
   if (TTF_Init() == -1) {
     printf("TTF_Init: %s\n", TTF_GetError());
-    SDL_Quit();
-    exit(1);
+    return NULL;
   }
 
   TTF_Font *font = TTF_OpenFont(config->keyboardFont.c_str(), 24);
   if (!font) {
     printf("TTF_OpenFont: %s\n", TTF_GetError());
-    exit(1);
+    return NULL;
   }
 
-  drawRow(surface, &layer->keyList, 0, 0, width / 10, rowHeight, &layer->row1,
-          width / 100, font);
-  drawRow(surface, &layer->keyList, 0, rowHeight, width / 10, rowHeight,
-          &layer->row2, width / 100, font);
-  drawRow(surface, &layer->keyList, width / 20, rowHeight * 2, width / 10,
-          rowHeight, &layer->row3, width / 100, font);
-  drawRow(surface, &layer->keyList, width / 20, rowHeight * 3, width / 10,
-          rowHeight, &layer->row4, width / 100, font);
+  drawRow(surface, &layer->keyList, 0, 0, this->keyboardWidth / 10, rowHeight,
+          &layer->row1, this->keyboardWidth / 100, font);
+  drawRow(surface, &layer->keyList, 0, rowHeight, this->keyboardWidth / 10,
+          rowHeight, &layer->row2, this->keyboardWidth / 100, font);
+  drawRow(surface, &layer->keyList, this->keyboardWidth / 20, rowHeight * 2,
+          this->keyboardWidth / 10, rowHeight, &layer->row3, this->keyboardWidth / 100, font);
+  drawRow(surface, &layer->keyList, this->keyboardWidth / 20, rowHeight * 3,
+          this->keyboardWidth / 10,
+          rowHeight, &layer->row4, this->keyboardWidth / 100, font);
 
   // Divide the bottom row in 20 columns and use that for calculations
-  int colw = width/20;
+  int colw = this->keyboardWidth/20;
 
   /* Draw symbols or ABC key based on which layer we are creating */
   if (layer->layerNum < 2){
     char symb[] = "=\\<";
     drawKey(surface, &layer->keyList, colw, rowHeight * 4, colw*3, rowHeight,
-            symb, KEYCAP_SYMBOLS, width/100, font);
+            symb, KEYCAP_SYMBOLS, this->keyboardWidth/100, font);
   }else if (layer->layerNum == 2){
     char abc[] = "abc";
     drawKey(surface, &layer->keyList, colw, rowHeight * 4, colw*3, rowHeight, abc,
-            KEYCAP_ABC, width/100, font);
+            KEYCAP_ABC, this->keyboardWidth/100, font);
   }
 
   char space[] = " ";
   drawKey(surface, &layer->keyList, colw*5, rowHeight * 4, colw*10, rowHeight, space,
-          KEYCAP_SPACE, width/100, font);
+          KEYCAP_SPACE, this->keyboardWidth/100, font);
 
   char enter[] = "OK";
   drawKey(surface, &layer->keyList, colw*15, rowHeight * 4,  colw*5, rowHeight, enter,
-          KEYCAP_RETURN, width/100, font);
+          KEYCAP_RETURN, this->keyboardWidth/100, font);
 
   return surface;
 }
 
 void setLayout(int layoutNum){
-
+  /* Stub */
 }
 
 void Keyboard::setActiveLayer(int layerNum){

@@ -49,8 +49,7 @@ class Keyboard {
 
   public:
     Keyboard(int pos, int targetPos, int width,
-             int height, Config *config,
-             SDL_Renderer *renderer);
+             int height, Config *config);
     ~Keyboard();
     string getCharForCoordinates(int x, int y);
     int setKeyboardColor(int r, int g, int b);
@@ -65,6 +64,7 @@ class Keyboard {
     int getActiveLayer();
     void setActiveLayer(int layerNum);
     int setLayout(int layoutNum);
+    int init(SDL_Renderer *renderer);
 
   private:
     rgb keyboardColor;
@@ -76,6 +76,7 @@ class Keyboard {
     int keyboardHeight;
     int activeLayer;
     list<KeyboardLayer> keyboard;
+    Config *config;
 
     void drawRow(SDL_Surface *surface, vector<touchArea> *keyList, int x, int y,
                  int width, int height, list<string> *keys, int padding,
@@ -83,9 +84,7 @@ class Keyboard {
     void drawKey(SDL_Surface *surface, vector<touchArea> *keyList, int x, int y,
                  int width, int height, char *cap, string key, int padding,
                  TTF_Font *font);
-    void draw_circle(SDL_Renderer *renderer, SDL_Point center, int radius);
-    SDL_Surface *makeKeyboard(int width, int height, Config *config,
-                              KeyboardLayer *layer);
+    SDL_Surface *makeKeyboard(KeyboardLayer *layer);
     void loadKeymap(string keymapPath);
 };
 

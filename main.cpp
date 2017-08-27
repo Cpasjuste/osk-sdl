@@ -35,12 +35,12 @@ int main(int argc, char **args) {
   int cur_ticks = 0;
 
   if (fetchOpts(argc, args, &opts)){
-    return 1;
+    exit(1);
   }
 
   if(!config.Read(opts.confPath)){
     fprintf(stderr, "No valid config file specified, use -c [path]");
-    return 1;
+    exit(1);
   }
 
   /*
@@ -56,7 +56,7 @@ int main(int argc, char **args) {
                SDL_INIT_TIMER | SDL_INIT_HAPTIC | SDL_INIT_GAMECONTROLLER) < 0) {
     SDL_Log("SDL_Init failed: %s", SDL_GetError());
     SDL_Quit();
-    return -1;
+    exit(1);
   }
 
   if (!opts.testMode) {
@@ -66,7 +66,7 @@ int main(int argc, char **args) {
     if(SDL_GetDisplayMode(0, 0, &mode) != 0){
       SDL_Log("SDL_GetDisplayMode failed: %s", SDL_GetError());
       SDL_Quit();
-      return -1;
+      exit(1);
     }
     WIDTH = mode.w;
     HEIGHT = mode.h;
@@ -87,22 +87,25 @@ int main(int argc, char **args) {
                              SDL_WINDOWPOS_UNDEFINED, WIDTH,
                              HEIGHT, windowFlags);
   if (display == NULL) {
-    fprintf(stderr, "Could not create window/display: %s\n", SDL_GetError());
-    return 1;
+    fprintf(stderr, "ERROR: Could not create window/display: %s\n", SDL_GetError());
+    SDL_Quit();
+    exit(1);
   }
 
   renderer = SDL_CreateRenderer(display, -1, SDL_RENDERER_SOFTWARE);
 
   if (renderer == NULL) {
-    fprintf(stderr, "Could not create renderer: %s\n", SDL_GetError());
-    return 1;
+    fprintf(stderr, "ERROR: Could not create renderer: %s\n", SDL_GetError());
+    SDL_Quit();
+    exit(1);
   }
 
   screen = SDL_GetWindowSurface(display);
 
   if (screen == NULL) {
-    fprintf(stderr, "Could not get window surface: %s\n", SDL_GetError());
-    return 1;
+    fprintf(stderr, "ERROR: Could not get window surface: %s\n", SDL_GetError());
+    SDL_Quit();
+    exit(1);
   }
 
   int keyboardHeight = HEIGHT / 3 * 2;
@@ -115,15 +118,19 @@ int main(int argc, char **args) {
   auto backgroundColor = SDL_MapRGB(screen->format, 255, 128, 0);
 
   if (SDL_FillRect(screen, NULL, backgroundColor) != 0) {
-    fprintf(stderr, "Could not fill background color: %s\n", SDL_GetError());
-    return 1;
+    fprintf(stderr, "ERROR: Could not fill background color: %s\n", SDL_GetError());
+    SDL_Quit();
+    exit(1);
   }
 
   /* Initialize virtual keyboard */
-  Keyboard *keyboard = new Keyboard(0, 1, WIDTH, keyboardHeight, &config, renderer);
+  Keyboard *keyboard = new Keyboard(0, 1, WIDTH, keyboardHeight, &config);
   keyboard->setKeyboardColor(30, 30, 30);
-  keyboard->setInputColor(255, 255, 255);
-  keyboard->setDotColor(0, 0, 0);
+  if (keyboard->init(renderer)){
+    fprintf(stderr, "ERROR: Failed to initialize keyboard!\n");
+    SDL_Quit();
+    exit(1);
+  }
 
   next_time = SDL_GetTicks() + TICK_INTERVAL;
 
