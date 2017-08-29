@@ -68,27 +68,10 @@ void Keyboard::setTargetPosition(float p){
 }
 
 
-int Keyboard::setKeyboardColor(int r, int g, int b){
+void Keyboard::setKeyboardColor(int r, int g, int b){
   this->keyboardColor.r = r;
   this->keyboardColor.g = g;
   this->keyboardColor.b = b;
-  return 0;
-}
-
-
-int Keyboard::setInputColor(int r, int g, int b){
-  this->inputColor.r = r;
-  this->inputColor.g = g;
-  this->inputColor.b = b;
-  return 0;
-}
-
-
-int Keyboard::setDotColor(int r, int g, int b){
-  this->dotColor.r = r;
-  this->dotColor.g = g;
-  this->dotColor.b = b;
-  return 0;
 }
 
 

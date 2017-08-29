@@ -33,7 +33,6 @@ void LuksDevice::setPassphrase(string passphrase){
 
 
 int LuksDevice::unlock(){
-  SDL_Thread *unlockT = NULL;
   SDL_CreateThread(unlock, "lukscryptdevice_unlock", this);
   return 0;
 }
@@ -45,11 +44,13 @@ int LuksDevice::unlock(void *luksDev){
   int ret;
   LuksDevice *lcd = (LuksDevice*) luksDev;
 
+  // Note: no mutex here, since this function makes a blocking call later on.
+  // Careful!
   lcd->running = true;
 
   usleep(MIN_UNLOCK_TIME_MS * 1000);
 
-  /* Initialize crypt device */
+  // Initialize crypt device
   ret = crypt_init(&cd, lcd->devicePath.c_str());
   if (ret < 0) {
     printf("crypt_init() failed for %s.\n", lcd->devicePath.c_str());
@@ -57,7 +58,7 @@ int LuksDevice::unlock(void *luksDev){
     return ret;
   }
 
-  /* Load header */
+  // Load header
   ret = crypt_load(cd, CRYPT_LUKS1, NULL);
   if (ret < 0) {
     printf("crypt_load() failed on device %s.\n", crypt_get_device_name(cd));
@@ -71,7 +72,7 @@ int LuksDevice::unlock(void *luksDev){
                                       CRYPT_ANY_SLOT,
                                       lcd->passphrase.c_str(),
                                       lcd->passphrase.size(),
-                                      CRYPT_ACTIVATE_ALLOW_DISCARDS /* Enable TRIM support */
+                                      CRYPT_ACTIVATE_ALLOW_DISCARDS // Enable TRIM support
                                       );
   if (ret < 0){
     printf("crypt_activate_by_passphrase failed on device. Errno %i\n", ret);

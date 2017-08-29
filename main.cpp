@@ -27,11 +27,9 @@ int main(int argc, char **args) {
   SDL_Renderer *renderer = NULL;
   int WIDTH = 480;
   int HEIGHT = 800;
-  /* Keyboard key repeat rate in ms */
-  int repeat_delay_ms = 100;
-  /* Two sep. prev_ticks required for handling textinput & keydown event types */
-  int prev_keydown_ticks = 0;
-  int prev_text_ticks = 0;
+  int repeat_delay_ms = 100;    // Keyboard key repeat rate in ms
+  int prev_keydown_ticks = 0;   // Two sep. prev_ticks required for handling
+  int prev_text_ticks = 0;      // textinput & keydown event types
   int cur_ticks = 0;
 
   if (fetchOpts(argc, args, &opts)){
@@ -43,9 +41,7 @@ int main(int argc, char **args) {
     exit(1);
   }
 
-  /*
-   * This is a workaround for: https://bugzilla.libsdl.org/show_bug.cgi?id=3751
-   */
+  // This is a workaround for: https://bugzilla.libsdl.org/show_bug.cgi?id=3751
   putenv(const_cast<char *>("SDL_DIRECTFB_LINUX_INPUT=1"));
 
   LuksDevice *luksDev = new LuksDevice(opts.luksDevName, opts.luksDevPath);
@@ -123,7 +119,7 @@ int main(int argc, char **args) {
     exit(1);
   }
 
-  /* Initialize virtual keyboard */
+  // Initialize virtual keyboard
   Keyboard *keyboard = new Keyboard(0, 1, WIDTH, keyboardHeight, &config);
   keyboard->setKeyboardColor(30, 30, 30);
   if (keyboard->init(renderer)){
@@ -134,7 +130,7 @@ int main(int argc, char **args) {
 
   next_time = SDL_GetTicks() + TICK_INTERVAL;
 
-  /* Disable mouse cursor if not in testmode */
+  // Disable mouse cursor if not in testmode
   if (SDL_ShowCursor(opts.testMode) < 0) {
     fprintf(stderr, "Setting cursor visibility failed: %s\n", SDL_GetError());
     // Not stopping here, this is a pretty recoverable error.
@@ -153,11 +149,11 @@ int main(int argc, char **args) {
     SDL_RenderCopy(renderer, wallpaperTexture, NULL, NULL);
     while (SDL_PollEvent(&event)) {
       cur_ticks = SDL_GetTicks();
-      /* an event was found */
+      // an event was found
       switch (event.type) {
-      /* handle the keyboard */
+      // handle the keyboard
       case SDL_KEYDOWN:
-        /* handle repeat key events */
+        // handle repeat key events
         if ((cur_ticks - repeat_delay_ms) < prev_keydown_ticks){
           continue;
         }
@@ -180,7 +176,7 @@ int main(int argc, char **args) {
           break;
         }
         break;
-      /* handle the mouse/touchscreen */
+      // handle the mouse/touchscreen
       case SDL_MOUSEBUTTONUP:
         unsigned int xMouse, yMouse;
         xMouse = event.button.x;
@@ -189,20 +185,20 @@ int main(int argc, char **args) {
         offsetYMouse = yMouse - (int)(HEIGHT - (keyboard->getHeight() * keyboard->getPosition()));
         tapped = keyboard->getCharForCoordinates(xMouse, offsetYMouse);
         if (!luksDev->unlockRunning()){
-          /* return pressed */
+          // return pressed
           if(tapped.compare("\n") == 0){
             luksDev->setPassphrase(strList2str(passphrase));
             luksDev->unlock();
             continue;
           }
-          /* Backspace pressed */
+          // Backspace pressed
           else if (tapped.compare(KEYCAP_BACKSPACE) == 0){
             if (passphrase.size() > 0){
               passphrase.pop_back();
             }
             continue;
           }
-          /* Shift pressed */
+          // Shift pressed
           else if (tapped.compare(KEYCAP_SHIFT) == 0){
             if (keyboard->getActiveLayer() > 1){
               keyboard->setActiveLayer(0);
@@ -210,15 +206,15 @@ int main(int argc, char **args) {
               keyboard->setActiveLayer(!keyboard->getActiveLayer());
             }
           }
-          /* Symbols key pressed */
+          // Symbols key pressed
           else if (tapped.compare(KEYCAP_SYMBOLS) == 0){
             keyboard->setActiveLayer(2);
           }
-          /* ABC key was pressed */
+          // ABC key was pressed
           else if (tapped.compare(KEYCAP_ABC) == 0){
             keyboard->setActiveLayer(0);
           }
-          /* handle other key presses */
+          // handle other key presses
           else if (tapped.compare("\0") != 0){
             passphrase.push_back(tapped);
             continue;
@@ -230,7 +226,7 @@ int main(int argc, char **args) {
          * Only register text input if time since last text input has exceeded
          * the keyboard repeat delay rate
          */
-        /* Enable key repeat delay */
+        // Enable key repeat delay
         if ((cur_ticks - repeat_delay_ms) > prev_text_ticks){
           prev_text_ticks = cur_ticks;
           if (!luksDev->unlockRunning()){
@@ -240,7 +236,7 @@ int main(int argc, char **args) {
         break;
       }
     }
-    /* Hide keyboard if unlock luks thread is running */
+    // Hide keyboard if unlock luks thread is running
     keyboard->setTargetPosition(!luksDev->unlockRunning());
 
     keyboard->draw(renderer, HEIGHT);
@@ -250,7 +246,7 @@ int main(int argc, char **args) {
 
     SDL_Delay(time_left(SDL_GetTicks(), next_time));
     next_time += TICK_INTERVAL;
-    /* Update */
+    // Update
     SDL_RenderPresent(renderer);
   }
   SDL_Quit();
