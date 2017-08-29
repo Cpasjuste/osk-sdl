@@ -119,7 +119,6 @@ void Keyboard::drawRow(SDL_Surface *surface, vector<touchArea> *keyList, int x,
                        int padding, TTF_Font *font) {
 
   auto keyBackground = SDL_MapRGB(surface->format, 15, 15, 15);
-  auto keyColor = SDL_MapRGB(surface->format, 200, 200, 200);
   SDL_Color textColor = {255, 255, 255, 0};
 
   int i = 0;
@@ -154,7 +153,6 @@ void Keyboard::drawKey(SDL_Surface *surface, vector<touchArea> *keyList, int x,
                        int y, int width, int height, char *cap, string key,
                        int padding, TTF_Font *font){
   auto keyBackground = SDL_MapRGB(surface->format, 15, 15, 15);
-  auto keyColor = SDL_MapRGB(surface->format, 200, 200, 200);
   SDL_Color textColor = {255, 255, 255, 0};
 
   SDL_Rect keyRect;
@@ -261,11 +259,14 @@ void setLayout(int layoutNum){
 }
 
 void Keyboard::setActiveLayer(int layerNum){
-  if (layerNum <= keyboard.size() - 1 ){
-    this->activeLayer = layerNum;
-  }else{
-    fprintf(stderr, "Unknown layer number: %i\n", layerNum);
+  if (layerNum >= 0){
+    if ((string::size_type)layerNum <= keyboard.size() - 1 ){
+      this->activeLayer = layerNum;
+      return;
+    }
   }
+  fprintf(stderr, "Unknown layer number: %i\n", layerNum);
+  return;
 }
 
 

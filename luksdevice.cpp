@@ -40,7 +40,6 @@ int LuksDevice::unlock(){
 
 int LuksDevice::unlock(void *luksDev){
   struct crypt_device *cd;
-  struct crypt_active_device cad;
   int ret;
   LuksDevice *lcd = (LuksDevice*) luksDev;
 
