@@ -179,8 +179,8 @@ int main(int argc, char **args) {
       case SDL_FINGERUP:
         unsigned int xTouch, yTouch, offsetYTouch;
         // x and y values are normalized!
-        xTouch = event.button.x * WIDTH;
-        yTouch = event.button.y * HEIGHT;
+        xTouch = event.tfinger.x * WIDTH;
+        yTouch = event.tfinger.y * HEIGHT;
         printf("xTouch: %i\tyTouch: %i\n", xTouch, yTouch);
         offsetYTouch = yTouch - (int)(HEIGHT - (keyboard->getHeight() * keyboard->getPosition()));
         tapped = keyboard->getCharForCoordinates(xTouch, offsetYTouch);
