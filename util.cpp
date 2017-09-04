@@ -121,8 +121,6 @@ void draw_password_box(SDL_Renderer *renderer, int numDots, int screenHeight,
   inputRect.h = inputHeight;
   SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
   SDL_RenderFillRect(renderer, &inputRect);
-
-
   int deflection = inputHeight / 4;
   int ypos = topHalf / 2;
   float tick = (float) SDL_GetTicks();
@@ -177,3 +175,4 @@ void handleVirtualKeyPress(string tapped, Keyboard *kbd, LuksDevice *lkd,
   }
   return;
 }
+
