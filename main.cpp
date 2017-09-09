@@ -54,7 +54,7 @@ int main(int argc, char **args) {
   }
 
   if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_EVENTS |
-               SDL_INIT_TIMER | SDL_INIT_JOYSTICK) < 0) {
+               SDL_INIT_TIMER) < 0) {
     SDL_LogError(SDL_LOG_CATEGORY_ERROR, "SDL_Init failed: %s", SDL_GetError());
     SDL_Quit();
     exit(1);
