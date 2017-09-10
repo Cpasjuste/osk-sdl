@@ -113,7 +113,7 @@ int main(int argc, char **args) {
   int prev_keydown_ticks = 0;   // Two sep. prev_ticks required for handling
   int prev_text_ticks = 0;      // textinput & keydown event types
   int cur_ticks = 0;
-  string ErrorText = "The password is incorrect";
+  string ErrorText = "Incorrect passphrase";
 
 
 
