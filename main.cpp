@@ -27,6 +27,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "luksdevice.h"
 #include "config.h"
 #include "util.h"
+#include "tooltip.h"
 #include "draw_helpers.h"
 
 
@@ -38,6 +39,7 @@ using namespace std;
 struct uiRenderData {
   SDL_Renderer *renderer;
   Keyboard *keyboard;
+  Tooltip *tooltip;
   list<string> *passphrase;
   LuksDevice *luksDev;
   SDL_Texture* wallpaperTexture;
@@ -48,28 +50,47 @@ struct uiRenderData {
   int inputBoxRadius;
 };
 
+bool lastUnlockingState = false;
+bool showPasswordError = false;
+
+SDL_mutex *renderMutex;
 
 Uint32 uiRenderCB(Uint32 i, void *data){
   const uiRenderData *urd = (uiRenderData*) data;
-  SDL_Rect inputRect;
   int topHalf;
+  int passwordPosition;
+  int tooltipPosition;
 
   SDL_RenderCopy(urd->renderer, urd->wallpaperTexture, NULL, NULL);
   // Hide keyboard if unlock luks thread is running
   urd->keyboard->setTargetPosition(!urd->luksDev->unlockRunning());
   urd->keyboard->draw(urd->renderer, urd->HEIGHT);
-  draw_password_box(urd->renderer, urd->passphrase->size(), urd->HEIGHT,
-                    urd->WIDTH, urd->inputHeight, urd->keyboard->getHeight(),
-                    urd->keyboard->getPosition(), urd->luksDev->unlockRunning());
-  if(urd->inputBoxRadius > 0){
-    topHalf = urd->HEIGHT - (urd->keyboard->getHeight() * urd->keyboard->getPosition());
-    inputRect.x = urd->WIDTH / 20;
-    inputRect.y = (topHalf / 2) - (urd->inputHeight / 2);
-    inputRect.w = urd->WIDTH * 0.9;
-    inputRect.h = urd->inputHeight;
-    smooth_corners_renderer(urd->renderer, urd->wallpaperColor, &inputRect,
-                            urd->inputBoxRadius);
+
+  SDL_LockMutex(renderMutex);
+  if(lastUnlockingState != urd->luksDev->unlockRunning()){
+    if(urd->luksDev->unlockRunning() == false && urd->luksDev->isLocked()){
+      // Luks is finished and the password was wrong
+      showPasswordError = true;
+      urd->passphrase->clear();
+    }
+    lastUnlockingState = urd->luksDev->unlockRunning();
   }
+  SDL_UnlockMutex(renderMutex);
+
+  topHalf = (urd->HEIGHT - (urd->keyboard->getHeight() * urd->keyboard->getPosition()));
+
+  // Only show either error box or password input box, not both
+  if(showPasswordError){
+    tooltipPosition = topHalf / 4;
+    urd->tooltip->draw(urd->renderer, urd->WIDTH/20, tooltipPosition);
+  }else{
+   passwordPosition = topHalf / 3.5;
+   draw_password_box(urd->renderer, urd->passphrase->size(), urd->HEIGHT,
+                    urd->WIDTH, urd->inputHeight, passwordPosition,
+                    urd->wallpaperColor, urd->inputBoxRadius,
+                    urd->luksDev->unlockRunning());
+  }
+
   SDL_RenderPresent(urd->renderer);
   return i;
 }
@@ -84,6 +105,7 @@ int main(int argc, char **args) {
   SDL_Surface *screen = NULL;
   SDL_Renderer *renderer = NULL;
   SDL_TimerID uiRenderTimerID = 0;
+  Tooltip *tooltip = NULL;
   uiRenderData urd;
   int WIDTH = 480;
   int HEIGHT = 800;
@@ -91,6 +113,15 @@ int main(int argc, char **args) {
   int prev_keydown_ticks = 0;   // Two sep. prev_ticks required for handling
   int prev_text_ticks = 0;      // textinput & keydown event types
   int cur_ticks = 0;
+  string ErrorText = "The password is incorrect";
+
+
+
+  renderMutex = SDL_CreateMutex();
+  if (!renderMutex){
+    fprintf(stderr, "Unable to initialize rendering mutex\n");
+    exit(1);
+  }
 
   if (fetchOpts(argc, args, &opts)){
     exit(1);
@@ -195,6 +226,10 @@ int main(int argc, char **args) {
     exit(1);
   }
 
+  // Initialize tooltip for password error
+  tooltip = new Tooltip(WIDTH*0.9, inputHeight, &config);
+  tooltip->init(renderer, ErrorText);
+
   // Disable mouse cursor if not in testmode
   if (SDL_ShowCursor(opts.testMode) < 0) {
     fprintf(stderr, "Setting cursor visibility failed: %s\n", SDL_GetError());
@@ -228,6 +263,7 @@ int main(int argc, char **args) {
   //Set up and start render callback
   urd.keyboard = keyboard;
   urd.renderer = renderer;
+  urd.tooltip = tooltip;
   urd.wallpaperTexture = wallpaperTexture;
   urd.passphrase = &passphrase;
   urd.luksDev = luksDev;
@@ -319,12 +355,15 @@ int main(int argc, char **args) {
         }
         break;
       }
+      SDL_LockMutex(renderMutex);
+      showPasswordError = false;
+      SDL_UnlockMutex(renderMutex);
     }
   }
   SDL_RemoveTimer(uiRenderTimerID);
+  SDL_DestroyMutex(renderMutex);
   SDL_Quit();
   delete keyboard;
   delete luksDev;
   return 0;
 }
-
