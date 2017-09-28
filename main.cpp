@@ -132,9 +132,6 @@ int main(int argc, char **args) {
     exit(1);
   }
 
-  // This is a workaround for: https://bugzilla.libsdl.org/show_bug.cgi?id=3751
-  putenv(const_cast<char *>("SDL_DIRECTFB_LINUX_INPUT=1"));
-
   LuksDevice *luksDev = new LuksDevice(opts.luksDevName, opts.luksDevPath);
 
   if (opts.verbose){
