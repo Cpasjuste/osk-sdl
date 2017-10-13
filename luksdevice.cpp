@@ -102,6 +102,11 @@ int LuksDevice::unlock(void *luksDev){
   crypt_free(cd);
   lcd->locked = false;
   lcd->running = false;
+  // Push empty event to main thread (needed because main thread is using
+  // SDL_PollEvents() )
+  SDL_Event event;
+  SDL_PushEvent(&event);
+
   return 0;
 }
 

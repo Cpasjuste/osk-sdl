@@ -19,6 +19,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #ifndef LUKSDEVICE_H
 #define LUKSDEVICE_H
+#include "SDL2/SDL.h"
 #include "SDL2/SDL_thread.h"
 #include <libcryptsetup.h>
 #include <iostream>
