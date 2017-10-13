@@ -143,7 +143,7 @@ int main(int argc, char **args) {
   if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_EVENTS |
                SDL_INIT_TIMER) < 0) {
     SDL_LogError(SDL_LOG_CATEGORY_ERROR, "SDL_Init failed: %s", SDL_GetError());
-    SDL_Quit();
+    atexit(SDL_Quit);
     exit(1);
   }
 
@@ -154,7 +154,7 @@ int main(int argc, char **args) {
     if(SDL_GetDisplayMode(0, 0, &mode) != 0){
       SDL_LogError(SDL_LOG_CATEGORY_VIDEO, "SDL_GetDisplayMode failed: %s",
                    SDL_GetError());
-      SDL_Quit();
+      atexit(SDL_Quit);
       exit(1);
     }
     WIDTH = mode.w;
@@ -177,7 +177,7 @@ int main(int argc, char **args) {
                              HEIGHT, windowFlags);
   if (display == NULL) {
     fprintf(stderr, "ERROR: Could not create window/display: %s\n", SDL_GetError());
-    SDL_Quit();
+    atexit(SDL_Quit);
     exit(1);
   }
 
@@ -186,7 +186,7 @@ int main(int argc, char **args) {
   if (renderer == NULL) {
     SDL_LogError(SDL_LOG_CATEGORY_VIDEO, "ERROR: Could not create renderer: %s\n",
                  SDL_GetError());
-    SDL_Quit();
+    atexit(SDL_Quit);
     exit(1);
   }
 
@@ -195,7 +195,7 @@ int main(int argc, char **args) {
   if (screen == NULL) {
     SDL_LogError(SDL_LOG_CATEGORY_VIDEO, "ERROR: Could not get window surface: %s\n",
                  SDL_GetError());
-    SDL_Quit();
+    atexit(SDL_Quit);
     exit(1);
   }
 
@@ -210,7 +210,7 @@ int main(int argc, char **args) {
 
   if (SDL_FillRect(screen, NULL, backgroundColor) != 0) {
     SDL_LogError(SDL_LOG_CATEGORY_VIDEO, "ERROR: Could not fill background color: %s\n", SDL_GetError());
-    SDL_Quit();
+    atexit(SDL_Quit);
     exit(1);
   }
 
@@ -219,7 +219,7 @@ int main(int argc, char **args) {
   keyboard->setKeyboardColor(30, 30, 30);
   if (keyboard->init(renderer)){
     fprintf(stderr, "ERROR: Failed to initialize keyboard!\n");
-    SDL_Quit();
+    atexit(SDL_Quit);
     exit(1);
   }
 
@@ -274,7 +274,7 @@ int main(int argc, char **args) {
   if (uiRenderTimerID == 0){
     SDL_LogError(SDL_LOG_CATEGORY_VIDEO, "ERROR: Could not start render timer: %s\n",
                  SDL_GetError());
-    SDL_Quit();
+    atexit(SDL_Quit);
     exit(1);
   }
 
@@ -304,7 +304,7 @@ int main(int argc, char **args) {
           }
           break;
         case SDLK_ESCAPE:
-          exit(1);
+          goto QUIT;
           break;
         }
         break;
@@ -357,9 +357,12 @@ int main(int argc, char **args) {
       SDL_UnlockMutex(renderMutex);
     }
   }
+
+QUIT:
   SDL_RemoveTimer(uiRenderTimerID);
   SDL_DestroyMutex(renderMutex);
-  SDL_Quit();
+  SDL_QuitSubSystem(SDL_INIT_VIDEO | SDL_INIT_EVENTS | SDL_INIT_TIMER);
+  atexit(SDL_Quit);
   delete keyboard;
   delete luksDev;
   return 0;
