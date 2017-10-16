@@ -15,7 +15,7 @@ GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 
 #include "util.h"
 #include "draw_helpers.h"
@@ -43,7 +43,8 @@ int fetchOpts(int argc, char **args, Opts *opts){
       opts->verbose = true;
       break;
     default:
-      fprintf(stdout, "Usage: osk-sdl [-t] [-d /dev/sda] [-n device_name] [-c /etc/osk.conf] -v\n");
+      fprintf(stdout, "Usage: osk-sdl [-t] [-d /dev/sda] [-n device_name] "
+              "[-c /etc/osk.conf] -v\n");
       return 1;
     }
   if (opts->luksDevPath.empty()) {
@@ -77,7 +78,7 @@ SDL_Surface* make_wallpaper(SDL_Renderer *renderer, Config *config,
   Uint32 rmask, gmask, bmask, amask;
 
   /* SDL interprets each pixel as a 32-bit number, so our masks must depend
-     on the endianness (byte order) of the machine */
+    on the endianness (byte order) of the machine */
   #if SDL_BYTEORDER == SDL_BIG_ENDIAN
     rmask = 0xff000000;
     gmask = 0x00ff0000;
@@ -91,12 +92,13 @@ SDL_Surface* make_wallpaper(SDL_Renderer *renderer, Config *config,
   #endif
 
   surface = SDL_CreateRGBSurface(SDL_SWSURFACE, width, height, 32, rmask, gmask,
-                                 bmask, amask);
+                                bmask, amask);
 
   if(config->wallpaper[0] == '#'){
     unsigned int r, g, b;
     if(sscanf(config->wallpaper.c_str(), "#%02x%02x%02x", &r, &g, &b)!=3){
-      fprintf(stderr, "Could not parse color code %s\n", config->wallpaper.c_str());
+      fprintf(stderr, "Could not parse color code %s\n",
+              config->wallpaper.c_str());
       exit(1);
     }
     SDL_FillRect(surface, NULL, SDL_MapRGB(surface->format, r, g, b));
@@ -123,8 +125,8 @@ void draw_circle(SDL_Renderer *renderer, SDL_Point center, int radius) {
 }
 
 
-void draw_password_box_dots(SDL_Renderer* renderer, int inputHeight, int screenWidth,
-                              int numDots, int y, bool busy){
+void draw_password_box_dots(SDL_Renderer* renderer, int inputHeight,
+                            int screenWidth, int numDots, int y, bool busy) {
   int deflection = inputHeight / 4;
   int ypos = y + inputHeight / 2;
   float tick = (float) SDL_GetTicks();
@@ -143,7 +145,7 @@ void draw_password_box_dots(SDL_Renderer* renderer, int inputHeight, int screenW
   return;
 }
 void handleVirtualKeyPress(string tapped, Keyboard *kbd, LuksDevice *lkd,
-                           list<string> *passphrase){
+                          list<string> *passphrase){
   // return pressed
   if(tapped.compare("\n") == 0){
     string pass = strList2str(passphrase);
@@ -178,4 +180,3 @@ void handleVirtualKeyPress(string tapped, Keyboard *kbd, LuksDevice *lkd,
   }
   return;
 }
-

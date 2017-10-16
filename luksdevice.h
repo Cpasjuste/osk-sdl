@@ -15,7 +15,7 @@ GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 
 #ifndef LUKSDEVICE_H
 #define LUKSDEVICE_H
@@ -38,28 +38,28 @@ class LuksDevice{
       Constructor
       @param deviceName Name of luks device
       @param devicePath Path to luks device
-    */
+     */
     LuksDevice(string *deviceName, string *devicePath);
     ~LuksDevice();
     /**
       Unlock luks device
       @return 0 on success, non-zero on failure
-    */
+     */
     int unlock();
     /**
       Query luks device lock status
       @return Bool indicating whether luks device is locked or not
-    */
+     */
     bool isLocked();
     /**
       Query luks device unlocking status
       @return Bool indicating that unlock thread is running or not
-    */
+     */
     bool unlockRunning();
     /**
       Configure passphrase for luks device
       @param passphrase Passphrase to pass to luks device when activating it
-    */
+     */
     void setPassphrase(string *passphrase);
 
   private:
@@ -72,7 +72,7 @@ class LuksDevice{
     /**
       Unlock luks device
       @param luksDev LuksDevice object to use, should represent 'this'
-    */
+     */
     static int unlock(void *luksDev);
 
 };

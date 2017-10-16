@@ -15,7 +15,7 @@ GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 
 #ifndef KEYBOARD_H
 #define KEYBOARD_H
@@ -77,16 +77,16 @@ class Keyboard {
       @param width Width to draw keyboard
       @param height Height to draw keyboard
       @param config Pointer to Config
-    */
+     */
     Keyboard(int pos, int targetPos, int width,
-             int height, Config *config);
+            int height, Config *config);
     ~Keyboard();
     /**
       Get the character/key at the given coordinates
       @param x X-axis coordinate
       @param y Y-axis coordinate
       @return String with value of key at the given coordinates
-    */
+     */
     string getCharForCoordinates(int x, int y);
     /**
       Set keyboard color
@@ -94,49 +94,49 @@ class Keyboard {
       @param r Red value
       @param g Green value
       @param b Blue value
-    */
+     */
     void setKeyboardColor(int a, int r, int g, int b);
     /**
       Get position of keyboard
       @return Position as a value between 0 and 1 (0% and 100%)
-    */
+     */
     float getPosition();
     /**
       Get keyboard target position
       @return Target position of keyboard, between 0 (0%) and 1 (100%)
-    */
+     */
     float getTargetPosition();
     /**
       Set keyboard target position
       @param p Position between 0 (0%) and 1 (100%)
-    */
+     */
     void setTargetPosition(float p);
     /**
       Get keyboard height
       @return configured height of keyboard
-    */
+     */
     float getHeight();
     /**
       Draw/update keyboard on the screen
       @param renderer An initialized SDL_Renderer object
       @param screenHeight Height of screen
-    */
+     */
     void draw(SDL_Renderer *renderer, int screenHeight);
     /**
       Get the active keyboard layer
       @return Index of active keyboard layer
-    */
+     */
     int getActiveLayer();
     /**
       Set the active keyboard layer
       @param layerNum Index of layer to activate
-    */
+     */
     void setActiveLayer(int layerNum);
     /**
       Initialize keyboard object
       @param renderer Initialized SDL_Renderer object
       @return 0 on success, non-zero on error
-    */
+     */
     int init(SDL_Renderer *renderer);
 
   private:
@@ -164,10 +164,10 @@ class Keyboard {
       @param key Key text
       @param padding Spacing to reserve around the key
       @param font Font to use for key character
-    */
+     */
     void drawRow(SDL_Surface *surface, vector<touchArea> *keyList, int x, int y,
-                 int width, int height, list<string> *keys, int padding,
-                 TTF_Font *font);
+                int width, int height, list<string> *keys, int padding,
+                TTF_Font *font);
     /**
       Draw key for keyboard
       @param surface Surface to draw on
@@ -180,20 +180,20 @@ class Keyboard {
       @param key Key text
       @param padding Spacing to reserve around the key
       @param font Font to use for key character
-    */
+     */
     void drawKey(SDL_Surface *surface, vector<touchArea> *keyList, int x, int y,
-                 int width, int height, char *cap, const string *key,
-                 int padding, TTF_Font *font);
+                int width, int height, char *cap, const string *key,
+                int padding, TTF_Font *font);
     /**
       Prepare new keyboard
       @param layer Keyboard layer to use
       @return New SDL_Surface, or NULL on error
-    */
+     */
     SDL_Surface *makeKeyboard(KeyboardLayer *layer);
     /**
       Load a keymap into the keyboard
       @param keymapPath Path to keymap file
-    */
+     */
     void loadKeymap();
 };
 #endif

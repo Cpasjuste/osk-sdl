@@ -15,7 +15,7 @@ GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 
 #include "tooltip.h"
 
@@ -30,25 +30,25 @@ Tooltip::Tooltip(int width, int height, Config *config){
 int Tooltip::init(SDL_Renderer *renderer, string text){
   SDL_Surface* surface;
   Uint32 rmask, gmask, bmask, amask;
-  /* SDL interprets each pixel as a 32-bit number, so our masks must depend
-     on the endianness (byte order) of the machine */
-  #if SDL_BYTEORDER == SDL_BIG_ENDIAN
-    rmask = 0xff000000;
-    gmask = 0x00ff0000;
-    bmask = 0x0000ff00;
-    amask = 0x000000ff;
-  #else
-    rmask = 0x000000ff;
-    gmask = 0x0000ff00;
-    bmask = 0x00ff0000;
-    amask = 0xff000000;
-  #endif
+  // SDL interprets each pixel as a 32-bit number, so our masks must depend
+  //   on the endianness (byte order) of the machine
+#if SDL_BYTEORDER == SDL_BIG_ENDIAN
+  rmask = 0xff000000;
+  gmask = 0x00ff0000;
+  bmask = 0x0000ff00;
+  amask = 0x000000ff;
+#else
+  rmask = 0x000000ff;
+  gmask = 0x0000ff00;
+  bmask = 0x00ff0000;
+  amask = 0xff000000;
+#endif
   surface = SDL_CreateRGBSurface(SDL_SWSURFACE, this->width,
-                                 this->height, 32, rmask, gmask,
-                                 bmask, amask);
+                                this->height, 32, rmask, gmask,
+                                bmask, amask);
   if (surface == NULL) {
-     fprintf(stderr, "CreateRGBSurface failed: %s\n", SDL_GetError());
-     return -1;
+    fprintf(stderr, "CreateRGBSurface failed: %s\n", SDL_GetError());
+    return -1;
   }
 
   SDL_FillRect(surface, NULL, SDL_MapRGB(surface->format, 239, 59, 59));

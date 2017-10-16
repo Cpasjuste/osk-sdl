@@ -15,7 +15,7 @@ GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 
 #include "luksdevice.h"
 
@@ -78,8 +78,8 @@ int LuksDevice::unlock(void *luksDev){
                                       CRYPT_ANY_SLOT,
                                       lcd->passphrase.c_str(),
                                       lcd->passphrase.size(),
-                                      CRYPT_ACTIVATE_ALLOW_DISCARDS // Enable TRIM support
-                                      );
+                                      // Enable TRIM support
+                                      CRYPT_ACTIVATE_ALLOW_DISCARDS);
   if (ret < 0){
     printf("crypt_activate_by_passphrase failed on device. Errno %i\n", ret);
     crypt_free(cd);
@@ -107,5 +107,3 @@ bool LuksDevice::isLocked(){
 bool LuksDevice::unlockRunning(){
   return this->running;
 }
-
-

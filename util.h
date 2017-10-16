@@ -15,7 +15,7 @@ GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 
 #ifndef UTIL_H
 #define UTIL_H
@@ -51,14 +51,14 @@ struct Opts{
   @param args Arguments from cmdline
   @param opts Structure for storing options from cmdline
   @return 0 on success, non-zero on failure
-*/
+ */
 int fetchOpts(int argc, char **args, Opts *opts);
 
 /**
   Convert list of strings into a single string
   @param strList List of strings
   @return String with all elements of strList concatenated together
-*/
+ */
 string strList2str(const list<string> *strList);
 
 /**
@@ -68,7 +68,7 @@ string strList2str(const list<string> *strList);
   @param width Width of wallpaper to generate
   @param height Height of wallpaper to generate
   @return Initialized SDL_Surface, else NULL on failure
-*/
+ */
 SDL_Surface* make_wallpaper(SDL_Renderer *renderer, Config *config,
                             int width, int height);
 
@@ -77,7 +77,7 @@ SDL_Surface* make_wallpaper(SDL_Renderer *renderer, Config *config,
   @param renderer Initialized SDL_Renderer object
   @param center Center position of circle
   @param radius Radius of circle
-*/
+ */
 void draw_circle(SDL_Renderer *renderer, SDL_Point center, int radius);
 
 
@@ -87,9 +87,9 @@ void draw_circle(SDL_Renderer *renderer, SDL_Point center, int radius);
   @param kbd Initialized Keyboard obj
   @param lkd Initialized LuksDevice obj
   @param lkd passphrase Passphrase to modify
-*/
+ */
 void handleVirtualKeyPress(string tapped, Keyboard *kbd, LuksDevice *lkd,
-                           list<string> *passphrase);
+                            list<string> *passphrase);
 
 
 /**
@@ -100,7 +100,7 @@ void handleVirtualKeyPress(string tapped, Keyboard *kbd, LuksDevice *lkd,
   @param numDots Number of password 'dots' to draw
   @param y Vertical position of the input box
   @param busy if true the dots will play a loading animation
-*/
-void draw_password_box_dots(SDL_Renderer* renderer, int inputHeight, int screenWidth,
-                              int numDots, int y, bool busy);
+ */
+void draw_password_box_dots(SDL_Renderer* renderer, int inputHeight,
+                            int screenWidth, int numDots, int y, bool busy);
 #endif

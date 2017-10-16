@@ -15,7 +15,7 @@ GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 
 #include "SDL2/SDL.h"
 #include <iostream>
@@ -81,7 +81,7 @@ int main(int argc, char **args) {
   }
 
   if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_EVENTS |
-               SDL_INIT_TIMER) < 0) {
+              SDL_INIT_TIMER) < 0) {
     SDL_LogError(SDL_LOG_CATEGORY_ERROR, "SDL_Init failed: %s", SDL_GetError());
     atexit(SDL_Quit);
     exit(1);
@@ -93,7 +93,7 @@ int main(int argc, char **args) {
     SDL_DisplayMode mode = { SDL_PIXELFORMAT_UNKNOWN, 0, 0, 0, 0};
     if(SDL_GetDisplayMode(0, 0, &mode) != 0){
       SDL_LogError(SDL_LOG_CATEGORY_VIDEO, "SDL_GetDisplayMode failed: %s",
-                   SDL_GetError());
+                  SDL_GetError());
       atexit(SDL_Quit);
       exit(1);
     }
@@ -113,10 +113,11 @@ int main(int argc, char **args) {
   }
 
   display = SDL_CreateWindow("OSK SDL", SDL_WINDOWPOS_UNDEFINED,
-                             SDL_WINDOWPOS_UNDEFINED, WIDTH,
-                             HEIGHT, windowFlags);
+                            SDL_WINDOWPOS_UNDEFINED, WIDTH,
+                            HEIGHT, windowFlags);
   if (display == NULL) {
-    fprintf(stderr, "ERROR: Could not create window/display: %s\n", SDL_GetError());
+    fprintf(stderr, "ERROR: Could not create window/display: %s\n",
+            SDL_GetError());
     atexit(SDL_Quit);
     exit(1);
   }
@@ -124,8 +125,8 @@ int main(int argc, char **args) {
   renderer = SDL_CreateRenderer(display, -1, SDL_RENDERER_SOFTWARE);
 
   if (renderer == NULL) {
-    SDL_LogError(SDL_LOG_CATEGORY_VIDEO, "ERROR: Could not create renderer: %s\n",
-                 SDL_GetError());
+    SDL_LogError(SDL_LOG_CATEGORY_VIDEO,
+                "ERROR: Could not create renderer: %s\n", SDL_GetError());
     atexit(SDL_Quit);
     exit(1);
   }
@@ -133,8 +134,8 @@ int main(int argc, char **args) {
   screen = SDL_GetWindowSurface(display);
 
   if (screen == NULL) {
-    SDL_LogError(SDL_LOG_CATEGORY_VIDEO, "ERROR: Could not get window surface: %s\n",
-                 SDL_GetError());
+    SDL_LogError(SDL_LOG_CATEGORY_VIDEO,
+                "ERROR: Could not get window surface: %s\n", SDL_GetError());
     atexit(SDL_Quit);
     exit(1);
   }
@@ -149,7 +150,9 @@ int main(int argc, char **args) {
   auto backgroundColor = SDL_MapRGB(screen->format, 255, 128, 0);
 
   if (SDL_FillRect(screen, NULL, backgroundColor) != 0) {
-    SDL_LogError(SDL_LOG_CATEGORY_VIDEO, "ERROR: Could not fill background color: %s\n", SDL_GetError());
+    SDL_LogError(SDL_LOG_CATEGORY_VIDEO,
+                "ERROR: Could not fill background color: %s\n",
+                SDL_GetError());
     atexit(SDL_Quit);
     exit(1);
   }
@@ -178,7 +181,7 @@ int main(int argc, char **args) {
 
   SDL_Surface* wallpaper = make_wallpaper(renderer, &config, WIDTH, HEIGHT);
   SDL_Texture* wallpaperTexture = SDL_CreateTextureFromSurface(renderer,
-                                                               wallpaper);
+                                                              wallpaper);
 
   string tapped;
   long inputBoxRadius = strtol(config.inputBoxRadius.c_str(),NULL,10);
@@ -200,7 +203,7 @@ int main(int argc, char **args) {
   argb inputBoxColor = argb{255,255,255,255};
 
   SDL_Surface* inputBox = make_input_box(WIDTH * 0.9, inputHeight,
-                                         &inputBoxColor, inputBoxRadius);
+                                        &inputBoxColor, inputBoxRadius);
   SDL_Texture* inputBoxTexture = SDL_CreateTextureFromSurface(renderer,
                                                               inputBox);
 
@@ -213,8 +216,9 @@ int main(int argc, char **args) {
   };
 
   if(inputBoxTexture == NULL){
-    SDL_LogError(SDL_LOG_CATEGORY_VIDEO, "ERROR: Could not create input box texture: %s\n",
-                 SDL_GetError());
+    SDL_LogError(SDL_LOG_CATEGORY_VIDEO,
+                "ERROR: Could not create input box texture: %s\n",
+                SDL_GetError());
     atexit(SDL_Quit);
     exit(1);
   }
@@ -266,7 +270,8 @@ int main(int argc, char **args) {
         yTouch = event.tfinger.y * HEIGHT;
         if (opts.verbose)
           printf("xTouch: %u\tyTouch: %u\n", xTouch, yTouch);
-        offsetYTouch = yTouch - (int)(HEIGHT - (keyboard->getHeight() * keyboard->getPosition()));
+        offsetYTouch = yTouch - (int)(HEIGHT - (keyboard->getHeight() *
+                                                keyboard->getPosition()));
         tapped = keyboard->getCharForCoordinates(xTouch, offsetYTouch);
         if (!luksDev->unlockRunning()){
           handleVirtualKeyPress(tapped, keyboard, luksDev, &passphrase);
@@ -281,7 +286,8 @@ int main(int argc, char **args) {
         yMouse = event.button.y;
         if (opts.verbose)
           printf("xMouse: %u\tyMouse: %u\n", xMouse, yMouse);
-        offsetYMouse = yMouse - (int)(HEIGHT - (keyboard->getHeight() * keyboard->getPosition()));
+        offsetYMouse = yMouse - (int)(HEIGHT - (keyboard->getHeight() *
+                                                keyboard->getPosition()));
         tapped = keyboard->getCharForCoordinates(xMouse, offsetYMouse);
         if (!luksDev->unlockRunning()){
           handleVirtualKeyPress(tapped, keyboard, luksDev, &passphrase);
@@ -334,13 +340,14 @@ int main(int argc, char **args) {
           inputBoxRect.y = (int)(topHalf / 3.5);
           SDL_RenderCopy(renderer, inputBoxTexture, NULL, &inputBoxRect);
           draw_password_box_dots(renderer, inputHeight, WIDTH,
-                                 passphrase.size(), inputBoxRect.y,
-                                 luksDev->unlockRunning());
+                                passphrase.size(), inputBoxRect.y,
+                                luksDev->unlockRunning());
         }
         SDL_RenderPresent(renderer);
         // If any animations are running, continue to push render events to the
         // event queue
-        bool keyboardAnimate = (int)floor(keyboard->getTargetPosition()*100) != (int)floor(keyboard->getPosition()*100);
+        bool keyboardAnimate = (int)floor(keyboard->getTargetPosition()*100) !=
+          (int)floor(keyboard->getPosition()*100);
         if (luksDev->unlockRunning() || keyboardAnimate){
           SDL_PushEvent(&renderEvent);
         }

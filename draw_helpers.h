@@ -15,7 +15,7 @@ GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 
 #ifndef DRAW_HELPERS_H
 #define DRAW_HELPERS_H
@@ -30,8 +30,9 @@ const float  BEZIER_RESOLUTION = 100;
   @param rect the rectangle to smooth
   @param radius the distance from a corner where the curve will start
   @param draw_cb callback, with coordinates to the next pixel to draw
-*/
-void smooth_corners(SDL_Rect *rect, int radius,function<void(int,int)> draw_cb);
+ */
+void smooth_corners(SDL_Rect *rect, int radius,
+                    function<void(int,int)> draw_cb);
 
 /**
   Draw rounded corneres for a rectangle directly onto a surface
@@ -39,8 +40,9 @@ void smooth_corners(SDL_Rect *rect, int radius,function<void(int,int)> draw_cb);
   @param color the color to draw
   @param rect the rectangle to smooth
   @param radius the distance from a corner where the curve will start
-*/
-void smooth_corners_surface(SDL_Surface*surface,Uint32 color,SDL_Rect*rect,int radius);
+ */
+void smooth_corners_surface(SDL_Surface*surface, Uint32 color, SDL_Rect*rect,
+                            int radius);
 
 /**
   Get each pixel pixel of bezier curve based on three points
@@ -49,15 +51,19 @@ void smooth_corners_surface(SDL_Surface*surface,Uint32 color,SDL_Rect*rect,int r
   @param p2 the second point
   @param p3 the third point
   @returns an array of pixel coordinates (length equal to BREZIER_RESOLUTION)
-*/
-SDL_Point* bezier_corner (SDL_Point*offset,SDL_Point *p1, SDL_Point *p2, SDL_Point *p3);
+ */
+SDL_Point* bezier_corner (SDL_Point*offset,SDL_Point *p1, SDL_Point *p2,
+                          SDL_Point *p3);
 
 /**
   Create an input box base off a given width, height, color and radius
   @param inputWidth box's width
   @param inputHeight box's height
   @param color the box's background color
-  @param inputBoxRadius degree to curve the box's corners, if inputWidth == inputHeight and inputBoxRadius == inputWidth/2 the box should be a circle
-*/
-SDL_Surface* make_input_box(int inputWidth, int inputHeight, argb *color, int inputBoxRadius);
+  @param inputBoxRadius degree to curve the box's corners,
+  if inputWidth == inputHeight and inputBoxRadius == inputWidth/2
+  the box should be a circle
+ */
+SDL_Surface* make_input_box(int inputWidth, int inputHeight, argb *color,
+                            int inputBoxRadius);
 #endif
