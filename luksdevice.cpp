@@ -23,16 +23,14 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 using namespace std;
 
 
-LuksDevice::LuksDevice(string *deviceName, string *devicePath){
-  this->deviceName = *deviceName;
-  this->devicePath = *devicePath;
+LuksDevice::LuksDevice(const string *deviceName, const string *devicePath){
+  this->deviceName.assign(*deviceName);
+  this->devicePath.assign(*devicePath);
 }
-
 
 LuksDevice::~LuksDevice(){
 
 }
-
 
 void LuksDevice::setPassphrase(string *passphrase){
   this->passphrase = *passphrase;

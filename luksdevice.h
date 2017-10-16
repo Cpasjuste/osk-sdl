@@ -39,7 +39,7 @@ class LuksDevice{
       @param deviceName Name of luks device
       @param devicePath Path to luks device
      */
-    LuksDevice(string *deviceName, string *devicePath);
+    LuksDevice(const string *devName, const string *devPath);
     ~LuksDevice();
     /**
       Unlock luks device
