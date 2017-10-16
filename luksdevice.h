@@ -35,15 +35,11 @@ class LuksDevice{
   public:
 
     /**
-      Default constructor
-    */
-    LuksDevice();
-    /**
       Constructor
       @param deviceName Name of luks device
       @param devicePath Path to luks device
     */
-    LuksDevice(string deviceName, string devicePath);
+    LuksDevice(string *deviceName, string *devicePath);
     ~LuksDevice();
     /**
       Unlock luks device
@@ -64,14 +60,14 @@ class LuksDevice{
       Configure passphrase for luks device
       @param passphrase Passphrase to pass to luks device when activating it
     */
-    void setPassphrase(string passphrase);
+    void setPassphrase(string *passphrase);
 
   private:
     string devicePath;
     string deviceName;
-    string passphrase;
-    bool locked;
-    bool running;
+    string passphrase = "";
+    bool locked = true;
+    bool running = false;
 
     /**
       Unlock luks device

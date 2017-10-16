@@ -29,12 +29,12 @@ public:
   Config();
   bool Read(string path);
 
-  string keyboardBackground;
-  string wallpaper;
-  string keyboardFont;
-  string keyboardMap;
-  string inputBoxRadius;
-  string keyRadius;
+  string keyboardBackground = "#333333";
+  string wallpaper = "#FF9900";
+  string keyboardFont = "DejaVu";
+  string keyboardMap = "us";
+  string inputBoxRadius = "0";
+  string keyRadius = "0";
 private:
   bool Parse(istream & file);
 

@@ -80,20 +80,6 @@ SDL_Surface* make_wallpaper(SDL_Renderer *renderer, Config *config,
 */
 void draw_circle(SDL_Renderer *renderer, SDL_Point center, int radius);
 
-/**
-  Draw input box for passwords
-  @param renderer Initialized SDL_Renderer object
-  @param numDots Number of password 'dots' to draw
-  @param screenHeight Height of overall screen
-  @param screenWidth Width of overall screen
-  @param inputHeight Height of input box
-  @param y Vertical position of the input box
-  @param color ARGB color for input box
-  @param inputBoxRadius Radius for rounding corners
-*/
-void draw_password_box(SDL_Renderer *renderer, int numDots, int screenHeight,
-                       int screenWidth, int inputHeight, int y, argb *color,
-                       int inputBoxRadius, bool busy);
 
 /**
   Handle keypresses for virtual keyboard
@@ -115,6 +101,6 @@ void handleVirtualKeyPress(string tapped, Keyboard *kbd, LuksDevice *lkd,
   @param y Vertical position of the input box
   @param busy if true the dots will play a loading animation
 */
-void draw_password_box_dots(SDL_Renderer* renderer, int inputHeight, int screenWidth, 
+void draw_password_box_dots(SDL_Renderer* renderer, int inputHeight, int screenWidth,
                               int numDots, int y, bool busy);
 #endif

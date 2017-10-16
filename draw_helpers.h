@@ -43,15 +43,6 @@ void smooth_corners(SDL_Rect *rect, int radius,function<void(int,int)> draw_cb);
 void smooth_corners_surface(SDL_Surface*surface,Uint32 color,SDL_Rect*rect,int radius);
 
 /**
-  Draw rounded corneres for a rectangle with a renderer
-  @param renderer the renderer to draw on
-  @param color the color to draw
-  @param rect the rectangle to smooth
-  @param radius the distance from a corner where the curve will start
-*/
-void smooth_corners_renderer(SDL_Renderer*renderer,argb*color,SDL_Rect*rect,int radius);
-
-/**
   Get each pixel pixel of bezier curve based on three points
   @param offset the points offset from (0,0)
   @param p1 the first point

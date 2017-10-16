@@ -31,7 +31,7 @@ public:
   int init(SDL_Renderer *renderer, string text);
   void draw(SDL_Renderer *renderer, int x, int y);
 private:
-  SDL_Texture *texture;
+  SDL_Texture *texture = NULL;
   string text;
   Config *config;
   int width;

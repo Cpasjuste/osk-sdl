@@ -28,9 +28,8 @@ Keyboard::Keyboard(int pos, int targetPos, int width,
   this->targetPosition = targetPos;
   this->keyboardWidth = width;
   this->keyboardHeight = height;
-  this->activeLayer = 0;
   this->config = config;
-}
+ }
 
 
 Keyboard::~Keyboard(){
@@ -44,7 +43,7 @@ Keyboard::~Keyboard(){
 int Keyboard::init(SDL_Renderer *renderer){
   list<KeyboardLayer>::iterator layer;
 
-  loadKeymap("");
+  loadKeymap();
   long keyLong = strtol(config->keyRadius.c_str(),NULL,10);
   if(keyLong >= BEZIER_RESOLUTION || keyLong > (keyboardHeight/5)/1.5){
     fprintf(stderr,"key-radius must be below %f and %f, it is %ld\n",BEZIER_RESOLUTION,(keyboardHeight/5)/1.5,keyLong);
@@ -76,12 +75,6 @@ float Keyboard::getPosition(){
 }
 
 
-void Keyboard::setPosition(float p){
-  this->position = p;
-  return;
-}
-
-
 float Keyboard::getTargetPosition(){
   return this->targetPosition;
 }
@@ -93,7 +86,8 @@ void Keyboard::setTargetPosition(float p){
 }
 
 
-void Keyboard::setKeyboardColor(int r, int g, int b){
+void Keyboard::setKeyboardColor(int a, int r, int g, int b){
+  this->keyboardColor.a = a;
   this->keyboardColor.r = r;
   this->keyboardColor.g = g;
   this->keyboardColor.b = b;
@@ -130,7 +124,8 @@ void Keyboard::draw(SDL_Renderer *renderer, int screenHeight){
   srcRect.w = this->keyboardWidth;
   srcRect.h = keyboardRect.h;
 
-  SDL_SetRenderDrawColor(renderer, 30, 30, 30, 255);
+  SDL_SetRenderDrawColor(renderer, this->keyboardColor.a, this->keyboardColor.r,
+                         this->keyboardColor.g, this->keyboardColor.b);
 
   for (layer = keyboard.begin(); layer != keyboard.end(); ++layer){
     if ((*layer).layerNum == this->activeLayer){
@@ -181,8 +176,8 @@ void Keyboard::drawRow(SDL_Surface *surface, vector<touchArea> *keyList, int x,
 
 
 void Keyboard::drawKey(SDL_Surface *surface, vector<touchArea> *keyList, int x,
-                       int y, int width, int height, char *cap, string key,
-                       int padding, TTF_Font *font){
+                       int y, int width, int height, char *cap,
+                       const string *key, int padding, TTF_Font *font){
   auto keyBackground = SDL_MapRGB(surface->format, 15, 15, 15);
   SDL_Color textColor = {255, 255, 255, 0};
 
@@ -194,7 +189,7 @@ void Keyboard::drawKey(SDL_Surface *surface, vector<touchArea> *keyList, int x,
   SDL_FillRect(surface, &keyRect, keyBackground);
   SDL_Surface *textSurface;
 
-  keyList->push_back({key, x, x + width, y, y + height});
+  keyList->push_back({*key, x, x + width, y, y + height});
 
   textSurface = TTF_RenderText_Blended(font, cap, textColor);
 
@@ -267,27 +262,24 @@ SDL_Surface *Keyboard::makeKeyboard(KeyboardLayer *layer) {
   if (layer->layerNum < 2){
     char symb[] = "=\\<";
     drawKey(surface, &layer->keyList, colw, rowHeight * 4, colw*3, rowHeight,
-            symb, KEYCAP_SYMBOLS, this->keyboardWidth/100, font);
+            symb, &KEYCAP_SYMBOLS, this->keyboardWidth/100, font);
   }else if (layer->layerNum == 2){
     char abc[] = "abc";
     drawKey(surface, &layer->keyList, colw, rowHeight * 4, colw*3, rowHeight, abc,
-            KEYCAP_ABC, this->keyboardWidth/100, font);
+            &KEYCAP_ABC, this->keyboardWidth/100, font);
   }
 
   char space[] = " ";
   drawKey(surface, &layer->keyList, colw*5, rowHeight * 4, colw*10, rowHeight, space,
-          KEYCAP_SPACE, this->keyboardWidth/100, font);
+          &KEYCAP_SPACE, this->keyboardWidth/100, font);
 
   char enter[] = "OK";
   drawKey(surface, &layer->keyList, colw*15, rowHeight * 4,  colw*5, rowHeight, enter,
-          KEYCAP_RETURN, this->keyboardWidth/100, font);
+          &KEYCAP_RETURN, this->keyboardWidth/100, font);
 
   return surface;
 }
 
-void setLayout(int layoutNum){
-  /* Stub */
-}
 
 void Keyboard::setActiveLayer(int layerNum){
   if (layerNum >= 0){
@@ -310,9 +302,8 @@ int Keyboard::getActiveLayer(){
  * filling in the keyboardKeymap object with a US/QWERTY layout until parsing
  * from a file is implemented
  */
-void Keyboard::loadKeymap(string keymapPath){
+void Keyboard::loadKeymap(){
   KeyboardLayer layer0, layer1, layer2;
-  list<string> row1, row2, row3, row4;
   this->keyboard.clear();
 
   layer0.row1 = {"1", "2", "3", "4", "5", "6", "7", "8", "9", "0"};

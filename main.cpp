@@ -72,7 +72,7 @@ int main(int argc, char **args) {
     exit(1);
   }
 
-  LuksDevice *luksDev = new LuksDevice(opts.luksDevName, opts.luksDevPath);
+  LuksDevice *luksDev = new LuksDevice(&opts.luksDevName, &opts.luksDevPath);
 
   if (opts.verbose){
     SDL_LogSetAllPriority(SDL_LOG_PRIORITY_INFO);
@@ -156,7 +156,7 @@ int main(int argc, char **args) {
 
   // Initialize virtual keyboard
   Keyboard *keyboard = new Keyboard(0, 1, WIDTH, keyboardHeight, &config);
-  keyboard->setKeyboardColor(30, 30, 30);
+  keyboard->setKeyboardColor(0, 30, 30, 30);
   if (keyboard->init(renderer)){
     fprintf(stderr, "ERROR: Failed to initialize keyboard!\n");
     atexit(SDL_Quit);
@@ -238,13 +238,14 @@ int main(int argc, char **args) {
         prev_keydown_ticks = cur_ticks;
         switch (event.key.keysym.sym) {
         case SDLK_RETURN:
-          if (passphrase.size() > 0 && !luksDev->unlockRunning()){
-            luksDev->setPassphrase(strList2str(&passphrase));
+          if (!passphrase.empty() && !luksDev->unlockRunning()){
+            string pass = strList2str(&passphrase);
+            luksDev->setPassphrase(&pass);
             luksDev->unlock();
           }
           break; // SDLK_RETURN
         case SDLK_BACKSPACE:
-          if (passphrase.size() > 0 && !luksDev->unlockRunning()){
+          if (!passphrase.empty() && !luksDev->unlockRunning()){
             passphrase.pop_back();
             SDL_PushEvent(&renderEvent);
             continue;
@@ -264,14 +265,14 @@ int main(int argc, char **args) {
         xTouch = event.tfinger.x * WIDTH;
         yTouch = event.tfinger.y * HEIGHT;
         if (opts.verbose)
-          printf("xTouch: %i\tyTouch: %i\n", xTouch, yTouch);
+          printf("xTouch: %u\tyTouch: %u\n", xTouch, yTouch);
         offsetYTouch = yTouch - (int)(HEIGHT - (keyboard->getHeight() * keyboard->getPosition()));
         tapped = keyboard->getCharForCoordinates(xTouch, offsetYTouch);
         if (!luksDev->unlockRunning()){
           handleVirtualKeyPress(tapped, keyboard, luksDev, &passphrase);
         }
-        break; // SDL_FINGERUP
         SDL_PushEvent(&renderEvent);
+        break; // SDL_FINGERUP
       // handle the mouse
       case SDL_MOUSEBUTTONUP:
         unsigned int xMouse, yMouse, offsetYMouse;
@@ -279,7 +280,7 @@ int main(int argc, char **args) {
         xMouse = event.button.x;
         yMouse = event.button.y;
         if (opts.verbose)
-          printf("xMouse: %i\tyMouse: %i\n", xMouse, yMouse);
+          printf("xMouse: %u\tyMouse: %u\n", xMouse, yMouse);
         offsetYMouse = yMouse - (int)(HEIGHT - (keyboard->getHeight() * keyboard->getPosition()));
         tapped = keyboard->getCharForCoordinates(xMouse, offsetYMouse);
         if (!luksDev->unlockRunning()){
@@ -309,7 +310,6 @@ int main(int argc, char **args) {
       // Render event handler
       if (event.type == EVENT_RENDER){
         int topHalf;
-        int tooltipPosition;
 
         SDL_RenderCopy(renderer, wallpaperTexture, NULL, NULL);
         // Hide keyboard if unlock luks thread is running
@@ -328,7 +328,7 @@ int main(int argc, char **args) {
         topHalf = (HEIGHT - (keyboard->getHeight() * keyboard->getPosition()));
         // Only show either error box or password input box, not both
         if(showPasswordError){
-          tooltipPosition = topHalf / 4;
+          int tooltipPosition = topHalf / 4;
           tooltip->draw(renderer, WIDTH/20, tooltipPosition);
         }else{
           inputBoxRect.y = (int)(topHalf / 3.5);

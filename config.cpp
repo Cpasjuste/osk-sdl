@@ -25,10 +25,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <string>
 
 Config::Config() {
-  Config::wallpaper = "#FF9900";
-  Config::keyboardBackground = "#333333";
-  Config::keyboardMap = "us";
-  Config::keyboardFont = "DejaVu";
 }
 
 bool Config::Read(string path) {

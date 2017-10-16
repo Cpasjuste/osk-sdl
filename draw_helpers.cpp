@@ -31,6 +31,7 @@ SDL_Point* bezier_corner (SDL_Point*pts, SDL_Point*offset,SDL_Point *p1, SDL_Poi
   return pts;
 }
 
+
 void smooth_corners(SDL_Rect *rect, int radius,function<void(int,int)> draw_cb){
     SDL_Point* corner = (SDL_Point*)malloc(sizeof(SDL_Point)*BEZIER_RESOLUTION);
     //Top Left
@@ -70,6 +71,8 @@ void smooth_corners(SDL_Rect *rect, int radius,function<void(int,int)> draw_cb){
     }
     free(corner);
 }
+
+
 void smooth_corners_surface(SDL_Surface*surface,Uint32 color,SDL_Rect*rect,int radius){
   smooth_corners(rect,radius,[&](int x,int y){
     if(x >= surface->w || y >= surface->h || y < 0 || x < 0)
@@ -78,12 +81,6 @@ void smooth_corners_surface(SDL_Surface*surface,Uint32 color,SDL_Rect*rect,int r
     pixel += (y * surface->pitch) + (x * sizeof(Uint32));
     *((Uint32*)pixel) = color;
   });
-}
-void smooth_corners_renderer(SDL_Renderer*renderer,argb*color,SDL_Rect*rect,int radius){
-    SDL_SetRenderDrawColor(renderer,color->r,color->g,color->b,color->a);
-    smooth_corners(rect,radius,[&](int x,int y){
-      SDL_RenderDrawPoint(renderer,x,y);
-    });
 }
 
 
@@ -105,7 +102,7 @@ SDL_Surface* make_input_box(int inputWidth, int inputHeight, argb *color, int in
 
   inputRect.w -= 2;
   inputRect.h -= 2;
-  
+
   if(inputBoxRadius > 0)
     smooth_corners_surface(surf, SDL_MapRGBA(surf->format,0,0,0,0), &inputRect, inputBoxRadius);
 

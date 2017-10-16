@@ -94,7 +94,7 @@ SDL_Surface* make_wallpaper(SDL_Renderer *renderer, Config *config,
                                  bmask, amask);
 
   if(config->wallpaper[0] == '#'){
-    int r, g, b;
+    unsigned int r, g, b;
     if(sscanf(config->wallpaper.c_str(), "#%02x%02x%02x", &r, &g, &b)!=3){
       fprintf(stderr, "Could not parse color code %s\n", config->wallpaper.c_str());
       exit(1);
@@ -123,41 +123,7 @@ void draw_circle(SDL_Renderer *renderer, SDL_Point center, int radius) {
 }
 
 
-void draw_password_box(SDL_Renderer *renderer, int numDots, int screenHeight,
-                       int screenWidth, int inputHeight, int y, argb *color,
-                       int inputBoxRadius, bool busy){
-
-  SDL_Rect inputRect;
-  // Draw empty password box
-  inputRect.x = screenWidth / 20;
-  inputRect.y = y;
-  inputRect.w = screenWidth * 0.9;
-  inputRect.h = inputHeight;
-  SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
-  SDL_RenderFillRect(renderer, &inputRect);
-
-  if(inputBoxRadius > 0){
-    smooth_corners_renderer(renderer, color, &inputRect, inputBoxRadius);
-  }
-  int deflection = inputHeight / 4;
-  int ypos = y + inputHeight / 2;
-  float tick = (float) SDL_GetTicks();
-  // Draw password dots
-  int dotSize = screenWidth * 0.02;
-  for (int i = 0; i < numDots; i++) {
-    SDL_Point dotPos;
-    dotPos.x = (screenWidth / 10) + (i * dotSize * 3);
-    if (busy) {
-      dotPos.y = ypos + sin((tick / 100.0)+(i)) * deflection;
-    } else {
-      dotPos.y = ypos;
-    }
-    draw_circle(renderer, dotPos, dotSize);
-  }
-  return;
-}
-
-void draw_password_box_dots(SDL_Renderer* renderer, int inputHeight, int screenWidth, 
+void draw_password_box_dots(SDL_Renderer* renderer, int inputHeight, int screenWidth,
                               int numDots, int y, bool busy){
   int deflection = inputHeight / 4;
   int ypos = y + inputHeight / 2;
@@ -180,12 +146,13 @@ void handleVirtualKeyPress(string tapped, Keyboard *kbd, LuksDevice *lkd,
                            list<string> *passphrase){
   // return pressed
   if(tapped.compare("\n") == 0){
-    lkd->setPassphrase(strList2str(passphrase));
+    string pass = strList2str(passphrase);
+    lkd->setPassphrase(&pass);
     lkd->unlock();
   }
   // Backspace pressed
   else if (tapped.compare(KEYCAP_BACKSPACE) == 0){
-    if (passphrase->size() > 0){
+    if (!passphrase->empty()){
       passphrase->pop_back();
     }
   }

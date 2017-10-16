@@ -44,16 +44,16 @@ struct touchArea {
 };
 
 struct rgb {
-  int r;
-  int g;
-  int b;
+  unsigned int r;
+  unsigned int g;
+  unsigned int b;
 };
 
 struct argb{
-  int a;
-  int r;
-  int g;
-  int b;
+  unsigned int a;
+  unsigned int r;
+  unsigned int g;
+  unsigned int b;
 };
 
 struct KeyboardLayer{
@@ -90,21 +90,17 @@ class Keyboard {
     string getCharForCoordinates(int x, int y);
     /**
       Set keyboard color
+      @param a Alpha value
       @param r Red value
       @param g Green value
       @param b Blue value
     */
-    void setKeyboardColor(int r, int g, int b);
+    void setKeyboardColor(int a, int r, int g, int b);
     /**
       Get position of keyboard
       @return Position as a value between 0 and 1 (0% and 100%)
     */
     float getPosition();
-    /**
-      Set keyboard position
-      @param p Position between 0 (0%) and 1 (100%)
-    */
-    void setPosition(float p);
     /**
       Get keyboard target position
       @return Target position of keyboard, between 0 (0%) and 1 (100%)
@@ -137,11 +133,6 @@ class Keyboard {
     */
     void setActiveLayer(int layerNum);
     /**
-      Set layout for keyboard
-      @param layoutNum Index of layout
-    */
-    int setLayout(int layoutNum);
-    /**
       Initialize keyboard object
       @param renderer Initialized SDL_Renderer object
       @return 0 on success, non-zero on error
@@ -149,15 +140,15 @@ class Keyboard {
     int init(SDL_Renderer *renderer);
 
   private:
-    rgb keyboardColor;
-    rgb inputColor;
-    rgb dotColor;
-    int keyRadius;
+    argb keyboardColor = {0, 0, 0, 0};
+    rgb inputColor = {0, 0, 0};
+    rgb dotColor = {0, 0, 0};
+    int keyRadius = 0;
     float position;
     float targetPosition;
     int keyboardWidth;
     int keyboardHeight;
-    int activeLayer;
+    int activeLayer = 0;
     list<KeyboardLayer> keyboard;
     Config *config;
 
@@ -191,8 +182,8 @@ class Keyboard {
       @param font Font to use for key character
     */
     void drawKey(SDL_Surface *surface, vector<touchArea> *keyList, int x, int y,
-                 int width, int height, char *cap, string key, int padding,
-                 TTF_Font *font);
+                 int width, int height, char *cap, const string *key,
+                 int padding, TTF_Font *font);
     /**
       Prepare new keyboard
       @param layer Keyboard layer to use
@@ -203,6 +194,6 @@ class Keyboard {
       Load a keymap into the keyboard
       @param keymapPath Path to keymap file
     */
-    void loadKeymap(string keymapPath);
+    void loadKeymap();
 };
 #endif

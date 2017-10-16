@@ -23,21 +23,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 using namespace std;
 
 
-LuksDevice::LuksDevice(){
-  this->deviceName = "";
-  this->devicePath = "";
-  this->passphrase = "";
-  this->running = false;
-  this->locked = true;
-}
-
-
-LuksDevice::LuksDevice(string deviceName, string devicePath){
-  this->deviceName = deviceName;
-  this->devicePath = devicePath;
-  this->passphrase = "";
-  this->running = false;
-  this->locked = true;
+LuksDevice::LuksDevice(string *deviceName, string *devicePath){
+  this->deviceName = *deviceName;
+  this->devicePath = *devicePath;
 }
 
 
@@ -46,8 +34,8 @@ LuksDevice::~LuksDevice(){
 }
 
 
-void LuksDevice::setPassphrase(string passphrase){
-  this->passphrase = passphrase;
+void LuksDevice::setPassphrase(string *passphrase){
+  this->passphrase = *passphrase;
 }
 
 
@@ -60,7 +48,7 @@ int LuksDevice::unlock(){
 int LuksDevice::unlock(void *luksDev){
   struct crypt_device *cd;
   int ret;
-  LuksDevice *lcd = (LuksDevice*) luksDev;
+  LuksDevice *lcd = static_cast<LuksDevice*>(luksDev);
 
   // Note: no mutex here, since this function makes a blocking call later on.
   // Careful!
