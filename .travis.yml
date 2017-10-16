@@ -1,0 +1,7 @@
+language: c++
+dist: trusty
+sudo: required
+before_install:
+- sudo .travis/install_cppcheck
+script:
+  test/static_analysis.sh

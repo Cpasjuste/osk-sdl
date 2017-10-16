@@ -1,0 +1,12 @@
+#! /bin/bash
+
+set -e
+set -x
+
+cd "$(mktemp -d)"
+
+git clone --single-branch --depth=1 --branch 1.81 https://github.com/danmar/cppcheck.git
+cd cppcheck
+
+make -j 4 install CFGDIR="/usr/share/cppcheck" CXXFLAGS="-O2 -march=native -mtune=native -Wunreachable-code"
+cd ../
