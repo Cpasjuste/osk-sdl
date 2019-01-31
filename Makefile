@@ -3,8 +3,8 @@ TARGET     := osk-sdl
 SDL2_CFLAGS := $(shell sdl2-config --cflags)
 SDL2_LIBS  := $(shell sdl2-config --libs)
 
-CXX        := g++
-CXXFLAGS   := -std=c++14 -Wall -g $(SDL2_CFLAGS)
+CXX        ?= g++
+CXXFLAGS   := -std=c++14 -Wall -g $(CXXFLAGS) $(SDL2_CFLAGS)
 
 LIBS       := -lcryptsetup $(SDL2_LIBS) -lSDL2_ttf
 
@@ -23,7 +23,7 @@ $(OBJ_DIR)/%.o: $(SRC_DIR)/%.cpp
 
 $(BIN_DIR)/$(TARGET): $(OBJECTS)
 	@echo LD $@
-	@$(CXX) -o $@ $^ $(CXXFLAGS) $(LIBS)
+	@$(CXX) -o $@ $^ $(CXXFLAGS) $(LDFLAGS) $(LIBS)
 
 .PHONY: clean
 
