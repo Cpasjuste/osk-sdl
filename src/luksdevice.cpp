@@ -63,7 +63,7 @@ int LuksDevice::unlock(void *luksDev){
   }
 
   // Load header
-  ret = crypt_load(cd, CRYPT_LUKS1, NULL);
+  ret = crypt_load(cd, NULL, NULL);
   if (ret < 0) {
     printf("crypt_load() failed on device %s.\n", crypt_get_device_name(cd));
     crypt_free(cd);
