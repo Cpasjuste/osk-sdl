@@ -45,7 +45,7 @@ static string ErrorText = "Incorrect passphrase";
 
 int main(int argc, char **args) {
   list<string> passphrase;
-  Opts opts;
+  Opts opts{};
   Config config;
   SDL_Event event;
   SDL_Window *display = NULL;
