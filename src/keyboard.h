@@ -30,6 +30,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 const string KEYCAP_BACKSPACE = "\u2190";
 const string KEYCAP_SHIFT     = "\u2191";
+const string KEYCAP_NUMBERS   = "123";
 const string KEYCAP_SYMBOLS   = "SYM";
 const string KEYCAP_ABC       = "abc";
 const string KEYCAP_SPACE     = " ";
@@ -59,7 +60,7 @@ struct argb{
 struct KeyboardLayer {
   SDL_Surface *surface;
   SDL_Texture *texture;
-  list<string> rows[4];
+  list<string> rows[3];
   vector<touchArea> keyList;
   int layerNum;
 };

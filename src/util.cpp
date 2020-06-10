@@ -163,9 +163,13 @@ void handleVirtualKeyPress(string tapped, Keyboard *kbd, LuksDevice *lkd, list<s
       kbd->setActiveLayer(!kbd->getActiveLayer());
     }
   }
+  // Numbers key pressed:
+  else if (tapped.compare(KEYCAP_NUMBERS) == 0){
+    kbd->setActiveLayer(2);
+  }
   // Symbols key pressed
   else if (tapped.compare(KEYCAP_SYMBOLS) == 0){
-    kbd->setActiveLayer(2);
+    kbd->setActiveLayer(3);
   }
   // ABC key was pressed
   else if (tapped.compare(KEYCAP_ABC) == 0){
