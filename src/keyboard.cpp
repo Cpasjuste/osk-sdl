@@ -229,7 +229,8 @@ SDL_Surface *Keyboard::makeKeyboard(KeyboardLayer *layer) {
                                          this->keyboardColor.g,
                                          this->keyboardColor.b));
 
-  int rowHeight = this->keyboardHeight / 5;
+  int rowCount = sizeof(layer->rows) / sizeof(*layer->rows);
+  int rowHeight = this->keyboardHeight / (rowCount + 1);
 
   if (TTF_Init() == -1) {
     printf("TTF_Init: %s\n", TTF_GetError());
@@ -242,16 +243,16 @@ SDL_Surface *Keyboard::makeKeyboard(KeyboardLayer *layer) {
     return NULL;
   }
 
-  drawRow(surface, &layer->keyList, 0, 0, this->keyboardWidth / 10, rowHeight,
-          &layer->row1, this->keyboardWidth / 100, font);
-  drawRow(surface, &layer->keyList, 0, rowHeight, this->keyboardWidth / 10,
-          rowHeight, &layer->row2, this->keyboardWidth / 100, font);
-  drawRow(surface, &layer->keyList, this->keyboardWidth / 20, rowHeight * 2,
-          this->keyboardWidth / 10, rowHeight, &layer->row3,
-          this->keyboardWidth / 100, font);
-  drawRow(surface, &layer->keyList, this->keyboardWidth / 20, rowHeight * 3,
-          this->keyboardWidth / 10,
-          rowHeight, &layer->row4, this->keyboardWidth / 100, font);
+  int y = 0;
+  int i = 0;
+  while (i < rowCount) {
+    int rowElementCount = layer->rows[i].size();
+    int x = (rowElementCount >= 10 ? 0 : this->keyboardWidth / 20);
+    drawRow(surface, &layer->keyList, x, y, this->keyboardWidth / 10,
+            rowHeight, &layer->rows[i], this->keyboardWidth / 100, font);
+    y += rowHeight;
+    i++;
+  }
 
   // Divide the bottom row in 20 columns and use that for calculations
   int colw = this->keyboardWidth / 20;
@@ -259,20 +260,20 @@ SDL_Surface *Keyboard::makeKeyboard(KeyboardLayer *layer) {
   /* Draw symbols or ABC key based on which layer we are creating */
   if (layer->layerNum < 2) {
     char symb[] = "=\\<";
-    drawKey(surface, &layer->keyList, colw, rowHeight * 4, colw*3, rowHeight,
+    drawKey(surface, &layer->keyList, colw, y, colw*3, rowHeight,
             symb, &KEYCAP_SYMBOLS, this->keyboardWidth / 100, font);
   }else if (layer->layerNum == 2) {
     char abc[] = "abc";
-    drawKey(surface, &layer->keyList, colw, rowHeight * 4, colw*3, rowHeight,
+    drawKey(surface, &layer->keyList, colw, y, colw*3, rowHeight,
             abc, &KEYCAP_ABC, this->keyboardWidth / 100, font);
   }
 
   char space[] = " ";
-  drawKey(surface, &layer->keyList, colw*5, rowHeight * 4, colw*10, rowHeight,
+  drawKey(surface, &layer->keyList, colw*5, y, colw*10, rowHeight,
           space, &KEYCAP_SPACE, this->keyboardWidth / 100, font);
 
   char enter[] = "OK";
-  drawKey(surface, &layer->keyList, colw*15, rowHeight * 4,  colw*5, rowHeight,
+  drawKey(surface, &layer->keyList, colw*15, y,  colw*5, rowHeight,
           enter, &KEYCAP_RETURN, this->keyboardWidth / 100, font);
 
   return surface;
@@ -304,22 +305,22 @@ void Keyboard::loadKeymap() {
   KeyboardLayer layer0, layer1, layer2;
   this->keyboard.clear();
 
-  layer0.row1 = {"1", "2", "3", "4", "5", "6", "7", "8", "9", "0"};
-  layer0.row2 = {"q", "w", "e", "r", "t", "y", "u", "i", "o", "p"};
-  layer0.row3 = {"a", "s", "d", "f", "g", "h", "j", "k", "l"};
-  layer0.row4 = {KEYCAP_SHIFT, "z", "x", "c", "v", "b", "n", "m", KEYCAP_BACKSPACE};
+  layer0.rows[0] = {"1", "2", "3", "4", "5", "6", "7", "8", "9", "0"};
+  layer0.rows[1] = {"q", "w", "e", "r", "t", "y", "u", "i", "o", "p"};
+  layer0.rows[2] = {"a", "s", "d", "f", "g", "h", "j", "k", "l"};
+  layer0.rows[3] = {KEYCAP_SHIFT, "z", "x", "c", "v", "b", "n", "m", KEYCAP_BACKSPACE};
   layer0.layerNum = 0;
 
-  layer1.row1 = {"!", "@", "#", "$", "%", "^", "&", "*", "(", ")"};
-  layer1.row2 = {"Q", "W", "E", "R", "T", "Y", "U", "I", "O", "P"};
-  layer1.row3 = {"A", "S", "D", "F", "G", "H", "J", "K", "L"};
-  layer1.row4 = {KEYCAP_SHIFT, "Z", "X", "C", "V", "B", "N", "M", KEYCAP_BACKSPACE};
+  layer1.rows[0] = {"!", "@", "#", "$", "%", "^", "&", "*", "(", ")"};
+  layer1.rows[1] = {"Q", "W", "E", "R", "T", "Y", "U", "I", "O", "P"};
+  layer1.rows[2] = {"A", "S", "D", "F", "G", "H", "J", "K", "L"};
+  layer1.rows[3] = {KEYCAP_SHIFT, "Z", "X", "C", "V", "B", "N", "M", KEYCAP_BACKSPACE};
   layer1.layerNum = 1;
 
-  layer2.row1 = {"!", "@", "#", "$", "%", "^", "&", "*", "(", ")"};
-  layer2.row2 = {";", ":", "'", "\"", ",", ".", "<", ">", "/", "?"};
-  layer2.row3 = {"-", "_", "=", "+", "[", "]", "{", "}", "\\"};
-  layer2.row4 = {KEYCAP_SHIFT, "|", "\u20a4", "\u20ac", "\u2211", "\u221e", "\u221a", "\u2248", KEYCAP_BACKSPACE};
+  layer2.rows[0] = {"!", "@", "#", "$", "%", "^", "&", "*", "(", ")"};
+  layer2.rows[1] = {";", ":", "'", "\"", ",", ".", "<", ">", "/", "?"};
+  layer2.rows[2] = {"-", "_", "=", "+", "[", "]", "{", "}", "\\"};
+  layer2.rows[3] = {KEYCAP_SHIFT, "|", "\u20a4", "\u20ac", "\u2211", "\u221e", "\u221a", "\u2248", KEYCAP_BACKSPACE};
   layer2.layerNum = 2;
 
   this->keyboard.push_back(layer0);

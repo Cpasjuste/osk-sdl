@@ -56,13 +56,10 @@ struct argb{
   unsigned int b;
 };
 
-struct KeyboardLayer{
+struct KeyboardLayer {
   SDL_Surface *surface;
   SDL_Texture *texture;
-  list<string> row1;
-  list<string> row2;
-  list<string> row3;
-  list<string> row4;
+  list<string> rows[4];
   vector<touchArea> keyList;
   int layerNum;
 };
