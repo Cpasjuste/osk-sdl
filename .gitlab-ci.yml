@@ -1,7 +1,23 @@
 ---
 image: alpine:3.12
 
+.only-default: &only-default
+  only:
+    - master
+    - merge_requests
+    - tags
+
+mr-settings:
+  only:
+    - merge_requests
+  before_script:
+    - apk -q add python3
+  script:
+    - wget -q "https://gitlab.com/postmarketOS/ci-common/-/raw/master/check_mr_settings.py"
+    - python3 ./check_mr_settings.py
+
 static-analysis:
+  <<: *only-default
   image: alpine:3.8
   before_script:
     - apk -q add cppcheck
@@ -9,6 +25,7 @@ static-analysis:
     - test/static_analysis.sh
 
 build::amd64:
+  <<: *only-default
   before_script:
     - apk -q add build-base linux-headers sdl2-dev sdl2_ttf-dev cryptsetup-dev
   script:
