@@ -50,8 +50,7 @@ int Tooltip::init(SDL_Renderer *renderer, string text){
     fprintf(stderr, "CreateRGBSurface failed: %s\n", SDL_GetError());
     return -1;
   }
-
-  SDL_FillRect(surface, NULL, SDL_MapRGB(surface->format, 239, 59, 59));
+  SDL_FillRect(surface, NULL, SDL_MapRGB(surface->format, 30, 30, 30));
 
   TTF_Font *font = TTF_OpenFont(config->keyboardFont.c_str(), 24);
   SDL_Surface *textSurface;

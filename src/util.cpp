@@ -111,7 +111,7 @@ SDL_Surface* make_wallpaper(SDL_Renderer *renderer, Config *config, int width, i
 
 
 void draw_circle(SDL_Renderer *renderer, SDL_Point center, int radius) {
-  SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
+  SDL_SetRenderDrawColor(renderer, 229, 229, 229, 255);
   for (int w = 0; w < radius * 2; w++) {
     for (int h = 0; h < radius * 2; h++) {
       int dx = radius - w; // horizontal offset

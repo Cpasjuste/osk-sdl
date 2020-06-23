@@ -195,7 +195,7 @@ int main(int argc, char **args) {
       inputBoxRadius = 0;
   }
 
-  argb inputBoxColor = argb{255, 255, 255, 255};
+  argb inputBoxColor = argb{255, 30, 30, 30};
 
   SDL_Surface* inputBox = make_input_box(WIDTH * 0.9, inputHeight,
                                         &inputBoxColor, inputBoxRadius);
