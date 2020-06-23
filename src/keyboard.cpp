@@ -273,8 +273,12 @@ SDL_Surface *Keyboard::makeKeyboard(KeyboardLayer *layer) {
   }
 
   char space[] = " ";
-  drawKey(surface, &layer->keyList, colw*5, y, colw*10, rowHeight,
+  drawKey(surface, &layer->keyList, colw*5, y, colw*8, rowHeight,
           space, &KEYCAP_SPACE, this->keyboardWidth / 100, font);
+
+  char period[] = ".";
+  drawKey(surface, &layer->keyList, colw*13, y, colw*2, rowHeight,
+	  period, &KEYCAP_PERIOD, this->keyboardWidth / 100, font);
 
   char enter[] = "OK";
   drawKey(surface, &layer->keyList, colw*15, y,  colw*5, rowHeight,
@@ -304,6 +308,14 @@ int Keyboard::getActiveLayer() {
  * This function is not actually parsing any external keymaps, it's currently
  * filling in the keyboardKeymap object with a US/QWERTY layout until parsing
  * from a file is implemented
+ *
+ * Be careful when changing the layout, you could lock somebody out who is
+ * using these symbols in their password!
+ *
+ * If the symbols are changed, then the check for allowed characters in
+ * postmarketos-ondev#14 needs to be adjusted too. This has the same layout as
+ * squeekboard now:
+ * https://source.puri.sm/Librem5/squeekboard/-/blob/master/data/keyboards/us.yaml
  */
 void Keyboard::loadKeymap() {
   KeyboardLayer layer0, layer1, layer2, layer3;
@@ -320,13 +332,13 @@ void Keyboard::loadKeymap() {
   layer1.layerNum = 1;
 
   layer2.rows[0] = {"1", "2", "3", "4", "5", "6", "7", "8", "9", "0"};
-  layer2.rows[1] = {"@", "#", "$", "%", "&", "-", "_", "(", ")"};
-  layer2.rows[2] = {KEYCAP_SHIFT, ",", "\"", "'", ":", "!", "?", "+", KEYCAP_BACKSPACE};
+  layer2.rows[1] = {"@", "#", "$", "%", "&", "-", "_", "+", "(", ")"};
+  layer2.rows[2] = {KEYCAP_SHIFT, ",", "\"", "'", ":", ";", "!", "?", KEYCAP_BACKSPACE};
   layer2.layerNum = 2;
 
-  layer3.rows[0] = {"~", "`", "=", "[", "]", "^", "/", "\\", "(", ")"};
-  layer3.rows[1] = {";", ":", "'", "\"", ",", ".", "<", ">", "{"};
-  layer3.rows[2] = {KEYCAP_SHIFT, "|", "\u20a4", "\u20ac", "\u2211", "\u221e", "\u221a", "\u2248", KEYCAP_BACKSPACE};
+  layer3.rows[0] = {"~", "`", "|", "·", "√", "π", "τ", "÷", "×", "¶"};
+  layer3.rows[1] = {"©", "®", "£", "€", "¥", "^", "°", "*", "{", "}"};
+  layer3.rows[2] = {KEYCAP_SHIFT, "\\", "/", "<", ">", "=", "[", "]", KEYCAP_BACKSPACE};
   layer3.layerNum = 3;
 
   this->keyboard.push_back(layer0);

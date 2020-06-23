@@ -35,6 +35,7 @@ const string KEYCAP_SYMBOLS   = "SYM";
 const string KEYCAP_ABC       = "abc";
 const string KEYCAP_SPACE     = " ";
 const string KEYCAP_RETURN    = "\n";
+const string KEYCAP_PERIOD    = ".";
 
 struct touchArea {
   string keyChar;
