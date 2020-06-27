@@ -100,6 +100,6 @@ void handleVirtualKeyPress(string tapped, Keyboard *kbd, LuksDevice *lkd, list<s
   @param y Vertical position of the input box
   @param busy if true the dots will play a loading animation
  */
-void draw_password_box_dots(SDL_Renderer* renderer, int inputHeight,
+void draw_password_box_dots(SDL_Renderer* renderer, Config *config, int inputHeight,
                             int screenWidth, int numDots, int y, bool busy);
 #endif

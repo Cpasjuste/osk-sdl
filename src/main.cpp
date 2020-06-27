@@ -315,7 +315,7 @@ int main(int argc, char **args) {
         SDL_RenderCopy(renderer, wallpaperTexture, NULL, NULL);
         // Hide keyboard if unlock luks thread is running
         keyboard->setTargetPosition(!luksDev->unlockRunning());
-        keyboard->draw(renderer, HEIGHT);
+        keyboard->draw(renderer, &config, HEIGHT);
 
         if(lastUnlockingState != luksDev->unlockRunning()){
           if(luksDev->unlockRunning() == false && luksDev->isLocked()){
@@ -334,7 +334,7 @@ int main(int argc, char **args) {
         }else{
           inputBoxRect.y = (int)(topHalf / 3.5);
           SDL_RenderCopy(renderer, inputBoxTexture, NULL, &inputBoxRect);
-          draw_password_box_dots(renderer, inputHeight, WIDTH,
+          draw_password_box_dots(renderer, &config, inputHeight, WIDTH,
                                 passphrase.size(), inputBoxRect.y,
                                 luksDev->unlockRunning());
         }

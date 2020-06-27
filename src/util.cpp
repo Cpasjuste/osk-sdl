@@ -124,7 +124,7 @@ void draw_circle(SDL_Renderer *renderer, SDL_Point center, int radius) {
 }
 
 
-void draw_password_box_dots(SDL_Renderer* renderer, int inputHeight, int screenWidth, int numDots, int y, bool busy) {
+void draw_password_box_dots(SDL_Renderer* renderer, Config *config, int inputHeight, int screenWidth, int numDots, int y, bool busy) {
   int deflection = inputHeight / 4;
   int ypos = y + inputHeight / 2;
   float tick = (float) SDL_GetTicks();
@@ -133,7 +133,7 @@ void draw_password_box_dots(SDL_Renderer* renderer, int inputHeight, int screenW
   for (int i = 0; i < numDots; i++) {
     SDL_Point dotPos;
     dotPos.x = (screenWidth / 10) + (i * dotSize * 3);
-    if (busy) {
+    if (busy && config->animations) {
       dotPos.y = ypos + sin((tick / 100.0) + (i)) * deflection;
     } else {
       dotPos.y = ypos;

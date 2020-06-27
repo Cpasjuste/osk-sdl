@@ -67,6 +67,11 @@ bool Config::Read(string path) {
   if (it != Config::options.end()) {
     Config::inputBoxRadius = Config::options["inputbox-radius"];
   }
+
+  it = Config::options.find("animations");
+  if (it != Config::options.end()) {
+    Config::animations = ( Config::options["animations"] == "true" );
+  }
   return true;
 }
 

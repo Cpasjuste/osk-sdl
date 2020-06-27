@@ -32,6 +32,7 @@ public:
   string keyboardMap = "us";
   string inputBoxRadius = "0";
   string keyRadius = "0";
+  bool animations = true;
 
   /**
     Constructor for Config

@@ -122,7 +122,7 @@ public:
     @param renderer An initialized SDL_Renderer object
     @param screenHeight Height of screen
     */
-  void draw(SDL_Renderer *renderer, int screenHeight);
+  void draw(SDL_Renderer *renderer, Config *config, int screenHeight);
   /**
     Get the active keyboard layer
     @return Index of active keyboard layer
