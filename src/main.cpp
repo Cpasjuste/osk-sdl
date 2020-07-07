@@ -1,5 +1,6 @@
 /*
-Copyright (C) 2017 Martijn Braam & Clayton Craft <clayton@craftyguy.net>
+Copyright (C) 2017-2020
+Martijn Braam, Clayton Craft <clayton@craftyguy.net>, et al.
 
 This file is part of osk-sdl.
 
@@ -310,12 +311,44 @@ int main(int argc, char **args) {
       } // switch event.type
       // Render event handler
       if (event.type == EVENT_RENDER){
-        int topHalf;
+        /* NOTE ON DOUBLE BUFFERING / RENDERING TWICE:
+           We only re-schedule render events during animation, otherwise
+           we render once and then do nothing for a long while.
 
-        SDL_RenderCopy(renderer, wallpaperTexture, NULL, NULL);
-        // Hide keyboard if unlock luks thread is running
-        keyboard->setTargetPosition(!luksDev->unlockRunning());
-        keyboard->draw(renderer, &config, HEIGHT);
+           A single render may however never reach the screen, since
+           SDL_RenderCopy() page flips and with double buffering that
+           may just fill the hidden backbuffer.
+
+           Therefore, we need to render two times if not during animation
+           to make sure it actually shows on screen during lengthy pauses.
+         */
+        int render_times = 0;
+        while (render_times < 2) {  // double-flip so it reaches screen
+          render_times++;
+          SDL_RenderCopy(renderer, wallpaperTexture, NULL, NULL);
+          // Hide keyboard if unlock luks thread is running
+          keyboard->setTargetPosition(!luksDev->unlockRunning());
+          keyboard->draw(renderer, &config, HEIGHT);
+
+          topHalf = (HEIGHT - (keyboard->getHeight() * keyboard->getPosition()));
+          // Only show either error box or password input box, not both
+          if (showPasswordError){
+            int tooltipPosition = topHalf / 4;
+            tooltip->draw(renderer, WIDTH / 20, tooltipPosition);
+          } else {
+            inputBoxRect.y = (int)(topHalf / 3.5);
+            SDL_RenderCopy(renderer, inputBoxTexture, NULL, &inputBoxRect);
+            draw_password_box_dots(renderer, &config, inputHeight, WIDTH,
+                                   passphrase.size(), inputBoxRect.y,
+                                   luksDev->unlockRunning());
+          }
+          SDL_RenderPresent(renderer);
+          if (keyboard->isInSlideAnimation()) {
+            // No need to double-flip if we'll redraw more for animation
+            // in a tiny moment anyway.
+            break;
+          }
+        }
 
         if(lastUnlockingState != luksDev->unlockRunning()){
           if(luksDev->unlockRunning() == false && luksDev->isLocked()){
@@ -326,24 +359,9 @@ int main(int argc, char **args) {
           }
           lastUnlockingState = luksDev->unlockRunning();
         }
-        topHalf = (HEIGHT - (keyboard->getHeight() * keyboard->getPosition()));
-        // Only show either error box or password input box, not both
-        if(showPasswordError){
-          int tooltipPosition = topHalf / 4;
-          tooltip->draw(renderer, WIDTH / 20, tooltipPosition);
-        }else{
-          inputBoxRect.y = (int)(topHalf / 3.5);
-          SDL_RenderCopy(renderer, inputBoxTexture, NULL, &inputBoxRect);
-          draw_password_box_dots(renderer, &config, inputHeight, WIDTH,
-                                passphrase.size(), inputBoxRect.y,
-                                luksDev->unlockRunning());
-        }
-        SDL_RenderPresent(renderer);
         // If any animations are running, continue to push render events to the
         // event queue
-        bool keyboardAnimate = (int)floor(keyboard->getTargetPosition()*100) !=
-          (int)floor(keyboard->getPosition()*100);
-        if (luksDev->unlockRunning() || keyboardAnimate){
+        if (luksDev->unlockRunning() || keyboard->isInSlideAnimation()) {
           SDL_PushEvent(&renderEvent);
         }
       }

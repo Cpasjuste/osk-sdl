@@ -1,5 +1,6 @@
 /*
-Copyright (C) 2017 Martijn Braam & Clayton Craft <clayton@craftyguy.net>
+Copyright (C) 2017-2020
+Martijn Braam, Clayton Craft <clayton@craftyguy.net>, et al.
 
 This file is part of osk-sdl.
 
@@ -174,6 +175,12 @@ void Keyboard::draw(SDL_Renderer *renderer, Config *config, int screenHeight) {
   return;
 }
 
+
+bool Keyboard::isInSlideAnimation() {
+  return (fabs(
+    getTargetPosition() - getPosition()
+  ) > 0.0001);
+}
 
 void Keyboard::drawRow(SDL_Surface *surface, vector<touchArea> *keyList, int x, int y, int width, int height,
                        list<string> *keys, int padding, TTF_Font *font)

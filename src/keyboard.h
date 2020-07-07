@@ -140,6 +140,11 @@ public:
     */
   int init(SDL_Renderer *renderer);
 
+  /**
+    Query whether keyboard is currently sliding up/down.
+    */
+  bool isInSlideAnimation();
+
 private:
   argb keyboardColor = {0, 0, 0, 0};
   rgb inputColor = {0, 0, 0};
