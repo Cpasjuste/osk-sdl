@@ -4,7 +4,7 @@ set -e
 files=$(find . -name "*.cpp")
 out=$(mktemp)
 cppcheck_enable="style,warning,performance,unusedFunction"
-cppcheck_opts="--template=gcc --std=c++14 --language=c++ --enable=${cppcheck_enable} "
+cppcheck_opts="--template=gcc --inline-suppr --std=c++14 --language=c++ --enable=${cppcheck_enable} "
 
 function oops(){
   echo "*************************************************"
