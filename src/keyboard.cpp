@@ -246,33 +246,61 @@ SDL_Surface *Keyboard::makeKeyboard(KeyboardLayer *layer) {
     return NULL;
   }
 
+  // Divide the bottom row in 20 columns and use that for calculations
+  int colw = this->keyboardWidth / 20;
+
+  int sidebuttonsWidth = this->keyboardWidth / 20 + colw * 2;
   int y = 0;
   int i = 0;
   while (i < rowCount) {
     int rowElementCount = layer->rows[i].size();
-    int x = (rowElementCount >= 10 ? 0 : this->keyboardWidth / 20);
+    int x = 0;
+    if (i < 2 && rowElementCount < 10)
+        x = this->keyboardWidth / 20;
+    if (i == 2) /* leave room for shift, "123" or "=\<" key */
+        x = this->keyboardWidth / 20 + colw * 2;
     drawRow(surface, &layer->keyList, x, y, this->keyboardWidth / 10,
             rowHeight, &layer->rows[i], this->keyboardWidth / 100, font);
     y += rowHeight;
     i++;
   }
 
-  // Divide the bottom row in 20 columns and use that for calculations
-  int colw = this->keyboardWidth / 20;
-
-  /* Draw symbols or ABC key based on which layer we are creating */
+  /* Bottom-left key, 123 or ABC key based on which layer we're on: */
   if (layer->layerNum < 2) {
     char nums[] = "123";
     drawKey(surface, &layer->keyList, colw, y, colw*3, rowHeight,
             nums, &KEYCAP_NUMBERS, this->keyboardWidth / 100, font);
-  } else if (layer->layerNum == 2) {
-    char symb[] = "=\\<";
-    drawKey(surface, &layer->keyList, colw, y, colw*3, rowHeight,
-            symb, &KEYCAP_SYMBOLS, this->keyboardWidth / 100, font);
-  } else if (layer->layerNum == 3) {
+  } else {
     char abc[] = "abc";
     drawKey(surface, &layer->keyList, colw, y, colw*3, rowHeight,
             abc, &KEYCAP_ABC, this->keyboardWidth / 100, font);
+  }
+  /* Shift-key that transforms into "123" or "=\<" depending on layer: */
+  if (layer->layerNum == 2) {
+    char symb[] = "=\\<";
+    drawKey(surface, &layer->keyList, 0, y - rowHeight,
+            sidebuttonsWidth, rowHeight,
+            symb, &KEYCAP_SYMBOLS, this->keyboardWidth / 100, font);
+  } else if (layer->layerNum == 3) {
+    char nums[] = "123";
+    drawKey(surface, &layer->keyList, 0, y - rowHeight,
+            sidebuttonsWidth, rowHeight,
+            nums, &KEYCAP_NUMBERS, this->keyboardWidth / 100, font);
+  } else {
+    char shift[64] = "";
+    memcpy(shift, KEYCAP_SHIFT.c_str(), strlen(KEYCAP_SHIFT.c_str()) + 1);
+    drawKey(surface, &layer->keyList, 0, y - rowHeight,
+            sidebuttonsWidth, rowHeight,
+            shift, &KEYCAP_SHIFT, this->keyboardWidth / 100, font);
+  }
+  /* Backspace key that is larger-sized (hence also drawn separately) */
+  {
+    char bcksp[64];
+    memcpy(bcksp, KEYCAP_BACKSPACE.c_str(),
+           strlen(KEYCAP_BACKSPACE.c_str()) + 1);
+    drawKey(surface, &layer->keyList, this->keyboardWidth / 20 + colw * 16,
+            y - rowHeight, sidebuttonsWidth, rowHeight,
+            bcksp, &KEYCAP_BACKSPACE, this->keyboardWidth / 100, font);
   }
 
   char space[] = " ";
@@ -326,22 +354,22 @@ void Keyboard::loadKeymap() {
 
   layer0.rows[0] = {"q", "w", "e", "r", "t", "y", "u", "i", "o", "p"};
   layer0.rows[1] = {"a", "s", "d", "f", "g", "h", "j", "k", "l"};
-  layer0.rows[2] = {KEYCAP_SHIFT, "z", "x", "c", "v", "b", "n", "m", KEYCAP_BACKSPACE};
+  layer0.rows[2] = {"z", "x", "c", "v", "b", "n", "m"};
   layer0.layerNum = 0;
 
   layer1.rows[0] = {"Q", "W", "E", "R", "T", "Y", "U", "I", "O", "P"};
   layer1.rows[1] = {"A", "S", "D", "F", "G", "H", "J", "K", "L"};
-  layer1.rows[2] = {KEYCAP_SHIFT, "Z", "X", "C", "V", "B", "N", "M", KEYCAP_BACKSPACE};
+  layer1.rows[2] = {"Z", "X", "C", "V", "B", "N", "M"};
   layer1.layerNum = 1;
 
   layer2.rows[0] = {"1", "2", "3", "4", "5", "6", "7", "8", "9", "0"};
   layer2.rows[1] = {"@", "#", "$", "%", "&", "-", "_", "+", "(", ")"};
-  layer2.rows[2] = {KEYCAP_SHIFT, ",", "\"", "'", ":", ";", "!", "?", KEYCAP_BACKSPACE};
+  layer2.rows[2] = {",", "\"", "'", ":", ";", "!", "?"};
   layer2.layerNum = 2;
 
   layer3.rows[0] = {"~", "`", "|", "·", "√", "π", "τ", "÷", "×", "¶"};
   layer3.rows[1] = {"©", "®", "£", "€", "¥", "^", "°", "*", "{", "}"};
-  layer3.rows[2] = {KEYCAP_SHIFT, "\\", "/", "<", ">", "=", "[", "]", KEYCAP_BACKSPACE};
+  layer3.rows[2] = {"\\", "/", "<", ">", "=", "[", "]"};
   layer3.layerNum = 3;
 
   this->keyboard.push_back(layer0);
