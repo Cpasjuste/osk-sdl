@@ -191,7 +191,7 @@ void Keyboard::drawKey(SDL_Surface *surface, vector<touchArea> *keyList, int x, 
 
   keyList->push_back({*key, x, x + width, y, y + height});
 
-  textSurface = TTF_RenderText_Blended(font, cap, textColor);
+  textSurface = TTF_RenderUTF8_Blended(font, cap, textColor);
 
   SDL_Rect keyCapRect;
   keyCapRect.x = keyRect.x + ((keyRect.w / 2) - (textSurface->w / 2));
