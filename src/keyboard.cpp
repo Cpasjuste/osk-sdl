@@ -179,7 +179,7 @@ void Keyboard::draw(SDL_Renderer *renderer, Config *config, int screenHeight) {
 bool Keyboard::isInSlideAnimation() {
   return (fabs(
     getTargetPosition() - getPosition()
-  ) > 0.0001);
+  ) > 0.001);
 }
 
 void Keyboard::drawRow(SDL_Surface *surface, vector<touchArea> *keyList, int x, int y, int width, int height,
