@@ -28,6 +28,7 @@ Keyboard::Keyboard(int pos, int targetPos, int width, int height, Config *config
   this->keyboardWidth = width;
   this->keyboardHeight = height;
   this->config = config;
+  this->lastAnimTicks = SDL_GetTicks();
 }
 
 
@@ -63,6 +64,7 @@ int Keyboard::init(SDL_Renderer *renderer) {
       return 1;
     }
   }
+  this->lastAnimTicks = SDL_GetTicks();
   return 0;
 }
 
@@ -78,6 +80,11 @@ float Keyboard::getTargetPosition() {
 
 
 void Keyboard::setTargetPosition(float p) {
+  if (this->targetPosition - p > 0.1) {
+    // Make sure we restart the animation from a smooth
+    // starting point:
+    this->lastAnimTicks = SDL_GetTicks();
+  }
   this->targetPosition = p;
   return;
 }
@@ -95,22 +102,52 @@ float Keyboard::getHeight() {
   return this->keyboardHeight;
 }
 
+void Keyboard::updateAnimations() {
+  const int animStep = 20;  // 20ms -> 50 FPS
+  const int maxFallBehindSteps = 20;
+  int now = SDL_GetTicks();
+
+  // First, make sure we didn't fall too far behind:
+  if (this->lastAnimTicks + animStep * maxFallBehindSteps < now) {
+    this->lastAnimTicks = now - animStep;  // keep up faster
+  }
+
+  // Do gradual animation steps:
+  while (this->lastAnimTicks < now) {
+    float position = this->position;
+    float targetPosition = this->targetPosition;
+
+    // Vertical keyboard movement:
+    if (fabs(position - targetPosition) > 0.01) {
+      if (!(config->animations)) {
+        // If animations are disabled, just jump to target:
+        this->position = targetPosition;
+      } else {
+        // Gradually update the position:
+        if (position > targetPosition) {
+          this->position -= fmax(0.1, position - targetPosition) / 8;
+          if (this->position < targetPosition)
+            this->position = targetPosition;
+        } else if (position < targetPosition) {
+          this->position += fmax(0.1, targetPosition - position) / 8;
+          if (this->position > targetPosition)
+            this->position = targetPosition;
+        }
+      }
+    } else {
+      this->position = targetPosition;
+    }
+
+    // Advance animation tick:
+    this->lastAnimTicks += animStep;
+  }
+}
 
 void Keyboard::draw(SDL_Renderer *renderer, Config *config, int screenHeight) {
+  this->updateAnimations();
+
   list<KeyboardLayer>::iterator layer;
   SDL_Rect keyboardRect, srcRect;
-  // These two variables set a limit on the precision of keyboard positioning
-  float position = floor(this->position * 100) / 100;
-  float targetPosition = floor(this->targetPosition * 100) / 100;
-
-  if ( (position != targetPosition) && !(config->animations) ) {
-	  this->position = targetPosition;
-  }
-  if (position > targetPosition) {
-    this->position -= (position - targetPosition) / 10;
-  }else if (position < targetPosition) {
-    this->position += (targetPosition - position) / 10;
-  }
 
   keyboardRect.x = 0;
   keyboardRect.y = (int)(screenHeight - (this->keyboardHeight *

@@ -147,6 +147,7 @@ private:
   int keyRadius = 0;
   float position;
   float targetPosition;
+  int lastAnimTicks = 0;
   int keyboardWidth;
   int keyboardHeight;
   int activeLayer = 0;
@@ -169,6 +170,13 @@ private:
   void drawRow(SDL_Surface *surface, vector<touchArea> *keyList, int x, int y,
                int width, int height, list<string> *keys, int padding,
                TTF_Font *font);
+
+  /**
+    Internal function to gradually update the animations.
+    Will be implicitly called by the draw function.
+    */
+  void updateAnimations();
+
   /**
     Draw key for keyboard
     @param surface Surface to draw on
