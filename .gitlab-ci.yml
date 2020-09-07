@@ -16,6 +16,14 @@ mr-settings:
     - wget -q "https://gitlab.com/postmarketOS/ci-common/-/raw/master/check_mr_settings.py"
     - python3 ./check_mr_settings.py
 
+clang-format:
+  <<: *only-default
+  before_script:
+    - apk -q add git
+    - git clone -q --depth=1 "https://gitlab.com/postmarketOS/ci-common.git"
+  script:
+    - ci-common/clang-format/ci_run.sh
+
 static-analysis:
   <<: *only-default
   image: alpine:3.8
