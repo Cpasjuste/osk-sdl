@@ -19,38 +19,39 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #ifndef CONFIG_H
 #define CONFIG_H
-#include <string>
 #include <map>
+#include <string>
 
 using namespace std;
 
 class Config {
 public:
-  string keyboardBackground = "#333333";
-  string wallpaper = "#FF9900";
-  string keyboardFont = "DejaVu";
-  string keyboardMap = "us";
-  string inputBoxRadius = "0";
-  string keyRadius = "0";
-  bool animations = true;
+	string keyboardBackground = "#333333";
+	string wallpaper = "#FF9900";
+	string keyboardFont = "DejaVu";
+	string keyboardMap = "us";
+	string inputBoxRadius = "0";
+	string keyRadius = "0";
+	bool animations = true;
 
-  /**
-    Constructor for Config
-    */
-  Config();
-   /**
-    Read from config file
-    @path Path to config file
-    */
-  bool Read(string path);
+	/**
+	  Constructor for Config
+	  */
+	Config();
+	/**
+	  Read from config file
+	  @path Path to config file
+	  */
+	bool Read(string path);
+
 private:
-  map<string, string> options;
+	map<string, string> options;
 
-  /**
-    Parse configuration file
-    @file File to parse
-    */
-  bool Parse(istream & file);
+	/**
+	  Parse configuration file
+	  @file File to parse
+	  */
+	bool Parse(istream &file);
 };
 
 #endif // CONFIG_H

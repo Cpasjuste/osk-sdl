@@ -20,30 +20,28 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef UTIL_H
 #define UTIL_H
 #include "SDL2/SDL.h"
-#include <unistd.h>
-#include <iostream>
-#include <string>
-#include <list>
 #include "config.h"
 #include "keyboard.h"
 #include "luksdevice.h"
+#include <iostream>
+#include <list>
 #include <math.h>
+#include <string>
+#include <unistd.h>
 
 using namespace std;
-
 
 const string DEFAULT_LUKSDEVPATH = "/home/user/disk";
 const string DEFAULT_LUKSDEVNAME = "root";
 const string DEFAULT_CONFPATH = "/etc/osk.conf";
 
-struct Opts{
-  string luksDevPath;
-  string luksDevName;
-  string confPath;
-  bool testMode;
-  bool verbose;
+struct Opts {
+	string luksDevPath;
+	string luksDevName;
+	string confPath;
+	bool testMode;
+	bool verbose;
 };
-
 
 /**
   Fetch command line options
@@ -69,8 +67,8 @@ string strList2str(const list<string> *strList);
   @param height Height of wallpaper to generate
   @return Initialized SDL_Surface, else NULL on failure
  */
-SDL_Surface* make_wallpaper(SDL_Renderer *renderer, Config *config,
-                            int width, int height);
+SDL_Surface *make_wallpaper(SDL_Renderer *renderer, Config *config,
+	int width, int height);
 
 /**
   Draw a circle
@@ -79,7 +77,6 @@ SDL_Surface* make_wallpaper(SDL_Renderer *renderer, Config *config,
   @param radius Radius of circle
  */
 void draw_circle(SDL_Renderer *renderer, SDL_Point center, int radius);
-
 
 /**
   Handle keypresses for virtual keyboard
@@ -90,7 +87,6 @@ void draw_circle(SDL_Renderer *renderer, SDL_Point center, int radius);
  */
 void handleVirtualKeyPress(string tapped, Keyboard *kbd, LuksDevice *lkd, list<string> *passphrase);
 
-
 /**
   Draw the dots to represent hidden characters
   @param renderer Initialized SDL_Renderer object
@@ -100,6 +96,6 @@ void handleVirtualKeyPress(string tapped, Keyboard *kbd, LuksDevice *lkd, list<s
   @param y Vertical position of the input box
   @param busy if true the dots will play a loading animation
  */
-void draw_password_box_dots(SDL_Renderer* renderer, Config *config, int inputHeight,
-                            int screenWidth, int numDots, int y, bool busy);
+void draw_password_box_dots(SDL_Renderer *renderer, Config *config, int inputHeight,
+	int screenWidth, int numDots, int y, bool busy);
 #endif

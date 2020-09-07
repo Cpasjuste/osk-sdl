@@ -23,7 +23,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "keyboard.h"
 #include <functional>
 
-const float  BEZIER_RESOLUTION = 100;
+const float BEZIER_RESOLUTION = 100;
 
 /**
   Curve the corneres of a rectangle
@@ -32,7 +32,7 @@ const float  BEZIER_RESOLUTION = 100;
   @param draw_cb callback, with coordinates to the next pixel to draw
   */
 void smooth_corners(SDL_Rect *rect, int radius,
-                    function<void(int, int)> draw_cb);
+	function<void(int, int)> draw_cb);
 
 /**
   Draw rounded corneres for a rectangle directly onto a surface
@@ -41,8 +41,8 @@ void smooth_corners(SDL_Rect *rect, int radius,
   @param rect the rectangle to smooth
   @param radius the distance from a corner where the curve will start
   */
-void smooth_corners_surface(SDL_Surface*surface, Uint32 color, SDL_Rect*rect,
-                            int radius);
+void smooth_corners_surface(SDL_Surface *surface, Uint32 color, SDL_Rect *rect,
+	int radius);
 
 /**
   Get each pixel pixel of bezier curve based on three points
@@ -52,8 +52,8 @@ void smooth_corners_surface(SDL_Surface*surface, Uint32 color, SDL_Rect*rect,
   @param p3 the third point
   @returns an array of pixel coordinates (length equal to BREZIER_RESOLUTION)
   */
-SDL_Point* bezier_corner (SDL_Point*offset, SDL_Point *p1, SDL_Point *p2,
-                          SDL_Point *p3);
+SDL_Point *bezier_corner(SDL_Point *offset, SDL_Point *p1, SDL_Point *p2,
+	SDL_Point *p3);
 
 /**
   Create an input box base off a given width, height, color and radius
@@ -64,6 +64,6 @@ SDL_Point* bezier_corner (SDL_Point*offset, SDL_Point *p1, SDL_Point *p2,
   if inputWidth == inputHeight and inputBoxRadius == inputWidth/2
   the box should be a circle
   */
-SDL_Surface* make_input_box(int inputWidth, int inputHeight, argb *color,
-                            int inputBoxRadius);
+SDL_Surface *make_input_box(int inputWidth, int inputHeight, argb *color,
+	int inputBoxRadius);
 #endif
