@@ -19,8 +19,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #ifndef DRAW_HELPERS_H
 #define DRAW_HELPERS_H
-#include "SDL2/SDL.h"
 #include "keyboard.h"
+#include <SDL2/SDL.h>
 #include <functional>
 
 const float BEZIER_RESOLUTION = 100;

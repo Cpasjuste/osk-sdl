@@ -19,10 +19,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #ifndef UTIL_H
 #define UTIL_H
-#include "SDL2/SDL.h"
 #include "config.h"
 #include "keyboard.h"
 #include "luksdevice.h"
+#include <SDL2/SDL.h>
 #include <iostream>
 #include <list>
 #include <math.h>

@@ -19,8 +19,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #ifndef KEYBOARD_H
 #define KEYBOARD_H
-#include "SDL2/SDL.h"
 #include "config.h"
+#include <SDL2/SDL.h>
 #include <SDL2/SDL_ttf.h>
 #include <cmath>
 #include <list>

@@ -18,13 +18,13 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "SDL2/SDL.h"
 #include "config.h"
 #include "draw_helpers.h"
 #include "keyboard.h"
 #include "luksdevice.h"
 #include "tooltip.h"
 #include "util.h"
+#include <SDL2/SDL.h>
 #include <cmath>
 #include <cstdlib>
 #include <iostream>
