@@ -304,6 +304,10 @@ int main(int argc, char **args)
 				}
 				SDL_PushEvent(&renderEvent);
 				break; // SDL_TEXTINPUT
+			case SDL_QUIT:
+				printf("Quit requested, quitting.\n");
+				exit(0);
+				break; // SDL_QUIT
 			} // switch event.type
 			// Render event handler
 			if (event.type == EVENT_RENDER) {
