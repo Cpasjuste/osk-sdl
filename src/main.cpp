@@ -98,9 +98,9 @@ int main(int argc, char **args)
 	}
 
 	/*
-   * Set up display and renderer
-   * Use windowed mode in test mode and device resolution otherwise
-   */
+	 * Set up display and renderer
+	 * Use windowed mode in test mode and device resolution otherwise
+	 */
 	int windowFlags = 0;
 	if (opts.testMode) {
 		windowFlags = SDL_WINDOW_RESIZABLE | SDL_WINDOW_SHOWN;
@@ -289,9 +289,9 @@ int main(int argc, char **args)
 				// handle physical keyboard
 			case SDL_TEXTINPUT:
 				/*
-           * Only register text input if time since last text input has exceeded
-           * the keyboard repeat delay rate
-           */
+				 * Only register text input if time since last text input has exceeded
+				 * the keyboard repeat delay rate
+				 */
 				showPasswordError = false;
 				// Enable key repeat delay
 				if ((cur_ticks - repeat_delay_ms) > prev_text_ticks) {
@@ -308,16 +308,16 @@ int main(int argc, char **args)
 			// Render event handler
 			if (event.type == EVENT_RENDER) {
 				/* NOTE ON DOUBLE BUFFERING / RENDERING TWICE:
-           We only re-schedule render events during animation, otherwise
-           we render once and then do nothing for a long while.
+				   We only re-schedule render events during animation, otherwise
+				   we render once and then do nothing for a long while.
 
-           A single render may however never reach the screen, since
-           SDL_RenderCopy() page flips and with double buffering that
-           may just fill the hidden backbuffer.
+				   A single render may however never reach the screen, since
+				   SDL_RenderCopy() page flips and with double buffering that
+				   may just fill the hidden backbuffer.
 
-           Therefore, we need to render two times if not during animation
-           to make sure it actually shows on screen during lengthy pauses.
-         */
+				   Therefore, we need to render two times if not during animation
+				   to make sure it actually shows on screen during lengthy pauses.
+				 */
 				int render_times = 0;
 				while (render_times < 2) { // double-flip so it reaches screen
 					render_times++;
