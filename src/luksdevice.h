@@ -26,8 +26,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <string>
 #include <unistd.h>
 
-using namespace std;
-
 const int MIN_UNLOCK_TIME_MS = 1000;
 
 class LuksDevice {
@@ -37,7 +35,7 @@ public:
 	  @param deviceName Name of luks device
 	  @param devicePath Path to luks device
 	  */
-	LuksDevice(const string *devName, const string *devPath);
+	LuksDevice(const std::string *devName, const std::string *devPath);
 	/**
 	  Destructor
 	  */
@@ -61,12 +59,12 @@ public:
 	  Configure passphrase for luks device
 	  @param passphrase Passphrase to pass to luks device when activating it
 	  */
-	void setPassphrase(string *passphrase);
+	void setPassphrase(std::string *passphrase);
 
 private:
-	string devicePath;
-	string deviceName;
-	string passphrase = "";
+	std::string devicePath;
+	std::string deviceName;
+	std::string passphrase = "";
 	bool locked = true;
 	bool running = false;
 

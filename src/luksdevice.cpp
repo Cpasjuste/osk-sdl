@@ -19,9 +19,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "luksdevice.h"
 
-using namespace std;
-
-LuksDevice::LuksDevice(const string *deviceName, const string *devicePath)
+LuksDevice::LuksDevice(const std::string *deviceName, const std::string *devicePath)
 {
 	this->deviceName.assign(*deviceName);
 	this->devicePath.assign(*devicePath);
@@ -31,7 +29,7 @@ LuksDevice::~LuksDevice()
 {
 }
 
-void LuksDevice::setPassphrase(string *passphrase)
+void LuksDevice::setPassphrase(std::string *passphrase)
 {
 	this->passphrase = *passphrase;
 }

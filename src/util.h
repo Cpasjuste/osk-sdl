@@ -29,16 +29,14 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <string>
 #include <unistd.h>
 
-using namespace std;
-
-const string DEFAULT_LUKSDEVPATH = "/home/user/disk";
-const string DEFAULT_LUKSDEVNAME = "root";
-const string DEFAULT_CONFPATH = "/etc/osk.conf";
+const std::string DEFAULT_LUKSDEVPATH = "/home/user/disk";
+const std::string DEFAULT_LUKSDEVNAME = "root";
+const std::string DEFAULT_CONFPATH = "/etc/osk.conf";
 
 struct Opts {
-	string luksDevPath;
-	string luksDevName;
-	string confPath;
+	std::string luksDevPath;
+	std::string luksDevName;
+	std::string confPath;
 	bool testMode;
 	bool verbose;
 };
@@ -57,7 +55,7 @@ int fetchOpts(int argc, char **args, Opts *opts);
   @param strList List of strings
   @return String with all elements of strList concatenated together
  */
-string strList2str(const list<string> *strList);
+std::string strList2str(const std::list<std::string> *strList);
 
 /**
   Create wallpaper
@@ -85,7 +83,7 @@ void draw_circle(SDL_Renderer *renderer, SDL_Point center, int radius);
   @param lkd Initialized LuksDevice obj
   @param lkd passphrase Passphrase to modify
  */
-void handleVirtualKeyPress(string tapped, Keyboard *kbd, LuksDevice *lkd, list<string> *passphrase);
+void handleVirtualKeyPress(std::string tapped, Keyboard *kbd, LuksDevice *lkd, std::list<std::string> *passphrase);
 
 /**
   Draw the dots to represent hidden characters

@@ -22,16 +22,14 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <map>
 #include <string>
 
-using namespace std;
-
 class Config {
 public:
-	string keyboardBackground = "#333333";
-	string wallpaper = "#FF9900";
-	string keyboardFont = "DejaVu";
-	string keyboardMap = "us";
-	string inputBoxRadius = "0";
-	string keyRadius = "0";
+	std::string keyboardBackground = "#333333";
+	std::string wallpaper = "#FF9900";
+	std::string keyboardFont = "DejaVu";
+	std::string keyboardMap = "us";
+	std::string inputBoxRadius = "0";
+	std::string keyRadius = "0";
 	bool animations = true;
 
 	/**
@@ -42,16 +40,16 @@ public:
 	  Read from config file
 	  @path Path to config file
 	  */
-	bool Read(string path);
+	bool Read(std::string path);
 
 private:
-	map<string, string> options;
+	std::map<std::string, std::string> options;
 
 	/**
 	  Parse configuration file
 	  @file File to parse
 	  */
-	bool Parse(istream &file);
+	bool Parse(std::istream &file);
 };
 
 #endif // CONFIG_H

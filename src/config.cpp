@@ -28,7 +28,7 @@ Config::Config()
 {
 }
 
-bool Config::Read(string path)
+bool Config::Read(std::string path)
 {
 	std::ifstream is(path, std::ifstream::binary);
 	if (!is) {
@@ -77,7 +77,7 @@ bool Config::Read(string path)
 	return true;
 }
 
-bool Config::Parse(istream &file)
+bool Config::Parse(std::istream &file)
 {
 	int lineno = 0;
 	for (std::string line; std::getline(file, line);) {

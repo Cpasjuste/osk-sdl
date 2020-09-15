@@ -27,17 +27,17 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <string>
 #include <vector>
 
-const string KEYCAP_BACKSPACE = "\u2190";
-const string KEYCAP_SHIFT = "\u2191";
-const string KEYCAP_NUMBERS = "123";
-const string KEYCAP_SYMBOLS = "SYM";
-const string KEYCAP_ABC = "abc";
-const string KEYCAP_SPACE = " ";
-const string KEYCAP_RETURN = "\n";
-const string KEYCAP_PERIOD = ".";
+const std::string KEYCAP_BACKSPACE = "\u2190";
+const std::string KEYCAP_SHIFT = "\u2191";
+const std::string KEYCAP_NUMBERS = "123";
+const std::string KEYCAP_SYMBOLS = "SYM";
+const std::string KEYCAP_ABC = "abc";
+const std::string KEYCAP_SPACE = " ";
+const std::string KEYCAP_RETURN = "\n";
+const std::string KEYCAP_PERIOD = ".";
 
 struct touchArea {
-	string keyChar;
+	std::string keyChar;
 	int x1;
 	int x2;
 	int y1;
@@ -60,8 +60,8 @@ struct argb {
 struct KeyboardLayer {
 	SDL_Surface *surface;
 	SDL_Texture *texture;
-	list<string> rows[3];
-	vector<touchArea> keyList;
+	std::list<std::string> rows[3];
+	std::vector<touchArea> keyList;
 	int layerNum;
 };
 
@@ -87,7 +87,7 @@ public:
 	  @param y Y-axis coordinate
 	  @return String with value of key at the given coordinates
 	  */
-	string getCharForCoordinates(int x, int y);
+	std::string getCharForCoordinates(int x, int y);
 	/**
 	  Set keyboard color
 	  @param a Alpha value
@@ -155,7 +155,7 @@ private:
 	int keyboardWidth;
 	int keyboardHeight;
 	int activeLayer = 0;
-	list<KeyboardLayer> keyboard;
+	std::list<KeyboardLayer> keyboard;
 	Config *config;
 
 	/**
@@ -171,8 +171,8 @@ private:
 	  @param padding Spacing to reserve around the key
 	  @param font Font to use for key character
 	  */
-	void drawRow(SDL_Surface *surface, vector<touchArea> *keyList, int x, int y,
-		int width, int height, list<string> *keys, int padding,
+	void drawRow(SDL_Surface *surface, std::vector<touchArea> *keyList, int x, int y,
+		int width, int height, std::list<std::string> *keys, int padding,
 		TTF_Font *font);
 
 	/**
@@ -194,8 +194,8 @@ private:
 	  @param padding Spacing to reserve around the key
 	  @param font Font to use for key character
 	  */
-	void drawKey(SDL_Surface *surface, vector<touchArea> *keyList, int x, int y,
-		int width, int height, char *cap, const string *key,
+	void drawKey(SDL_Surface *surface, std::vector<touchArea> *keyList, int x, int y,
+		int width, int height, char *cap, const std::string *key,
 		int padding, TTF_Font *font);
 	/**
 	  Prepare new keyboard

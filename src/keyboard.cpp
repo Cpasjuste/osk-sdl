@@ -20,7 +20,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "keyboard.h"
 #include "draw_helpers.h"
-using namespace std;
 
 Keyboard::Keyboard(int pos, int targetPos, int width, int height, Config *config)
 {
@@ -35,7 +34,7 @@ Keyboard::Keyboard(int pos, int targetPos, int width, int height, Config *config
 
 Keyboard::~Keyboard()
 {
-	list<KeyboardLayer>::iterator layer;
+	std::list<KeyboardLayer>::iterator layer;
 	for (layer = keyboard.begin(); layer != keyboard.end(); ++layer) {
 		delete (*layer).surface;
 	}
@@ -43,7 +42,7 @@ Keyboard::~Keyboard()
 
 int Keyboard::init(SDL_Renderer *renderer)
 {
-	list<KeyboardLayer>::iterator layer;
+	std::list<KeyboardLayer>::iterator layer;
 
 	loadKeymap();
 	long keyLong = strtol(config->keyRadius.c_str(), NULL, 10);
@@ -150,7 +149,7 @@ void Keyboard::draw(SDL_Renderer *renderer, Config *config, int screenHeight)
 {
 	this->updateAnimations();
 
-	list<KeyboardLayer>::iterator layer;
+	std::list<KeyboardLayer>::iterator layer;
 	SDL_Rect keyboardRect, srcRect;
 
 	keyboardRect.x = 0;
@@ -182,8 +181,8 @@ bool Keyboard::isInSlideAnimation()
 	return (fabs(getTargetPosition() - getPosition()) > 0.001);
 }
 
-void Keyboard::drawRow(SDL_Surface *surface, vector<touchArea> *keyList, int x, int y, int width, int height,
-	list<string> *keys, int padding, TTF_Font *font)
+void Keyboard::drawRow(SDL_Surface *surface, std::vector<touchArea> *keyList, int x, int y, int width, int height,
+	std::list<std::string> *keys, int padding, TTF_Font *font)
 {
 
 	auto keyBackground = SDL_MapRGB(surface->format, 15, 15, 15);
@@ -191,7 +190,7 @@ void Keyboard::drawRow(SDL_Surface *surface, vector<touchArea> *keyList, int x, 
 
 	auto background = SDL_MapRGB(surface->format, keyboardColor.r, keyboardColor.g, keyboardColor.b);
 	int i = 0;
-	list<string>::const_iterator keyCap;
+	std::list<std::string>::const_iterator keyCap;
 	for (keyCap = keys->begin(); keyCap != keys->end(); ++keyCap) {
 		SDL_Rect keyRect;
 		keyRect.x = x + (i * width) + padding;
@@ -218,8 +217,8 @@ void Keyboard::drawRow(SDL_Surface *surface, vector<touchArea> *keyList, int x, 
 	}
 }
 
-void Keyboard::drawKey(SDL_Surface *surface, vector<touchArea> *keyList, int x, int y, int width, int height, char *cap,
-	const string *key, int padding, TTF_Font *font)
+void Keyboard::drawKey(SDL_Surface *surface, std::vector<touchArea> *keyList, int x, int y, int width, int height, char *cap,
+	const std::string *key, int padding, TTF_Font *font)
 {
 	auto keyBackground = SDL_MapRGB(surface->format, 15, 15, 15);
 	SDL_Color textColor = { 255, 255, 255, 0 };
@@ -363,7 +362,7 @@ SDL_Surface *Keyboard::makeKeyboard(KeyboardLayer *layer)
 void Keyboard::setActiveLayer(int layerNum)
 {
 	if (layerNum >= 0) {
-		if ((string::size_type)layerNum <= keyboard.size() - 1) {
+		if ((std::string::size_type)layerNum <= keyboard.size() - 1) {
 			this->activeLayer = layerNum;
 			return;
 		}
@@ -423,10 +422,10 @@ void Keyboard::loadKeymap()
 	return;
 }
 
-string Keyboard::getCharForCoordinates(int x, int y)
+std::string Keyboard::getCharForCoordinates(int x, int y)
 {
-	list<KeyboardLayer>::iterator layer;
-	vector<touchArea>::iterator it;
+	std::list<KeyboardLayer>::iterator layer;
+	std::vector<touchArea>::iterator it;
 
 	for (layer = this->keyboard.begin(); layer != this->keyboard.end(); ++layer) {
 		if ((*layer).layerNum == this->activeLayer) {

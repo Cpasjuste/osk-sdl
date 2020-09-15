@@ -62,10 +62,10 @@ int fetchOpts(int argc, char **args, Opts *opts)
 	return 0;
 }
 
-string strList2str(const list<string> *strList)
+std::string strList2str(const std::list<std::string> *strList)
 {
-	string str = "";
-	list<string>::const_iterator it;
+	std::string str = "";
+	std::list<std::string>::const_iterator it;
 	for (it = strList->begin(); it != strList->end(); ++it) {
 		str.append(*it);
 	}
@@ -143,11 +143,11 @@ void draw_password_box_dots(SDL_Renderer *renderer, Config *config, int inputHei
 	}
 	return;
 }
-void handleVirtualKeyPress(string tapped, Keyboard *kbd, LuksDevice *lkd, list<string> *passphrase)
+void handleVirtualKeyPress(std::string tapped, Keyboard *kbd, LuksDevice *lkd, std::list<std::string> *passphrase)
 {
 	// return pressed
 	if (tapped.compare("\n") == 0) {
-		string pass = strList2str(passphrase);
+		std::string pass = strList2str(passphrase);
 		lkd->setPassphrase(&pass);
 		lkd->unlock();
 	}

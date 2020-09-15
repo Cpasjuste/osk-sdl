@@ -19,8 +19,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "tooltip.h"
 
-using namespace std;
-
 Tooltip::Tooltip(int width, int height, Config *config)
 {
 	this->config = config;
@@ -28,7 +26,7 @@ Tooltip::Tooltip(int width, int height, Config *config)
 	this->height = height;
 }
 
-int Tooltip::init(SDL_Renderer *renderer, string text)
+int Tooltip::init(SDL_Renderer *renderer, std::string text)
 {
 	SDL_Surface *surface;
 	Uint32 rmask, gmask, bmask, amask;

@@ -34,16 +34,14 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #define TICK_INTERVAL 32
 
-using namespace std;
-
 Uint32 EVENT_RENDER;
 bool lastUnlockingState = false;
 bool showPasswordError = false;
-static string ErrorText = "Incorrect passphrase";
+static std::string ErrorText = "Incorrect passphrase";
 
 int main(int argc, char **args)
 {
-	list<string> passphrase;
+	std::list<std::string> passphrase;
 	Opts opts {};
 	Config config;
 	SDL_Event event;
@@ -177,7 +175,7 @@ int main(int argc, char **args)
 	SDL_Texture *wallpaperTexture = SDL_CreateTextureFromSurface(renderer,
 		wallpaper);
 
-	string tapped;
+	std::string tapped;
 	long inputBoxRadius = strtol(config.inputBoxRadius.c_str(), NULL, 10);
 	if (inputBoxRadius >= BEZIER_RESOLUTION || inputBoxRadius > inputHeight / 1.5) {
 		fprintf(stderr, "inputbox-radius must be below %f and %f, it is %ld\n",
@@ -239,7 +237,7 @@ int main(int argc, char **args)
 				switch (event.key.keysym.sym) {
 				case SDLK_RETURN:
 					if (!passphrase.empty() && !luksDev->unlockRunning()) {
-						string pass = strList2str(&passphrase);
+						std::string pass = strList2str(&passphrase);
 						luksDev->setPassphrase(&pass);
 						luksDev->unlock();
 					}

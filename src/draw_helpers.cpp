@@ -34,7 +34,7 @@ SDL_Point *bezier_corner(SDL_Point *pts, SDL_Point *offset, SDL_Point *p1,
 	return pts;
 }
 
-void smooth_corners(SDL_Rect *rect, int radius, function<void(int, int)> draw_cb)
+void smooth_corners(SDL_Rect *rect, int radius, std::function<void(int, int)> draw_cb)
 {
 	SDL_Point *corner = (SDL_Point *)malloc(sizeof(SDL_Point) * BEZIER_RESOLUTION);
 	//Top Left

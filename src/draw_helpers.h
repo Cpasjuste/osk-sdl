@@ -32,7 +32,7 @@ const float BEZIER_RESOLUTION = 100;
   @param draw_cb callback, with coordinates to the next pixel to draw
   */
 void smooth_corners(SDL_Rect *rect, int radius,
-	function<void(int, int)> draw_cb);
+	std::function<void(int, int)> draw_cb);
 
 /**
   Draw rounded corneres for a rectangle directly onto a surface
