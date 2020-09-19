@@ -45,9 +45,9 @@ int main(int argc, char **args)
 	Opts opts {};
 	Config config;
 	SDL_Event event;
-	SDL_Window *display = NULL;
-	SDL_Renderer *renderer = NULL;
-	Tooltip *tooltip = NULL;
+	SDL_Window *display = nullptr;
+	SDL_Renderer *renderer = nullptr;
+	Tooltip *tooltip = nullptr;
 	int WIDTH = 480;
 	int HEIGHT = 800;
 	int repeat_delay_ms = 100; // Keyboard key repeat rate in ms
@@ -111,7 +111,7 @@ int main(int argc, char **args)
 	display = SDL_CreateWindow("OSK SDL", SDL_WINDOWPOS_UNDEFINED,
 		SDL_WINDOWPOS_UNDEFINED, WIDTH,
 		HEIGHT, windowFlags);
-	if (display == NULL) {
+	if (display == nullptr) {
 		fprintf(stderr, "ERROR: Could not create window/display: %s\n",
 			SDL_GetError());
 		atexit(SDL_Quit);
@@ -120,7 +120,7 @@ int main(int argc, char **args)
 
 	renderer = SDL_CreateRenderer(display, -1, 0);
 
-	if (renderer == NULL) {
+	if (renderer == nullptr) {
 		SDL_LogError(SDL_LOG_CATEGORY_VIDEO,
 			"ERROR: Could not create renderer: %s\n", SDL_GetError());
 		atexit(SDL_Quit);
@@ -141,7 +141,7 @@ int main(int argc, char **args)
 		exit(1);
 	}
 
-	if (SDL_RenderFillRect(renderer, NULL) != 0) {
+	if (SDL_RenderFillRect(renderer, nullptr) != 0) {
 		SDL_LogError(SDL_LOG_CATEGORY_VIDEO,
 			"ERROR: Could not fill background color: %s\n",
 			SDL_GetError());
@@ -176,7 +176,7 @@ int main(int argc, char **args)
 		wallpaper);
 
 	std::string tapped;
-	long inputBoxRadius = strtol(config.inputBoxRadius.c_str(), NULL, 10);
+	long inputBoxRadius = strtol(config.inputBoxRadius.c_str(), nullptr, 10);
 	if (inputBoxRadius >= BEZIER_RESOLUTION || inputBoxRadius > inputHeight / 1.5) {
 		fprintf(stderr, "inputbox-radius must be below %f and %f, it is %ld\n",
 			BEZIER_RESOLUTION, inputHeight / 1.5, inputBoxRadius);
@@ -209,7 +209,7 @@ int main(int argc, char **args)
 		.h = inputHeight
 	};
 
-	if (inputBoxTexture == NULL) {
+	if (inputBoxTexture == nullptr) {
 		SDL_LogError(SDL_LOG_CATEGORY_VIDEO,
 			"ERROR: Could not create input box texture: %s\n",
 			SDL_GetError());
@@ -325,7 +325,7 @@ int main(int argc, char **args)
 				int render_times = 0;
 				while (render_times < 2) { // double-flip so it reaches screen
 					render_times++;
-					SDL_RenderCopy(renderer, wallpaperTexture, NULL, NULL);
+					SDL_RenderCopy(renderer, wallpaperTexture, nullptr, nullptr);
 					// Hide keyboard if unlock luks thread is running
 					keyboard->setTargetPosition(!luksDev->unlockRunning());
 					keyboard->draw(renderer, &config, HEIGHT);
@@ -337,7 +337,7 @@ int main(int argc, char **args)
 						tooltip->draw(renderer, WIDTH / 20, tooltipPosition);
 					} else {
 						inputBoxRect.y = (int)(topHalf / 3.5);
-						SDL_RenderCopy(renderer, inputBoxTexture, NULL, &inputBoxRect);
+						SDL_RenderCopy(renderer, inputBoxTexture, nullptr, &inputBoxRect);
 						draw_password_box_dots(renderer, &config, inputHeight, WIDTH,
 							passphrase.size(), inputBoxRect.y,
 							luksDev->unlockRunning());

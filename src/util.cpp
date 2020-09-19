@@ -101,7 +101,7 @@ SDL_Surface *make_wallpaper(SDL_Renderer *renderer, Config *config, int width, i
 				config->wallpaper.c_str());
 			exit(1);
 		}
-		SDL_FillRect(surface, NULL, SDL_MapRGB(surface->format, r, g, b));
+		SDL_FillRect(surface, nullptr, SDL_MapRGB(surface->format, r, g, b));
 	} else {
 		// Implement image loading
 		fprintf(stderr, "Image loading not supported yet\n");

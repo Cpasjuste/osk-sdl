@@ -63,7 +63,7 @@ std::string strList2str(const std::list<std::string> *strList);
   @param config Config paramters
   @param width Width of wallpaper to generate
   @param height Height of wallpaper to generate
-  @return Initialized SDL_Surface, else NULL on failure
+  @return Initialized SDL_Surface, else nullptr on failure
  */
 SDL_Surface *make_wallpaper(SDL_Renderer *renderer, Config *config,
 	int width, int height);

@@ -45,7 +45,7 @@ int Keyboard::init(SDL_Renderer *renderer)
 	std::list<KeyboardLayer>::iterator layer;
 
 	loadKeymap();
-	long keyLong = strtol(config->keyRadius.c_str(), NULL, 10);
+	long keyLong = strtol(config->keyRadius.c_str(), nullptr, 10);
 	if (keyLong >= BEZIER_RESOLUTION || keyLong > (keyboardHeight / 5) / 1.5) {
 		fprintf(stderr, "key-radius must be below %f and %f, it is %ld\n",
 			BEZIER_RESOLUTION, (keyboardHeight / 5) / 1.5, keyLong);
@@ -211,7 +211,7 @@ void Keyboard::drawRow(SDL_Surface *surface, std::vector<touchArea> *keyList, in
 		keyCapRect.y = keyRect.y + ((keyRect.h / 2) - (textSurface->h / 2));
 		keyCapRect.w = keyRect.w;
 		keyCapRect.h = keyRect.h;
-		SDL_BlitSurface(textSurface, NULL, surface, &keyCapRect);
+		SDL_BlitSurface(textSurface, nullptr, surface, &keyCapRect);
 
 		i++;
 	}
@@ -240,7 +240,7 @@ void Keyboard::drawKey(SDL_Surface *surface, std::vector<touchArea> *keyList, in
 	keyCapRect.y = keyRect.y + ((keyRect.h / 2) - (textSurface->h / 2));
 	keyCapRect.w = keyRect.w;
 	keyCapRect.h = keyRect.h;
-	SDL_BlitSurface(textSurface, NULL, surface, &keyCapRect);
+	SDL_BlitSurface(textSurface, nullptr, surface, &keyCapRect);
 }
 
 SDL_Surface *Keyboard::makeKeyboard(KeyboardLayer *layer)
@@ -266,25 +266,25 @@ SDL_Surface *Keyboard::makeKeyboard(KeyboardLayer *layer)
 		this->keyboardHeight, 32, rmask, gmask,
 		bmask, amask);
 
-	if (surface == NULL) {
+	if (surface == nullptr) {
 		fprintf(stderr, "CreateRGBSurface failed: %s\n", SDL_GetError());
-		return NULL;
+		return nullptr;
 	}
 
-	SDL_FillRect(surface, NULL, SDL_MapRGB(surface->format, this->keyboardColor.r, this->keyboardColor.g, this->keyboardColor.b));
+	SDL_FillRect(surface, nullptr, SDL_MapRGB(surface->format, this->keyboardColor.r, this->keyboardColor.g, this->keyboardColor.b));
 
 	int rowCount = sizeof(layer->rows) / sizeof(*layer->rows);
 	int rowHeight = this->keyboardHeight / (rowCount + 1);
 
 	if (TTF_Init() == -1) {
 		printf("TTF_Init: %s\n", TTF_GetError());
-		return NULL;
+		return nullptr;
 	}
 
 	TTF_Font *font = TTF_OpenFont(config->keyboardFont.c_str(), 24);
 	if (!font) {
 		printf("TTF_OpenFont: %s\n", TTF_GetError());
-		return NULL;
+		return nullptr;
 	}
 
 	// Divide the bottom row in 20 columns and use that for calculations

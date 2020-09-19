@@ -46,11 +46,11 @@ int Tooltip::init(SDL_Renderer *renderer, std::string text)
 	surface = SDL_CreateRGBSurface(SDL_SWSURFACE, this->width,
 		this->height, 32, rmask, gmask,
 		bmask, amask);
-	if (surface == NULL) {
+	if (surface == nullptr) {
 		fprintf(stderr, "CreateRGBSurface failed: %s\n", SDL_GetError());
 		return -1;
 	}
-	SDL_FillRect(surface, NULL, SDL_MapRGB(surface->format, 30, 30, 30));
+	SDL_FillRect(surface, nullptr, SDL_MapRGB(surface->format, 30, 30, 30));
 
 	TTF_Font *font = TTF_OpenFont(config->keyboardFont.c_str(), 24);
 	SDL_Surface *textSurface;
@@ -62,7 +62,7 @@ int Tooltip::init(SDL_Renderer *renderer, std::string text)
 	textRect.y = (this->height / 2) - (textSurface->h / 2);
 	textRect.w = textSurface->w;
 	textRect.h = textSurface->h;
-	SDL_BlitSurface(textSurface, NULL, surface, &textRect);
+	SDL_BlitSurface(textSurface, nullptr, surface, &textRect);
 
 	this->texture = SDL_CreateTextureFromSurface(renderer, surface);
 	return 0;
@@ -75,5 +75,5 @@ void Tooltip::draw(SDL_Renderer *renderer, int x, int y)
 	target.y = y;
 	target.w = this->width;
 	target.h = this->height;
-	SDL_RenderCopy(renderer, this->texture, NULL, &target);
+	SDL_RenderCopy(renderer, this->texture, nullptr, &target);
 }

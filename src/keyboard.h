@@ -200,7 +200,7 @@ private:
 	/**
 	  Prepare new keyboard
 	  @param layer Keyboard layer to use
-	  @return New SDL_Surface, or NULL on error
+	  @return New SDL_Surface, or nullptr on error
 	  */
 	SDL_Surface *makeKeyboard(KeyboardLayer *layer);
 	/**

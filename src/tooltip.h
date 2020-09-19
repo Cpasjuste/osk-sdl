@@ -50,7 +50,7 @@ public:
 	void draw(SDL_Renderer *renderer, int x, int y);
 
 private:
-	SDL_Texture *texture = NULL;
+	SDL_Texture *texture = nullptr;
 	std::string text;
 	Config *config;
 	int width;
