@@ -37,7 +37,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 Uint32 EVENT_RENDER;
 bool lastUnlockingState = false;
 bool showPasswordError = false;
-static std::string ErrorText = "Incorrect passphrase";
+constexpr char ErrorText[] = "Incorrect passphrase";
 
 int main(int argc, char **args)
 {

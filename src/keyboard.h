@@ -27,14 +27,14 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <string>
 #include <vector>
 
-const std::string KEYCAP_BACKSPACE = "\u2190";
-const std::string KEYCAP_SHIFT = "\u2191";
-const std::string KEYCAP_NUMBERS = "123";
-const std::string KEYCAP_SYMBOLS = "SYM";
-const std::string KEYCAP_ABC = "abc";
-const std::string KEYCAP_SPACE = " ";
-const std::string KEYCAP_RETURN = "\n";
-const std::string KEYCAP_PERIOD = ".";
+constexpr char KEYCAP_BACKSPACE[] = "\u2190";
+constexpr char KEYCAP_SHIFT[] = "\u2191";
+constexpr char KEYCAP_NUMBERS[] = "123";
+constexpr char KEYCAP_SYMBOLS[] = "SYM";
+constexpr char KEYCAP_ABC[] = "abc";
+constexpr char KEYCAP_SPACE[] = " ";
+constexpr char KEYCAP_RETURN[] = "\n";
+constexpr char KEYCAP_PERIOD[] = ".";
 
 struct touchArea {
 	std::string keyChar;

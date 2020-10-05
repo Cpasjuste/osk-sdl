@@ -29,9 +29,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <string>
 #include <unistd.h>
 
-const std::string DEFAULT_LUKSDEVPATH = "/home/user/disk";
-const std::string DEFAULT_LUKSDEVNAME = "root";
-const std::string DEFAULT_CONFPATH = "/etc/osk.conf";
+constexpr char DEFAULT_LUKSDEVPATH[] = "/home/user/disk";
+constexpr char DEFAULT_LUKSDEVNAME[] = "root";
+constexpr char DEFAULT_CONFPATH[] = "/etc/osk.conf";
 
 struct Opts {
 	std::string luksDevPath;
