@@ -40,7 +40,7 @@ public:
 	  @param text Text to include in tooltip
 	  @return Non-zero int on failure
 	  */
-	int init(SDL_Renderer *renderer, std::string text);
+	int init(SDL_Renderer *renderer, const std::string &text);
 	/**
 	  Draw tooltip
 	  @param renderer Initialized SDL renderer object
@@ -51,7 +51,6 @@ public:
 
 private:
 	SDL_Texture *texture = nullptr;
-	std::string text;
 	Config *config;
 	int width;
 	int height;

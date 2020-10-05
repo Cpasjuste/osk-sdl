@@ -20,13 +20,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "tooltip.h"
 
 Tooltip::Tooltip(int width, int height, Config *config)
-{
-	this->config = config;
-	this->width = width;
-	this->height = height;
-}
+	: config(config), width(width), height(height) {}
 
-int Tooltip::init(SDL_Renderer *renderer, std::string text)
+int Tooltip::init(SDL_Renderer *renderer, const std::string &text)
 {
 	SDL_Surface *surface;
 	Uint32 rmask, gmask, bmask, amask;
@@ -43,8 +39,7 @@ int Tooltip::init(SDL_Renderer *renderer, std::string text)
 	bmask = 0x00ff0000;
 	amask = 0xff000000;
 #endif
-	surface = SDL_CreateRGBSurface(SDL_SWSURFACE, this->width,
-		this->height, 32, rmask, gmask,
+	surface = SDL_CreateRGBSurface(SDL_SWSURFACE, width, height, 32, rmask, gmask,
 		bmask, amask);
 	if (surface == nullptr) {
 		fprintf(stderr, "CreateRGBSurface failed: %s\n", SDL_GetError());
@@ -58,13 +53,13 @@ int Tooltip::init(SDL_Renderer *renderer, std::string text)
 	textSurface = TTF_RenderText_Blended(font, text.c_str(), textColor);
 
 	SDL_Rect textRect;
-	textRect.x = (this->width / 2) - (textSurface->w / 2);
-	textRect.y = (this->height / 2) - (textSurface->h / 2);
+	textRect.x = (width / 2) - (textSurface->w / 2);
+	textRect.y = (height / 2) - (textSurface->h / 2);
 	textRect.w = textSurface->w;
 	textRect.h = textSurface->h;
 	SDL_BlitSurface(textSurface, nullptr, surface, &textRect);
 
-	this->texture = SDL_CreateTextureFromSurface(renderer, surface);
+	texture = SDL_CreateTextureFromSurface(renderer, surface);
 	return 0;
 }
 
@@ -73,7 +68,7 @@ void Tooltip::draw(SDL_Renderer *renderer, int x, int y)
 	SDL_Rect target;
 	target.x = x;
 	target.y = y;
-	target.w = this->width;
-	target.h = this->height;
-	SDL_RenderCopy(renderer, this->texture, nullptr, &target);
+	target.w = width;
+	target.h = height;
+	SDL_RenderCopy(renderer, texture, nullptr, &target);
 }
