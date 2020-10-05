@@ -23,7 +23,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <SDL2/SDL.h>
 #include <functional>
 
-const float BEZIER_RESOLUTION = 100;
+constexpr int BEZIER_RESOLUTION = 100;
 
 /**
   Curve the corneres of a rectangle
@@ -32,7 +32,7 @@ const float BEZIER_RESOLUTION = 100;
   @param draw_cb callback, with coordinates to the next pixel to draw
   */
 void smooth_corners(SDL_Rect *rect, int radius,
-	std::function<void(int, int)> draw_cb);
+	const std::function<void(int, int)> &draw_cb);
 
 /**
   Draw rounded corneres for a rectangle directly onto a surface

@@ -20,21 +20,19 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "draw_helpers.h"
 
-SDL_Point *bezier_corner(SDL_Point *pts, SDL_Point *offset, SDL_Point *p1,
-	SDL_Point *p2, SDL_Point *p3)
+SDL_Point *bezier_corner(SDL_Point *pts, SDL_Point *offset, SDL_Point *p1, SDL_Point *p2, SDL_Point *p3)
 {
-	int i = 0;
-	static float increment = 1 / BEZIER_RESOLUTION;
+	constexpr double increment = 1.0 / BEZIER_RESOLUTION;
+	double t = increment;
 
-	for (double t = increment; t <= 1.0; t += increment) {
-		pts[i].x = ((1 - t) * (1 - t) * p1->x + 2 * (1 - t) * t * p2->x + t * t * p3->x) + offset->x;
-		pts[i].y = ((1 - t) * (1 - t) * p1->y + 2 * (1 - t) * t * p2->y + t * t * p3->y) + offset->y;
-		++i;
+	for (size_t i = 0; i < BEZIER_RESOLUTION; ++i) {
+		pts[i].x = static_cast<int>((1 - t) * (1 - t) * p1->x + 2 * (1 - t) * t * p2->x + t * t * p3->x) + offset->x;
+		pts[i].y = static_cast<int>((1 - t) * (1 - t) * p1->y + 2 * (1 - t) * t * p2->y + t * t * p3->y) + offset->y;
 	}
 	return pts;
 }
 
-void smooth_corners(SDL_Rect *rect, int radius, std::function<void(int, int)> draw_cb)
+void smooth_corners(SDL_Rect *rect, int radius, const std::function<void(int, int)> &draw_cb)
 {
 	SDL_Point *corner = (SDL_Point *)malloc(sizeof(SDL_Point) * BEZIER_RESOLUTION);
 	//Top Left
@@ -82,7 +80,7 @@ void smooth_corners_surface(SDL_Surface *surface, Uint32 color, SDL_Rect *rect, 
 	smooth_corners(rect, radius, [&](int x, int y) {
 		if (x >= surface->w || y >= surface->h || y < 0 || x < 0)
 			return;
-		Uint8 *pixel = (Uint8 *)surface->pixels;
+		Uint8 *pixel = static_cast<Uint8 *>(surface->pixels);
 		pixel += (y * surface->pitch) + (x * sizeof(Uint32));
 		*((Uint32 *)pixel) = color;
 	});
