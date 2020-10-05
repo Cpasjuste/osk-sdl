@@ -29,7 +29,7 @@ int LuksDevice::unlock(void *luksDev)
 {
 	struct crypt_device *cd;
 	int ret;
-	LuksDevice *lcd = static_cast<LuksDevice *>(luksDev);
+	const auto lcd = static_cast<LuksDevice *>(luksDev);
 
 	// Note: no mutex here, since this function makes a blocking call later on.
 	// Careful!
