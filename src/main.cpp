@@ -182,16 +182,14 @@ int main(int argc, char **args)
 
 	argb inputBoxColor = argb { 255, 30, 30, 30 };
 
-	SDL_Surface *inputBox = make_input_box(WIDTH * 0.9, inputHeight,
-		&inputBoxColor, inputBoxRadius);
-	SDL_Texture *inputBoxTexture = SDL_CreateTextureFromSurface(renderer,
-		inputBox);
+	SDL_Surface *inputBox = make_input_box(static_cast<int>(WIDTH * 0.9), inputHeight, &inputBoxColor, inputBoxRadius);
+	SDL_Texture *inputBoxTexture = SDL_CreateTextureFromSurface(renderer, inputBox);
 
-	int topHalf = (HEIGHT - (keyboard->getHeight() * keyboard->getPosition()));
+	int topHalf = static_cast<int>(HEIGHT - (keyboard.getHeight() * keyboard.getPosition()));
 	SDL_Rect inputBoxRect = SDL_Rect {
 		.x = WIDTH / 20,
-		.y = (int)(topHalf / 3.5),
-		.w = (int)((double)WIDTH * 0.9),
+		.y = static_cast<int>(topHalf / 3.5),
+		.w = static_cast<int>(static_cast<double>(WIDTH) * 0.9),
 		.h = inputHeight
 	};
 
@@ -241,13 +239,12 @@ int main(int argc, char **args)
 				SDL_PushEvent(&renderEvent);
 				break; // SDL_KEYDOWN
 				// handle touchscreen
-			case SDL_FINGERUP:
-				unsigned int xTouch, yTouch, offsetYTouch;
+			case SDL_FINGERUP: {
 				showPasswordError = false;
 				// x and y values are normalized!
-				xTouch = event.tfinger.x * WIDTH;
-				yTouch = event.tfinger.y * HEIGHT;
-				if (opts.verbose)
+				auto xTouch = static_cast<unsigned>(event.tfinger.x * WIDTH);
+				auto yTouch = static_cast<unsigned>(event.tfinger.y * HEIGHT);
+				if (opts.verbose) {
 					printf("xTouch: %u\tyTouch: %u\n", xTouch, yTouch);
 				}
 				auto offsetYTouch = yTouch - static_cast<int>(HEIGHT - (keyboard.getHeight() * keyboard.getPosition()));
@@ -257,6 +254,7 @@ int main(int argc, char **args)
 				}
 				SDL_PushEvent(&renderEvent);
 				break; // SDL_FINGERUP
+			}
 				// handle the mouse
 			case SDL_MOUSEBUTTONUP: {
 				showPasswordError = false;
@@ -274,7 +272,7 @@ int main(int argc, char **args)
 				break; // SDL_MOUSEBUTTONUP
 			}
 				// handle physical keyboard
-			case SDL_TEXTINPUT:
+			case SDL_TEXTINPUT: {
 				/*
 				 * Only register text input if time since last text input has exceeded
 				 * the keyboard repeat delay rate
@@ -292,6 +290,7 @@ int main(int argc, char **args)
 				}
 				SDL_PushEvent(&renderEvent);
 				break; // SDL_TEXTINPUT
+			}
 			case SDL_QUIT:
 				printf("Quit requested, quitting.\n");
 				exit(0);
@@ -324,7 +323,7 @@ int main(int argc, char **args)
 						int tooltipPosition = topHalf / 4;
 						tooltip.draw(renderer, WIDTH / 20, tooltipPosition);
 					} else {
-						inputBoxRect.y = (int)(topHalf / 3.5);
+						inputBoxRect.y = static_cast<int>(topHalf / 3.5);
 						SDL_RenderCopy(renderer, inputBoxTexture, nullptr, &inputBoxRect);
 						draw_password_box_dots(renderer, &config, inputHeight, WIDTH, passphrase.size(), inputBoxRect.y,
 							luksDev.unlockRunning());
