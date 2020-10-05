@@ -127,20 +127,19 @@ void draw_password_box_dots(SDL_Renderer *renderer, Config *config, int inputHei
 {
 	int deflection = inputHeight / 4;
 	int ypos = y + inputHeight / 2;
-	float tick = (float)SDL_GetTicks();
+	float tick = static_cast<float>(SDL_GetTicks());
 	// Draw password dots
-	int dotSize = screenWidth * 0.02;
+	int dotSize = static_cast<int>(screenWidth * 0.02);
 	for (int i = 0; i < numDots; i++) {
 		SDL_Point dotPos;
 		dotPos.x = (screenWidth / 10) + (i * dotSize * 3);
 		if (busy && config->animations) {
-			dotPos.y = ypos + sin((tick / 100.0) + (i)) * deflection;
+			dotPos.y = static_cast<int>(ypos + std::sin(tick / 100.0f + i) * deflection);
 		} else {
 			dotPos.y = ypos;
 		}
 		draw_circle(renderer, dotPos, dotSize);
 	}
-	return;
 }
 
 void handleVirtualKeyPress(const std::string &tapped, Keyboard &kbd, LuksDevice &lkd,
