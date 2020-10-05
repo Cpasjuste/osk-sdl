@@ -33,14 +33,10 @@ public:
 	bool animations = true;
 
 	/**
-	  Constructor for Config
-	  */
-	Config();
-	/**
 	  Read from config file
 	  @path Path to config file
 	  */
-	bool Read(std::string path);
+	bool Read(const std::string &path);
 
 private:
 	std::map<std::string, std::string> options;

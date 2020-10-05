@@ -24,11 +24,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <sstream>
 #include <string>
 
-Config::Config()
-{
-}
-
-bool Config::Read(std::string path)
+bool Config::Read(const std::string &path)
 {
 	std::ifstream is(path, std::ifstream::binary);
 	if (!is) {
@@ -92,7 +88,7 @@ bool Config::Parse(std::istream &file)
 			continue;
 		} else if (id[0] == '#') {
 			continue;
-		} else if (id == "") {
+		} else if (id.empty()) {
 			continue;
 		} else if (!(iss >> eq >> val >> std::ws) || eq != "=" || iss.get() != EOF) {
 			error = true;
