@@ -35,7 +35,7 @@ int LuksDevice::unlock(void *luksDev)
 	// Careful!
 	lcd->running = true;
 
-	usleep(MIN_UNLOCK_TIME_MS * 1000);
+	usleep(std::chrono::microseconds { MIN_UNLOCK_TIME }.count());
 
 	// Initialize crypt device
 	ret = crypt_init(&cd, lcd->devicePath.c_str());

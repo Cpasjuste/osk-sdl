@@ -50,11 +50,9 @@ int main(int argc, char **args)
 	Tooltip *tooltip = nullptr;
 	int WIDTH = 480;
 	int HEIGHT = 800;
-	int repeat_delay_ms = 100; // Keyboard key repeat rate in ms
-	int prev_keydown_ticks = 0; // Two sep. prev_ticks required for handling
-	int prev_text_ticks = 0; // textinput & keydown event types
-	// cppcheck-suppress unreadVariable
-	int cur_ticks = 0; // (overwritten later, but better to initialize anyway)
+	std::chrono::milliseconds repeat_delay { 100 }; // Keyboard key repeat rate in ms
+	unsigned prev_keydown_ticks = 0; // Two sep. prev_ticks required for handling
+	unsigned prev_text_ticks = 0; // textinput & keydown event types
 
 	static SDL_Event renderEvent {
 		.type = EVENT_RENDER

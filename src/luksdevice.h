@@ -21,12 +21,13 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define LUKSDEVICE_H
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_thread.h>
+#include <chrono>
 #include <iostream>
 #include <libcryptsetup.h>
 #include <string>
 #include <unistd.h>
 
-const int MIN_UNLOCK_TIME_MS = 1000;
+constexpr std::chrono::milliseconds MIN_UNLOCK_TIME { 1000 };
 
 class LuksDevice {
 public:
