@@ -59,12 +59,12 @@ int main(int argc, char **args)
 	};
 
 	if (fetchOpts(argc, args, &opts)) {
-		exit(1);
+		exit(EXIT_FAILURE);
 	}
 
 	if (!config.Read(opts.confPath)) {
 		fprintf(stderr, "No valid config file specified, use -c [path]");
-		exit(1);
+		exit(EXIT_FAILURE);
 	}
 
 	LuksDevice *luksDev = new LuksDevice(&opts.luksDevName, &opts.luksDevPath);
@@ -78,7 +78,7 @@ int main(int argc, char **args)
 	if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_EVENTS | SDL_INIT_TIMER) < 0) {
 		SDL_LogError(SDL_LOG_CATEGORY_ERROR, "SDL_Init failed: %s", SDL_GetError());
 		atexit(SDL_Quit);
-		exit(1);
+		exit(EXIT_FAILURE);
 	}
 
 	if (!opts.testMode) {
@@ -89,7 +89,7 @@ int main(int argc, char **args)
 			SDL_LogError(SDL_LOG_CATEGORY_VIDEO, "SDL_GetDisplayMode failed: %s",
 				SDL_GetError());
 			atexit(SDL_Quit);
-			exit(1);
+			exit(EXIT_FAILURE);
 		}
 		WIDTH = mode.w;
 		HEIGHT = mode.h;
@@ -113,7 +113,7 @@ int main(int argc, char **args)
 		fprintf(stderr, "ERROR: Could not create window/display: %s\n",
 			SDL_GetError());
 		atexit(SDL_Quit);
-		exit(1);
+		exit(EXIT_FAILURE);
 	}
 
 	renderer = SDL_CreateRenderer(display, -1, 0);
@@ -122,7 +122,7 @@ int main(int argc, char **args)
 		SDL_LogError(SDL_LOG_CATEGORY_VIDEO,
 			"ERROR: Could not create renderer: %s\n", SDL_GetError());
 		atexit(SDL_Quit);
-		exit(1);
+		exit(EXIT_FAILURE);
 	}
 
 	int keyboardHeight = HEIGHT / 3 * 2;
@@ -136,7 +136,7 @@ int main(int argc, char **args)
 	if (SDL_SetRenderDrawColor(renderer, 255, 128, 0, SDL_ALPHA_OPAQUE) != 0) {
 		SDL_LogError(SDL_LOG_CATEGORY_VIDEO, "ERROR: Could not set background color: %s\n", SDL_GetError());
 		atexit(SDL_Quit);
-		exit(1);
+		exit(EXIT_FAILURE);
 	}
 
 	if (SDL_RenderFillRect(renderer, nullptr) != 0) {
@@ -144,7 +144,7 @@ int main(int argc, char **args)
 			"ERROR: Could not fill background color: %s\n",
 			SDL_GetError());
 		atexit(SDL_Quit);
-		exit(1);
+		exit(EXIT_FAILURE);
 	}
 
 	// Initialize virtual keyboard
@@ -153,7 +153,7 @@ int main(int argc, char **args)
 	if (keyboard->init(renderer)) {
 		fprintf(stderr, "ERROR: Failed to initialize keyboard!\n");
 		atexit(SDL_Quit);
-		exit(1);
+		exit(EXIT_FAILURE);
 	}
 
 	// Initialize tooltip for password error
@@ -212,7 +212,7 @@ int main(int argc, char **args)
 			"ERROR: Could not create input box texture: %s\n",
 			SDL_GetError());
 		atexit(SDL_Quit);
-		exit(1);
+		exit(EXIT_FAILURE);
 	}
 
 	// Start drawing keyboard when main loop starts

@@ -95,17 +95,16 @@ SDL_Surface *make_wallpaper(SDL_Renderer *renderer, Config *config, int width, i
 		bmask, amask);
 
 	if (config->wallpaper[0] == '#') {
-		unsigned int r, g, b;
-		if (sscanf(config->wallpaper.c_str(), "#%02x%02x%02x", &r, &g, &b) != 3) {
-			fprintf(stderr, "Could not parse color code %s\n",
-				config->wallpaper.c_str());
-			exit(1);
+		unsigned char r, g, b;
+		if (sscanf(config->wallpaper.c_str(), "#%02hhx%02hhx%02hhx", &r, &g, &b) != 3) {
+			fprintf(stderr, "Could not parse color code %s\n", config->wallpaper.c_str());
+			exit(EXIT_FAILURE);
 		}
 		SDL_FillRect(surface, nullptr, SDL_MapRGB(surface->format, r, g, b));
 	} else {
 		// Implement image loading
 		fprintf(stderr, "Image loading not supported yet\n");
-		exit(1);
+		exit(EXIT_FAILURE);
 	}
 	return surface;
 }
