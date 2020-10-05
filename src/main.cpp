@@ -214,7 +214,7 @@ int main(int argc, char **args)
 			// handle the keyboard
 			case SDL_KEYDOWN:
 				// handle repeat key events
-				if ((cur_ticks - repeat_delay_ms) < prev_keydown_ticks) {
+				if ((cur_ticks - repeat_delay.count()) < prev_keydown_ticks) {
 					continue;
 				}
 				showPasswordError = false;
@@ -281,7 +281,7 @@ int main(int argc, char **args)
 				 */
 				showPasswordError = false;
 				// Enable key repeat delay
-				if ((cur_ticks - repeat_delay_ms) > prev_text_ticks) {
+				if ((cur_ticks - repeat_delay.count()) > prev_text_ticks) {
 					prev_text_ticks = cur_ticks;
 					if (!luksDev.unlockRunning()) {
 						passphrase.emplace_back(event.text.text);
