@@ -90,7 +90,7 @@ void Keyboard::setTargetPosition(float p)
 	return;
 }
 
-void Keyboard::setKeyboardColor(int a, int r, int g, int b)
+void Keyboard::setKeyboardColor(uint8_t a, uint8_t r, uint8_t g, uint8_t b)
 {
 	this->keyboardColor.a = a;
 	this->keyboardColor.r = r;

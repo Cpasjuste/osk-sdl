@@ -23,6 +23,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_ttf.h>
 #include <cmath>
+#include <cstdint>
 #include <list>
 #include <string>
 #include <vector>
@@ -45,16 +46,16 @@ struct touchArea {
 };
 
 struct rgb {
-	unsigned int r;
-	unsigned int g;
-	unsigned int b;
+	unsigned char r;
+	unsigned char g;
+	unsigned char b;
 };
 
 struct argb {
-	unsigned int a;
-	unsigned int r;
-	unsigned int g;
-	unsigned int b;
+	unsigned char a;
+	unsigned char r;
+	unsigned char g;
+	unsigned char b;
 };
 
 struct KeyboardLayer {
@@ -95,7 +96,7 @@ public:
 	  @param g Green value
 	  @param b Blue value
 	  */
-	void setKeyboardColor(int a, int r, int g, int b);
+	void setKeyboardColor(uint8_t a, uint8_t r, uint8_t g, uint8_t b);
 	/**
 	  Get position of keyboard
 	  @return Position as a value between 0 and 1 (0% and 100%)
