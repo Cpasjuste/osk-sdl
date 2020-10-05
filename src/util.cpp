@@ -142,43 +142,44 @@ void draw_password_box_dots(SDL_Renderer *renderer, Config *config, int inputHei
 	}
 	return;
 }
-void handleVirtualKeyPress(std::string tapped, Keyboard *kbd, LuksDevice *lkd, std::list<std::string> *passphrase)
+
+void handleVirtualKeyPress(const std::string &tapped, Keyboard &kbd, LuksDevice &lkd,
+	std::vector<std::string> &passphrase)
 {
 	// return pressed
-	if (tapped.compare("\n") == 0) {
-		std::string pass = strList2str(passphrase);
-		lkd->setPassphrase(&pass);
-		lkd->unlock();
+	if (tapped == "\n") {
+		std::string pass = strVector2str(passphrase);
+		lkd.setPassphrase(pass);
+		lkd.unlock();
 	}
 	// Backspace pressed
-	else if (tapped.compare(KEYCAP_BACKSPACE) == 0) {
-		if (!passphrase->empty()) {
-			passphrase->pop_back();
+	else if (tapped == KEYCAP_BACKSPACE) {
+		if (!passphrase.empty()) {
+			passphrase.pop_back();
 		}
 	}
 	// Shift pressed
-	else if (tapped.compare(KEYCAP_SHIFT) == 0) {
-		if (kbd->getActiveLayer() > 1) {
-			kbd->setActiveLayer(0);
+	else if (tapped == KEYCAP_SHIFT) {
+		if (kbd.getActiveLayer() > 1) {
+			kbd.setActiveLayer(0);
 		} else {
-			kbd->setActiveLayer(!kbd->getActiveLayer());
+			kbd.setActiveLayer(!kbd.getActiveLayer());
 		}
 	}
 	// Numbers key pressed:
-	else if (tapped.compare(KEYCAP_NUMBERS) == 0) {
-		kbd->setActiveLayer(2);
+	else if (tapped == KEYCAP_NUMBERS) {
+		kbd.setActiveLayer(2);
 	}
 	// Symbols key pressed
-	else if (tapped.compare(KEYCAP_SYMBOLS) == 0) {
-		kbd->setActiveLayer(3);
+	else if (tapped == KEYCAP_SYMBOLS) {
+		kbd.setActiveLayer(3);
 	}
 	// ABC key was pressed
-	else if (tapped.compare(KEYCAP_ABC) == 0) {
-		kbd->setActiveLayer(0);
+	else if (tapped == KEYCAP_ABC) {
+		kbd.setActiveLayer(0);
 	}
 	// handle other key presses
-	else if (tapped.compare("\0") != 0) {
-		passphrase->push_back(tapped);
+	else if (!tapped.empty()) {
+		passphrase.push_back(tapped);
 	}
-	return;
 }

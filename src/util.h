@@ -83,7 +83,8 @@ void draw_circle(SDL_Renderer *renderer, SDL_Point center, int radius);
   @param lkd Initialized LuksDevice obj
   @param lkd passphrase Passphrase to modify
  */
-void handleVirtualKeyPress(std::string tapped, Keyboard *kbd, LuksDevice *lkd, std::list<std::string> *passphrase);
+void handleVirtualKeyPress(const std::string &tapped, Keyboard &kbd, LuksDevice &lkd,
+	std::vector<std::string> &passphrase);
 
 /**
   Draw the dots to represent hidden characters
