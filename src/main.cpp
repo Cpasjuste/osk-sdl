@@ -31,6 +31,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <iostream>
 #include <list>
 #include <string>
+#include <sys/reboot.h>
 #include <unistd.h>
 
 bool lastUnlockingState = false;
@@ -331,6 +332,17 @@ int main(int argc, char **args)
 						continue;
 					}
 					break; // SDLK_BACKSPACE
+				case SDLK_POWER:
+					if (opts.testMode) {
+						SDL_LogInfo(SDL_LOG_CATEGORY_SYSTEM, "Power off requested, but ignoring because"
+							" test mode is active!");
+						break;
+					}
+					SDL_LogInfo(SDL_LOG_CATEGORY_SYSTEM, "Power off!");
+					sync();
+					reboot(RB_POWER_OFF);
+					SDL_LogError(SDL_LOG_CATEGORY_ERROR, "Failed to power off: %s", strerror(errno));
+					break;
 				case SDLK_ESCAPE:
 					goto QUIT;
 					break; // SDLK_ESCAPE
