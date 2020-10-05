@@ -33,39 +33,38 @@ int Keyboard::init(SDL_Renderer *renderer)
 	std::list<KeyboardLayer>::iterator layer;
 
 	loadKeymap();
-	long keyLong = strtol(config->keyRadius.c_str(), nullptr, 10);
-	if (keyLong >= BEZIER_RESOLUTION || keyLong > (keyboardHeight / 5) / 1.5) {
-		fprintf(stderr, "key-radius must be below %f and %f, it is %ld\n",
-			BEZIER_RESOLUTION, (keyboardHeight / 5) / 1.5, keyLong);
+	int keyLong = std::strtol(config->keyRadius.c_str(), nullptr, 10);
+	if (keyLong >= BEZIER_RESOLUTION || static_cast<double>(keyLong) > (keyboardHeight / 5.0) / 1.5) {
+		fprintf(stderr, "key-radius must be below %d and %f, it is %d\n",
+			BEZIER_RESOLUTION, (keyboardHeight / 5.0) / 1.5, keyLong);
 		keyRadius = 0;
 	} else {
 		keyRadius = keyLong;
 	}
-	for (layer = this->keyboard.begin(); layer != this->keyboard.end(); ++layer) {
-		(*layer).surface = makeKeyboard(&(*layer));
-		if (!(*layer).surface) {
+	for (auto &layer : keyboard) {
+		layer.surface = makeKeyboard(&layer);
+		if (!layer.surface) {
 			fprintf(stderr, "ERROR: Unable to generate keyboard surface\n");
 			return 1;
 		}
-		(*layer).texture = SDL_CreateTextureFromSurface(renderer, layer->surface);
-		if (!(*layer).texture) {
+		layer.texture = SDL_CreateTextureFromSurface(renderer, layer.surface);
+		if (!layer.texture) {
 			fprintf(stderr, "ERROR: Unable to generate keyboard texture\n");
 			return 1;
 		}
 	}
-	this->lastAnimTicks = SDL_GetTicks();
+	lastAnimTicks = SDL_GetTicks();
 	return 0;
 }
 
 void Keyboard::setTargetPosition(float p)
 {
-	if (this->targetPosition - p > 0.1) {
+	if (targetPosition - p > 0.1) {
 		// Make sure we restart the animation from a smooth
 		// starting point:
-		this->lastAnimTicks = SDL_GetTicks();
+		lastAnimTicks = SDL_GetTicks();
 	}
-	this->targetPosition = p;
-	return;
+	targetPosition = p;
 }
 
 void Keyboard::setKeyboardColor(uint8_t a, uint8_t r, uint8_t g, uint8_t b)
@@ -83,70 +82,63 @@ void Keyboard::updateAnimations()
 	int now = SDL_GetTicks();
 
 	// First, make sure we didn't fall too far behind:
-	if (this->lastAnimTicks + animStep * maxFallBehindSteps < now) {
-		this->lastAnimTicks = now - animStep; // keep up faster
+	if (lastAnimTicks + animStep * maxFallBehindSteps < now) {
+		lastAnimTicks = now - animStep; // keep up faster
 	}
 
 	// Do gradual animation steps:
-	while (this->lastAnimTicks < now) {
-		float position = this->position;
-		float targetPosition = this->targetPosition;
-
+	while (lastAnimTicks < now) {
 		// Vertical keyboard movement:
 		if (fabs(position - targetPosition) > 0.01) {
 			if (!(config->animations)) {
 				// If animations are disabled, just jump to target:
-				this->position = targetPosition;
+				position = targetPosition;
 			} else {
 				// Gradually update the position:
 				if (position > targetPosition) {
-					this->position -= fmax(0.1, position - targetPosition) / 8;
-					if (this->position < targetPosition)
-						this->position = targetPosition;
+					position -= fmax(0.1, position - targetPosition) / 8;
+					if (position < targetPosition)
+						position = targetPosition;
 				} else if (position < targetPosition) {
-					this->position += fmax(0.1, targetPosition - position) / 8;
-					if (this->position > targetPosition)
-						this->position = targetPosition;
+					position += fmax(0.1, targetPosition - position) / 8;
+					if (position > targetPosition)
+						position = targetPosition;
 				}
 			}
 		} else {
-			this->position = targetPosition;
+			position = targetPosition;
 		}
 
 		// Advance animation tick:
-		this->lastAnimTicks += animStep;
+		lastAnimTicks += animStep;
 	}
 }
 
 void Keyboard::draw(SDL_Renderer *renderer, int screenHeight)
 {
-	this->updateAnimations();
+	updateAnimations();
 
-	std::list<KeyboardLayer>::iterator layer;
 	SDL_Rect keyboardRect, srcRect;
 
 	keyboardRect.x = 0;
-	keyboardRect.y = (int)(screenHeight - (this->keyboardHeight * this->position));
-	keyboardRect.w = this->keyboardWidth;
-	keyboardRect.h = (int)(this->keyboardHeight * this->position);
+	keyboardRect.y = static_cast<int>(screenHeight - (keyboardHeight * position));
+	keyboardRect.w = keyboardWidth;
+	keyboardRect.h = static_cast<int>(keyboardHeight * position);
 	// Correct for any issues from rounding
 	keyboardRect.y += screenHeight - (keyboardRect.h + keyboardRect.y);
 
 	srcRect.x = 0;
 	srcRect.y = 0;
-	srcRect.w = this->keyboardWidth;
+	srcRect.w = keyboardWidth;
 	srcRect.h = keyboardRect.h;
 
-	SDL_SetRenderDrawColor(renderer, this->keyboardColor.a, this->keyboardColor.r,
-		this->keyboardColor.g, this->keyboardColor.b);
+	SDL_SetRenderDrawColor(renderer, keyboardColor.r, keyboardColor.g, keyboardColor.b, keyboardColor.a);
 
-	for (layer = keyboard.begin(); layer != keyboard.end(); ++layer) {
-		if ((*layer).layerNum == this->activeLayer) {
-			SDL_RenderCopy(renderer, (*layer).texture,
-				&srcRect, &keyboardRect);
+	for (const auto &layer : keyboard) {
+		if (layer.layerNum == activeLayer) {
+			SDL_RenderCopy(renderer, layer.texture, &srcRect, &keyboardRect);
 		}
 	}
-	return;
 }
 
 bool Keyboard::isInSlideAnimation() const
@@ -162,8 +154,7 @@ void Keyboard::drawRow(SDL_Surface *surface, std::vector<touchArea> *keyList, in
 
 	auto background = SDL_MapRGB(surface->format, keyboardColor.r, keyboardColor.g, keyboardColor.b);
 	int i = 0;
-	std::list<std::string>::const_iterator keyCap;
-	for (keyCap = keys->begin(); keyCap != keys->end(); ++keyCap) {
+	for (const auto &keyCap : keys) {
 		SDL_Rect keyRect;
 		keyRect.x = x + (i * width) + padding;
 		keyRect.y = y + padding;
@@ -174,9 +165,9 @@ void Keyboard::drawRow(SDL_Surface *surface, std::vector<touchArea> *keyList, in
 			smooth_corners_surface(surface, background, &keyRect, keyRadius);
 		}
 		SDL_Surface *textSurface;
-		keyList->push_back({ *keyCap, x + (i * width), x + (i * width) + width, y, y + height });
+		keyVector.push_back({ keyCap, x + (i * width), x + (i * width) + width, y, y + height });
 
-		textSurface = TTF_RenderUTF8_Blended(font, keyCap->c_str(), textColor);
+		textSurface = TTF_RenderUTF8_Blended(font, keyCap.c_str(), textColor);
 
 		SDL_Rect keyCapRect;
 		keyCapRect.x = keyRect.x + ((keyRect.w / 2) - (textSurface->w / 2));
@@ -243,7 +234,8 @@ SDL_Surface *Keyboard::makeKeyboard(KeyboardLayer *layer) const
 		return nullptr;
 	}
 
-	SDL_FillRect(surface, nullptr, SDL_MapRGB(surface->format, this->keyboardColor.r, this->keyboardColor.g, this->keyboardColor.b));
+	SDL_FillRect(surface, nullptr,
+		SDL_MapRGB(surface->format, keyboardColor.r, keyboardColor.g, keyboardColor.b));
 
 	int rowCount = sizeof(layer->rows) / sizeof(*layer->rows);
 	int rowHeight = this->keyboardHeight / (rowCount + 1);
@@ -260,20 +252,20 @@ SDL_Surface *Keyboard::makeKeyboard(KeyboardLayer *layer) const
 	}
 
 	// Divide the bottom row in 20 columns and use that for calculations
-	int colw = this->keyboardWidth / 20;
+	int colw = keyboardWidth / 20;
 
-	int sidebuttonsWidth = this->keyboardWidth / 20 + colw * 2;
+	int sidebuttonsWidth = keyboardWidth / 20 + colw * 2;
 	int y = 0;
 	int i = 0;
 	while (i < rowCount) {
 		int rowElementCount = layer->rows[i].size();
 		int x = 0;
 		if (i < 2 && rowElementCount < 10)
-			x = this->keyboardWidth / 20;
+			x = keyboardWidth / 20;
 		if (i == 2) /* leave room for shift, "123" or "=\<" key */
-			x = this->keyboardWidth / 20 + colw * 2;
-		drawRow(surface, &layer->keyList, x, y, this->keyboardWidth / 10,
-			rowHeight, &layer->rows[i], this->keyboardWidth / 100, font);
+			x = keyboardWidth / 20 + colw * 2;
+		drawRow(surface, layer->keyVector, x, y, keyboardWidth / 10,
+			rowHeight, layer->rows[i], keyboardWidth / 100, font);
 		y += rowHeight;
 		i++;
 	}
@@ -334,8 +326,8 @@ SDL_Surface *Keyboard::makeKeyboard(KeyboardLayer *layer) const
 void Keyboard::setActiveLayer(int layerNum)
 {
 	if (layerNum >= 0) {
-		if ((std::string::size_type)layerNum <= keyboard.size() - 1) {
-			this->activeLayer = layerNum;
+		if (static_cast<size_t>(layerNum) <= keyboard.size() - 1) {
+			activeLayer = layerNum;
 			return;
 		}
 	}
@@ -358,7 +350,7 @@ void Keyboard::setActiveLayer(int layerNum)
 void Keyboard::loadKeymap()
 {
 	KeyboardLayer layer0, layer1, layer2, layer3;
-	this->keyboard.clear();
+	keyboard.clear();
 
 	layer0.rows[0] = { "q", "w", "e", "r", "t", "y", "u", "i", "o", "p" };
 	layer0.rows[1] = { "a", "s", "d", "f", "g", "h", "j", "k", "l" };
@@ -380,12 +372,10 @@ void Keyboard::loadKeymap()
 	layer3.rows[2] = { "\\", "/", "<", ">", "=", "[", "]" };
 	layer3.layerNum = 3;
 
-	this->keyboard.push_back(layer0);
-	this->keyboard.push_back(layer1);
-	this->keyboard.push_back(layer2);
-	this->keyboard.push_back(layer3);
-
-	return;
+	keyboard.push_back(layer0);
+	keyboard.push_back(layer1);
+	keyboard.push_back(layer2);
+	keyboard.push_back(layer3);
 }
 
 std::string Keyboard::getCharForCoordinates(int x, int y)
