@@ -47,7 +47,6 @@ int main(int argc, char **args)
 	SDL_Event event;
 	SDL_Window *display = nullptr;
 	SDL_Renderer *renderer = nullptr;
-	Tooltip *tooltip = nullptr;
 	int WIDTH = 480;
 	int HEIGHT = 800;
 	std::chrono::milliseconds repeat_delay { 100 }; // Keyboard key repeat rate in ms
@@ -67,7 +66,7 @@ int main(int argc, char **args)
 		exit(EXIT_FAILURE);
 	}
 
-	LuksDevice *luksDev = new LuksDevice(&opts.luksDevName, &opts.luksDevPath);
+	LuksDevice luksDev(opts.luksDevName, opts.luksDevPath);
 
 	if (opts.verbose) {
 		SDL_LogSetAllPriority(SDL_LOG_PRIORITY_INFO);
@@ -148,17 +147,17 @@ int main(int argc, char **args)
 	}
 
 	// Initialize virtual keyboard
-	Keyboard *keyboard = new Keyboard(0, 1, WIDTH, keyboardHeight, &config);
-	keyboard->setKeyboardColor(0, 30, 30, 30);
-	if (keyboard->init(renderer)) {
+	Keyboard keyboard(0, 1, WIDTH, keyboardHeight, &config);
+	keyboard.setKeyboardColor(0, 30, 30, 30);
+	if (keyboard.init(renderer)) {
 		fprintf(stderr, "ERROR: Failed to initialize keyboard!\n");
 		atexit(SDL_Quit);
 		exit(EXIT_FAILURE);
 	}
 
 	// Initialize tooltip for password error
-	tooltip = new Tooltip(WIDTH * 0.9, inputHeight, &config);
-	tooltip->init(renderer, ErrorText);
+	Tooltip tooltip(static_cast<int>(WIDTH * 0.9), inputHeight, &config);
+	tooltip.init(renderer, ErrorText);
 
 	// Disable mouse cursor if not in testmode
 	if (SDL_ShowCursor(opts.testMode) < 0) {
@@ -219,7 +218,7 @@ int main(int argc, char **args)
 	SDL_PushEvent(&renderEvent);
 
 	// The Main Loop.
-	while (luksDev->isLocked()) {
+	while (luksDev.isLocked()) {
 		if (SDL_WaitEvent(&event)) {
 			cur_ticks = SDL_GetTicks();
 			// an event was found
@@ -241,7 +240,7 @@ int main(int argc, char **args)
 					}
 					break; // SDLK_RETURN
 				case SDLK_BACKSPACE:
-					if (!passphrase.empty() && !luksDev->unlockRunning()) {
+					if (!passphrase.empty() && !luksDev.unlockRunning()) {
 						passphrase.pop_back();
 						SDL_PushEvent(&renderEvent);
 						continue;
@@ -262,10 +261,11 @@ int main(int argc, char **args)
 				yTouch = event.tfinger.y * HEIGHT;
 				if (opts.verbose)
 					printf("xTouch: %u\tyTouch: %u\n", xTouch, yTouch);
-				offsetYTouch = yTouch - (int)(HEIGHT - (keyboard->getHeight() * keyboard->getPosition()));
-				tapped = keyboard->getCharForCoordinates(xTouch, offsetYTouch);
-				if (!luksDev->unlockRunning()) {
-					handleVirtualKeyPress(tapped, keyboard, luksDev, &passphrase);
+				}
+				auto offsetYTouch = yTouch - static_cast<int>(HEIGHT - (keyboard.getHeight() * keyboard.getPosition()));
+				tapped = keyboard.getCharForCoordinates(xTouch, offsetYTouch);
+				if (!luksDev.unlockRunning()) {
+					handleVirtualKeyPress(tapped, keyboard, luksDev, passphrase);
 				}
 				SDL_PushEvent(&renderEvent);
 				break; // SDL_FINGERUP
@@ -277,10 +277,11 @@ int main(int argc, char **args)
 				yMouse = event.button.y;
 				if (opts.verbose)
 					printf("xMouse: %u\tyMouse: %u\n", xMouse, yMouse);
-				offsetYMouse = yMouse - (int)(HEIGHT - (keyboard->getHeight() * keyboard->getPosition()));
-				tapped = keyboard->getCharForCoordinates(xMouse, offsetYMouse);
-				if (!luksDev->unlockRunning()) {
-					handleVirtualKeyPress(tapped, keyboard, luksDev, &passphrase);
+				}
+				auto offsetYMouse = yMouse - static_cast<int>(HEIGHT - (keyboard.getHeight() * keyboard.getPosition()));
+				tapped = keyboard.getCharForCoordinates(xMouse, offsetYMouse);
+				if (!luksDev.unlockRunning()) {
+					handleVirtualKeyPress(tapped, keyboard, luksDev, passphrase);
 				}
 				SDL_PushEvent(&renderEvent);
 				break; // SDL_MOUSEBUTTONUP
@@ -294,10 +295,11 @@ int main(int argc, char **args)
 				// Enable key repeat delay
 				if ((cur_ticks - repeat_delay_ms) > prev_text_ticks) {
 					prev_text_ticks = cur_ticks;
-					if (!luksDev->unlockRunning()) {
-						passphrase.push_back(event.text.text);
-						if (opts.verbose)
+					if (!luksDev.unlockRunning()) {
+						passphrase.emplace_back(event.text.text);
+						if (opts.verbose) {
 							printf("Phys Keyboard Key Entered %s\n", event.text.text);
+						}
 					}
 				}
 				SDL_PushEvent(&renderEvent);
@@ -325,41 +327,40 @@ int main(int argc, char **args)
 					render_times++;
 					SDL_RenderCopy(renderer, wallpaperTexture, nullptr, nullptr);
 					// Hide keyboard if unlock luks thread is running
-					keyboard->setTargetPosition(!luksDev->unlockRunning());
-					keyboard->draw(renderer, &config, HEIGHT);
+					keyboard.setTargetPosition(!luksDev.unlockRunning());
+					keyboard.draw(renderer, HEIGHT);
 
-					topHalf = (HEIGHT - (keyboard->getHeight() * keyboard->getPosition()));
+					topHalf = static_cast<int>(HEIGHT - (keyboard.getHeight() * keyboard.getPosition()));
 					// Only show either error box or password input box, not both
 					if (showPasswordError) {
 						int tooltipPosition = topHalf / 4;
-						tooltip->draw(renderer, WIDTH / 20, tooltipPosition);
+						tooltip.draw(renderer, WIDTH / 20, tooltipPosition);
 					} else {
 						inputBoxRect.y = (int)(topHalf / 3.5);
 						SDL_RenderCopy(renderer, inputBoxTexture, nullptr, &inputBoxRect);
-						draw_password_box_dots(renderer, &config, inputHeight, WIDTH,
-							passphrase.size(), inputBoxRect.y,
-							luksDev->unlockRunning());
+						draw_password_box_dots(renderer, &config, inputHeight, WIDTH, passphrase.size(), inputBoxRect.y,
+							luksDev.unlockRunning());
 					}
 					SDL_RenderPresent(renderer);
-					if (keyboard->isInSlideAnimation()) {
+					if (keyboard.isInSlideAnimation()) {
 						// No need to double-flip if we'll redraw more for animation
 						// in a tiny moment anyway.
 						break;
 					}
 				}
 
-				if (lastUnlockingState != luksDev->unlockRunning()) {
-					if (luksDev->unlockRunning() == false && luksDev->isLocked()) {
+				if (lastUnlockingState != luksDev.unlockRunning()) {
+					if (!luksDev.unlockRunning() && luksDev.isLocked()) {
 						// Luks is finished and the password was wrong
 						showPasswordError = true;
 						passphrase.clear();
 						SDL_PushEvent(&renderEvent);
 					}
-					lastUnlockingState = luksDev->unlockRunning();
+					lastUnlockingState = luksDev.unlockRunning();
 				}
 				// If any animations are running, continue to push render events to the
 				// event queue
-				if (luksDev->unlockRunning() || keyboard->isInSlideAnimation()) {
+				if (luksDev.unlockRunning() || keyboard.isInSlideAnimation()) {
 					SDL_PushEvent(&renderEvent);
 				}
 			}
@@ -369,7 +370,5 @@ int main(int argc, char **args)
 QUIT:
 	SDL_QuitSubSystem(SDL_INIT_VIDEO | SDL_INIT_EVENTS | SDL_INIT_TIMER);
 	atexit(SDL_Quit);
-	delete keyboard;
-	delete luksDev;
 	return 0;
 }
