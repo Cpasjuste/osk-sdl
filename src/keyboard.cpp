@@ -22,22 +22,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "draw_helpers.h"
 
 Keyboard::Keyboard(int pos, int targetPos, int width, int height, Config *config)
+	: position(static_cast<float>(pos)), targetPosition(static_cast<float>(targetPos))
+	, keyboardWidth(width), keyboardHeight(height), config(config)
 {
-
-	this->position = pos;
-	this->targetPosition = targetPos;
-	this->keyboardWidth = width;
-	this->keyboardHeight = height;
-	this->config = config;
-	this->lastAnimTicks = SDL_GetTicks();
-}
-
-Keyboard::~Keyboard()
-{
-	std::list<KeyboardLayer>::iterator layer;
-	for (layer = keyboard.begin(); layer != keyboard.end(); ++layer) {
-		delete (*layer).surface;
-	}
+	lastAnimTicks = SDL_GetTicks();
 }
 
 int Keyboard::init(SDL_Renderer *renderer)
@@ -69,16 +57,6 @@ int Keyboard::init(SDL_Renderer *renderer)
 	return 0;
 }
 
-float Keyboard::getPosition()
-{
-	return this->position;
-}
-
-float Keyboard::getTargetPosition()
-{
-	return this->targetPosition;
-}
-
 void Keyboard::setTargetPosition(float p)
 {
 	if (this->targetPosition - p > 0.1) {
@@ -92,15 +70,10 @@ void Keyboard::setTargetPosition(float p)
 
 void Keyboard::setKeyboardColor(uint8_t a, uint8_t r, uint8_t g, uint8_t b)
 {
-	this->keyboardColor.a = a;
-	this->keyboardColor.r = r;
-	this->keyboardColor.g = g;
-	this->keyboardColor.b = b;
-}
-
-float Keyboard::getHeight()
-{
-	return this->keyboardHeight;
+	keyboardColor.a = a;
+	keyboardColor.r = r;
+	keyboardColor.g = g;
+	keyboardColor.b = b;
 }
 
 void Keyboard::updateAnimations()
@@ -145,7 +118,7 @@ void Keyboard::updateAnimations()
 	}
 }
 
-void Keyboard::draw(SDL_Renderer *renderer, Config *config, int screenHeight)
+void Keyboard::draw(SDL_Renderer *renderer, int screenHeight)
 {
 	this->updateAnimations();
 
@@ -176,7 +149,7 @@ void Keyboard::draw(SDL_Renderer *renderer, Config *config, int screenHeight)
 	return;
 }
 
-bool Keyboard::isInSlideAnimation()
+bool Keyboard::isInSlideAnimation() const
 {
 	return (fabs(getTargetPosition() - getPosition()) > 0.001);
 }
@@ -184,7 +157,6 @@ bool Keyboard::isInSlideAnimation()
 void Keyboard::drawRow(SDL_Surface *surface, std::vector<touchArea> *keyList, int x, int y, int width, int height,
 	std::list<std::string> *keys, int padding, TTF_Font *font)
 {
-
 	auto keyBackground = SDL_MapRGB(surface->format, 15, 15, 15);
 	SDL_Color textColor = { 255, 255, 255, 0 };
 
@@ -243,7 +215,7 @@ void Keyboard::drawKey(SDL_Surface *surface, std::vector<touchArea> *keyList, in
 	SDL_BlitSurface(textSurface, nullptr, surface, &keyCapRect);
 }
 
-SDL_Surface *Keyboard::makeKeyboard(KeyboardLayer *layer)
+SDL_Surface *Keyboard::makeKeyboard(KeyboardLayer *layer) const
 {
 	SDL_Surface *surface;
 	Uint32 rmask, gmask, bmask, amask;
@@ -368,12 +340,6 @@ void Keyboard::setActiveLayer(int layerNum)
 		}
 	}
 	fprintf(stderr, "Unknown layer number: %i\n", layerNum);
-	return;
-}
-
-int Keyboard::getActiveLayer()
-{
-	return this->activeLayer;
 }
 
 /*

@@ -79,10 +79,6 @@ public:
 	  */
 	Keyboard(int pos, int targetPos, int width, int height, Config *config);
 	/**
-	  Destructor
-	  */
-	~Keyboard();
-	/**
 	  Get the character/key at the given coordinates
 	  @param x X-axis coordinate
 	  @param y Y-axis coordinate
@@ -101,12 +97,12 @@ public:
 	  Get position of keyboard
 	  @return Position as a value between 0 and 1 (0% and 100%)
 	  */
-	float getPosition();
+	float getPosition() const { return position; };
 	/**
 	  Get keyboard target position
 	  @return Target position of keyboard, between 0 (0%) and 1 (100%)
 	  */
-	float getTargetPosition();
+	float getTargetPosition() const { return targetPosition; };
 	/**
 	  Set keyboard target position
 	  @param p Position between 0 (0%) and 1 (100%)
@@ -116,18 +112,18 @@ public:
 	  Get keyboard height
 	  @return configured height of keyboard
 	  */
-	float getHeight();
+	int getHeight() const { return keyboardHeight; };
 	/**
 	  Draw/update keyboard on the screen
 	  @param renderer An initialized SDL_Renderer object
 	  @param screenHeight Height of screen
 	  */
-	void draw(SDL_Renderer *renderer, Config *config, int screenHeight);
+	void draw(SDL_Renderer *renderer, int screenHeight);
 	/**
 	  Get the active keyboard layer
 	  @return Index of active keyboard layer
 	  */
-	int getActiveLayer();
+	int getActiveLayer() const { return activeLayer; };
 	/**
 	  Set the active keyboard layer
 	  @param layerNum Index of layer to activate
@@ -139,16 +135,13 @@ public:
 	  @return 0 on success, non-zero on error
 	  */
 	int init(SDL_Renderer *renderer);
-
 	/**
 	  Query whether keyboard is currently sliding up/down.
 	  */
-	bool isInSlideAnimation();
+	bool isInSlideAnimation() const;
 
 private:
 	argb keyboardColor = { 0, 0, 0, 0 };
-	rgb inputColor = { 0, 0, 0 };
-	rgb dotColor = { 0, 0, 0 };
 	int keyRadius = 0;
 	float position;
 	float targetPosition;
@@ -195,18 +188,16 @@ private:
 	  @param padding Spacing to reserve around the key
 	  @param font Font to use for key character
 	  */
-	void drawKey(SDL_Surface *surface, std::vector<touchArea> *keyList, int x, int y,
-		int width, int height, char *cap, const std::string *key,
-		int padding, TTF_Font *font);
+	void drawKey(SDL_Surface *surface, std::vector<touchArea> &keyVector, int x, int y,
+		int width, int height, char *cap, const char *key, int padding, TTF_Font *font) const;
 	/**
 	  Prepare new keyboard
 	  @param layer Keyboard layer to use
 	  @return New SDL_Surface, or nullptr on error
 	  */
-	SDL_Surface *makeKeyboard(KeyboardLayer *layer);
+	SDL_Surface *makeKeyboard(KeyboardLayer *layer) const;
 	/**
 	  Load a keymap into the keyboard
-	  @param keymapPath Path to keymap file
 	  */
 	void loadKeymap();
 };
