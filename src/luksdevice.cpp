@@ -19,21 +19,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "luksdevice.h"
 
-LuksDevice::LuksDevice(const std::string *deviceName, const std::string *devicePath)
-{
-	this->deviceName.assign(*deviceName);
-	this->devicePath.assign(*devicePath);
-}
-
-LuksDevice::~LuksDevice()
-{
-}
-
-void LuksDevice::setPassphrase(std::string *passphrase)
-{
-	this->passphrase = *passphrase;
-}
-
 int LuksDevice::unlock()
 {
 	SDL_CreateThread(unlock, "lukscryptdevice_unlock", this);
@@ -92,14 +77,4 @@ int LuksDevice::unlock(void *luksDev)
 	SDL_PushEvent(&event);
 
 	return 0;
-}
-
-bool LuksDevice::isLocked()
-{
-	return this->locked;
-}
-
-bool LuksDevice::unlockRunning()
-{
-	return this->running;
 }

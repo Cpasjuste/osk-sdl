@@ -32,14 +32,11 @@ class LuksDevice {
 public:
 	/**
 	  Constructor
-	  @param deviceName Name of luks device
-	  @param devicePath Path to luks device
+	  @param devName Name of luks device
+	  @param devPath Path to luks device
 	  */
-	LuksDevice(const std::string *devName, const std::string *devPath);
-	/**
-	  Destructor
-	  */
-	~LuksDevice();
+	LuksDevice(std::string &devName, std::string &devPath)
+		: deviceName(devName), devicePath(devPath) {}
 	/**
 	  Unlock luks device
 	  @return 0 on success, non-zero on failure
@@ -49,22 +46,22 @@ public:
 	  Query luks device lock status
 	  @return Bool indicating whether luks device is locked or not
 	  */
-	bool isLocked();
+	bool isLocked() const { return locked; };
 	/**
 	  Query luks device unlocking status
 	  @return Bool indicating that unlock thread is running or not
 	  */
-	bool unlockRunning();
+	bool unlockRunning() const { return running; };
 	/**
 	  Configure passphrase for luks device
 	  @param passphrase Passphrase to pass to luks device when activating it
 	  */
-	void setPassphrase(std::string *passphrase);
+	void setPassphrase(const std::string &value) { passphrase = value; };
 
 private:
-	std::string devicePath;
 	std::string deviceName;
-	std::string passphrase = "";
+	std::string devicePath;
+	std::string passphrase;
 	bool locked = true;
 	bool running = false;
 
