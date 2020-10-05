@@ -32,8 +32,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <string>
 #include <unistd.h>
 
-#define TICK_INTERVAL 32
-
 Uint32 EVENT_RENDER;
 bool lastUnlockingState = false;
 bool showPasswordError = false;
@@ -83,10 +81,9 @@ int main(int argc, char **args)
 	if (!opts.testMode) {
 		// Switch to the resolution of the framebuffer if not running
 		// in test mode.
-		SDL_DisplayMode mode = { SDL_PIXELFORMAT_UNKNOWN, 0, 0, 0, 0 };
+		SDL_DisplayMode mode = { SDL_PIXELFORMAT_UNKNOWN, 0, 0, 0, nullptr };
 		if (SDL_GetDisplayMode(0, 0, &mode) != 0) {
-			SDL_LogError(SDL_LOG_CATEGORY_VIDEO, "SDL_GetDisplayMode failed: %s",
-				SDL_GetError());
+			SDL_LogError(SDL_LOG_CATEGORY_VIDEO, "SDL_GetDisplayMode failed: %s", SDL_GetError());
 			atexit(SDL_Quit);
 			exit(EXIT_FAILURE);
 		}
@@ -98,19 +95,17 @@ int main(int argc, char **args)
 	 * Set up display and renderer
 	 * Use windowed mode in test mode and device resolution otherwise
 	 */
-	int windowFlags = 0;
+	Uint32 windowFlags = 0;
 	if (opts.testMode) {
 		windowFlags = SDL_WINDOW_RESIZABLE | SDL_WINDOW_SHOWN;
 	} else {
 		windowFlags = SDL_WINDOW_FULLSCREEN;
 	}
 
-	display = SDL_CreateWindow("OSK SDL", SDL_WINDOWPOS_UNDEFINED,
-		SDL_WINDOWPOS_UNDEFINED, WIDTH,
-		HEIGHT, windowFlags);
+	display = SDL_CreateWindow("OSK SDL", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, WIDTH, HEIGHT,
+		windowFlags);
 	if (display == nullptr) {
-		fprintf(stderr, "ERROR: Could not create window/display: %s\n",
-			SDL_GetError());
+		fprintf(stderr, "ERROR: Could not create window/display: %s\n", SDL_GetError());
 		atexit(SDL_Quit);
 		exit(EXIT_FAILURE);
 	}
@@ -118,8 +113,7 @@ int main(int argc, char **args)
 	renderer = SDL_CreateRenderer(display, -1, 0);
 
 	if (renderer == nullptr) {
-		SDL_LogError(SDL_LOG_CATEGORY_VIDEO,
-			"ERROR: Could not create renderer: %s\n", SDL_GetError());
+		SDL_LogError(SDL_LOG_CATEGORY_VIDEO, "ERROR: Could not create renderer: %s\n", SDL_GetError());
 		atexit(SDL_Quit);
 		exit(EXIT_FAILURE);
 	}
@@ -139,9 +133,7 @@ int main(int argc, char **args)
 	}
 
 	if (SDL_RenderFillRect(renderer, nullptr) != 0) {
-		SDL_LogError(SDL_LOG_CATEGORY_VIDEO,
-			"ERROR: Could not fill background color: %s\n",
-			SDL_GetError());
+		SDL_LogError(SDL_LOG_CATEGORY_VIDEO, "ERROR: Could not fill background color: %s\n", SDL_GetError());
 		atexit(SDL_Quit);
 		exit(EXIT_FAILURE);
 	}
@@ -168,25 +160,22 @@ int main(int argc, char **args)
 	// Make SDL send text editing events for textboxes
 	SDL_StartTextInput();
 
-	SDL_Surface *wallpaper = make_wallpaper(renderer, &config, WIDTH, HEIGHT);
-	SDL_Texture *wallpaperTexture = SDL_CreateTextureFromSurface(renderer,
-		wallpaper);
+	SDL_Surface *wallpaper = make_wallpaper(&config, WIDTH, HEIGHT);
+	SDL_Texture *wallpaperTexture = SDL_CreateTextureFromSurface(renderer, wallpaper);
 
 	std::string tapped;
-	long inputBoxRadius = strtol(config.inputBoxRadius.c_str(), nullptr, 10);
+	int inputBoxRadius = std::strtol(config.inputBoxRadius.c_str(), nullptr, 10);
 	if (inputBoxRadius >= BEZIER_RESOLUTION || inputBoxRadius > inputHeight / 1.5) {
-		fprintf(stderr, "inputbox-radius must be below %f and %f, it is %ld\n",
-			BEZIER_RESOLUTION, inputHeight / 1.5, inputBoxRadius);
+		fprintf(stderr, "inputbox-radius must be below %d and %f, it is %d\n", BEZIER_RESOLUTION,
+			inputHeight / 1.5, inputBoxRadius);
 		inputBoxRadius = 0;
 	}
-	argb wallpaperColor;
+	argb wallpaperColor {};
 	wallpaperColor.a = 255;
-	if (sscanf(config.wallpaper.c_str(), "#%02x%02x%02x", &wallpaperColor.r, &wallpaperColor.g,
+	if (sscanf(config.wallpaper.c_str(), "#%02hhx%02hhx%02hhx", &wallpaperColor.r, &wallpaperColor.g,
 			&wallpaperColor.b)
 		!= 3) {
-
-		fprintf(stderr, "Could not parse color code %s\n",
-			config.wallpaper.c_str());
+		fprintf(stderr, "Could not parse color code %s\n", config.wallpaper.c_str());
 		//to avoid akward colors just remove the radius
 		inputBoxRadius = 0;
 	}
@@ -207,8 +196,7 @@ int main(int argc, char **args)
 	};
 
 	if (inputBoxTexture == nullptr) {
-		SDL_LogError(SDL_LOG_CATEGORY_VIDEO,
-			"ERROR: Could not create input box texture: %s\n",
+		SDL_LogError(SDL_LOG_CATEGORY_VIDEO, "ERROR: Could not create input box texture: %s\n",
 			SDL_GetError());
 		atexit(SDL_Quit);
 		exit(EXIT_FAILURE);
@@ -220,7 +208,7 @@ int main(int argc, char **args)
 	// The Main Loop.
 	while (luksDev.isLocked()) {
 		if (SDL_WaitEvent(&event)) {
-			cur_ticks = SDL_GetTicks();
+			int cur_ticks = SDL_GetTicks();
 			// an event was found
 			switch (event.type) {
 			// handle the keyboard
@@ -270,12 +258,11 @@ int main(int argc, char **args)
 				SDL_PushEvent(&renderEvent);
 				break; // SDL_FINGERUP
 				// handle the mouse
-			case SDL_MOUSEBUTTONUP:
-				unsigned int xMouse, yMouse, offsetYMouse;
+			case SDL_MOUSEBUTTONUP: {
 				showPasswordError = false;
-				xMouse = event.button.x;
-				yMouse = event.button.y;
-				if (opts.verbose)
+				auto xMouse = event.button.x;
+				auto yMouse = event.button.y;
+				if (opts.verbose) {
 					printf("xMouse: %u\tyMouse: %u\n", xMouse, yMouse);
 				}
 				auto offsetYMouse = yMouse - static_cast<int>(HEIGHT - (keyboard.getHeight() * keyboard.getPosition()));
@@ -285,6 +272,7 @@ int main(int argc, char **args)
 				}
 				SDL_PushEvent(&renderEvent);
 				break; // SDL_MOUSEBUTTONUP
+			}
 				// handle physical keyboard
 			case SDL_TEXTINPUT:
 				/*
