@@ -22,8 +22,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "draw_helpers.h"
 
 Keyboard::Keyboard(int pos, int targetPos, int width, int height, Config *config)
-	: position(static_cast<float>(pos)), targetPosition(static_cast<float>(targetPos))
-	, keyboardWidth(width), keyboardHeight(height), config(config)
+	: position(static_cast<float>(pos))
+	, targetPosition(static_cast<float>(targetPos))
+	, keyboardWidth(width)
+	, keyboardHeight(height)
+	, config(config)
 {
 	lastAnimTicks = SDL_GetTicks();
 }

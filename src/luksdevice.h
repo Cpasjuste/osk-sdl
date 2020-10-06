@@ -37,7 +37,10 @@ public:
 	  @param devPath Path to luks device
 	  */
 	LuksDevice(std::string &devName, std::string &devPath)
-		: deviceName(devName), devicePath(devPath) {}
+		: deviceName(devName)
+		, devicePath(devPath)
+	{
+	}
 	/**
 	  Unlock luks device
 	  @return 0 on success, non-zero on failure

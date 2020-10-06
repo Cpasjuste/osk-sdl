@@ -20,7 +20,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "tooltip.h"
 
 Tooltip::Tooltip(int width, int height, Config *config)
-	: config(config), width(width), height(height) {}
+	: config(config)
+	, width(width)
+	, height(height)
+{
+}
 
 int Tooltip::init(SDL_Renderer *renderer, const std::string &text)
 {
