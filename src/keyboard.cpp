@@ -30,8 +30,6 @@ Keyboard::Keyboard(int pos, int targetPos, int width, int height, Config *config
 
 int Keyboard::init(SDL_Renderer *renderer)
 {
-	std::list<KeyboardLayer>::iterator layer;
-
 	loadKeymap();
 	int keyLong = std::strtol(config->keyRadius.c_str(), nullptr, 10);
 	if (keyLong >= BEZIER_RESOLUTION || static_cast<double>(keyLong) > (keyboardHeight / 5.0) / 1.5) {
@@ -146,8 +144,8 @@ bool Keyboard::isInSlideAnimation() const
 	return (fabs(getTargetPosition() - getPosition()) > 0.001);
 }
 
-void Keyboard::drawRow(SDL_Surface *surface, std::vector<touchArea> *keyList, int x, int y, int width, int height,
-	std::list<std::string> *keys, int padding, TTF_Font *font)
+void Keyboard::drawRow(SDL_Surface *surface, std::vector<touchArea> &keyVector, int x, int y, int width, int height,
+	const std::vector<std::string> &keys, int padding, TTF_Font *font) const
 {
 	auto keyBackground = SDL_MapRGB(surface->format, 15, 15, 15);
 	SDL_Color textColor = { 255, 255, 255, 0 };
@@ -180,8 +178,8 @@ void Keyboard::drawRow(SDL_Surface *surface, std::vector<touchArea> *keyList, in
 	}
 }
 
-void Keyboard::drawKey(SDL_Surface *surface, std::vector<touchArea> *keyList, int x, int y, int width, int height, char *cap,
-	const std::string *key, int padding, TTF_Font *font)
+void Keyboard::drawKey(SDL_Surface *surface, std::vector<touchArea> &keyVector, int x, int y, int width, int height,
+	char *cap, const char *key, int padding, TTF_Font *font) const
 {
 	auto keyBackground = SDL_MapRGB(surface->format, 15, 15, 15);
 	SDL_Color textColor = { 255, 255, 255, 0 };
@@ -194,7 +192,7 @@ void Keyboard::drawKey(SDL_Surface *surface, std::vector<touchArea> *keyList, in
 	SDL_FillRect(surface, &keyRect, keyBackground);
 	SDL_Surface *textSurface;
 
-	keyList->push_back({ *key, x, x + width, y, y + height });
+	keyVector.push_back({ key, x, x + width, y, y + height });
 
 	textSurface = TTF_RenderUTF8_Blended(font, cap, textColor);
 
@@ -225,8 +223,7 @@ SDL_Surface *Keyboard::makeKeyboard(KeyboardLayer *layer) const
 	amask = 0xff000000;
 #endif
 
-	surface = SDL_CreateRGBSurface(SDL_SWSURFACE, this->keyboardWidth,
-		this->keyboardHeight, 32, rmask, gmask,
+	surface = SDL_CreateRGBSurface(SDL_SWSURFACE, keyboardWidth, keyboardHeight, 32, rmask, gmask,
 		bmask, amask);
 
 	if (surface == nullptr) {
@@ -237,8 +234,8 @@ SDL_Surface *Keyboard::makeKeyboard(KeyboardLayer *layer) const
 	SDL_FillRect(surface, nullptr,
 		SDL_MapRGB(surface->format, keyboardColor.r, keyboardColor.g, keyboardColor.b));
 
-	int rowCount = sizeof(layer->rows) / sizeof(*layer->rows);
-	int rowHeight = this->keyboardHeight / (rowCount + 1);
+	int rowCount = layer->rows.size();
+	int rowHeight = keyboardHeight / (rowCount + 1);
 
 	if (TTF_Init() == -1) {
 		printf("TTF_Init: %s\n", TTF_GetError());
@@ -273,52 +270,52 @@ SDL_Surface *Keyboard::makeKeyboard(KeyboardLayer *layer) const
 	/* Bottom-left key, 123 or ABC key based on which layer we're on: */
 	if (layer->layerNum < 2) {
 		char nums[] = "123";
-		drawKey(surface, &layer->keyList, colw, y, colw * 3, rowHeight,
-			nums, &KEYCAP_NUMBERS, this->keyboardWidth / 100, font);
+		drawKey(surface, layer->keyVector, colw, y, colw * 3, rowHeight,
+			nums, KEYCAP_NUMBERS, keyboardWidth / 100, font);
 	} else {
 		char abc[] = "abc";
-		drawKey(surface, &layer->keyList, colw, y, colw * 3, rowHeight,
-			abc, &KEYCAP_ABC, this->keyboardWidth / 100, font);
+		drawKey(surface, layer->keyVector, colw, y, colw * 3, rowHeight,
+			abc, KEYCAP_ABC, keyboardWidth / 100, font);
 	}
 	/* Shift-key that transforms into "123" or "=\<" depending on layer: */
 	if (layer->layerNum == 2) {
 		char symb[] = "=\\<";
-		drawKey(surface, &layer->keyList, 0, y - rowHeight,
+		drawKey(surface, layer->keyVector, 0, y - rowHeight,
 			sidebuttonsWidth, rowHeight,
-			symb, &KEYCAP_SYMBOLS, this->keyboardWidth / 100, font);
+			symb, KEYCAP_SYMBOLS, keyboardWidth / 100, font);
 	} else if (layer->layerNum == 3) {
 		char nums[] = "123";
-		drawKey(surface, &layer->keyList, 0, y - rowHeight,
+		drawKey(surface, layer->keyVector, 0, y - rowHeight,
 			sidebuttonsWidth, rowHeight,
-			nums, &KEYCAP_NUMBERS, this->keyboardWidth / 100, font);
+			nums, KEYCAP_NUMBERS, keyboardWidth / 100, font);
 	} else {
 		char shift[64] = "";
-		memcpy(shift, KEYCAP_SHIFT.c_str(), strlen(KEYCAP_SHIFT.c_str()) + 1);
-		drawKey(surface, &layer->keyList, 0, y - rowHeight,
+		memcpy(shift, KEYCAP_SHIFT, strlen(KEYCAP_SHIFT) + 1);
+		drawKey(surface, layer->keyVector, 0, y - rowHeight,
 			sidebuttonsWidth, rowHeight,
-			shift, &KEYCAP_SHIFT, this->keyboardWidth / 100, font);
+			shift, KEYCAP_SHIFT, keyboardWidth / 100, font);
 	}
 	/* Backspace key that is larger-sized (hence also drawn separately) */
 	{
 		char bcksp[64];
-		memcpy(bcksp, KEYCAP_BACKSPACE.c_str(),
-			strlen(KEYCAP_BACKSPACE.c_str()) + 1);
-		drawKey(surface, &layer->keyList, this->keyboardWidth / 20 + colw * 16,
+		memcpy(bcksp, KEYCAP_BACKSPACE,
+			strlen(KEYCAP_BACKSPACE) + 1);
+		drawKey(surface, layer->keyVector, keyboardWidth / 20 + colw * 16,
 			y - rowHeight, sidebuttonsWidth, rowHeight,
-			bcksp, &KEYCAP_BACKSPACE, this->keyboardWidth / 100, font);
+			bcksp, KEYCAP_BACKSPACE, keyboardWidth / 100, font);
 	}
 
 	char space[] = " ";
-	drawKey(surface, &layer->keyList, colw * 5, y, colw * 8, rowHeight,
-		space, &KEYCAP_SPACE, this->keyboardWidth / 100, font);
+	drawKey(surface, layer->keyVector, colw * 5, y, colw * 8, rowHeight,
+		space, KEYCAP_SPACE, keyboardWidth / 100, font);
 
 	char period[] = ".";
-	drawKey(surface, &layer->keyList, colw * 13, y, colw * 2, rowHeight,
-		period, &KEYCAP_PERIOD, this->keyboardWidth / 100, font);
+	drawKey(surface, layer->keyVector, colw * 13, y, colw * 2, rowHeight,
+		period, KEYCAP_PERIOD, keyboardWidth / 100, font);
 
 	char enter[] = "OK";
-	drawKey(surface, &layer->keyList, colw * 15, y, colw * 5, rowHeight,
-		enter, &KEYCAP_RETURN, this->keyboardWidth / 100, font);
+	drawKey(surface, layer->keyVector, colw * 15, y, colw * 5, rowHeight,
+		enter, KEYCAP_RETURN, keyboardWidth / 100, font);
 
 	return surface;
 }
@@ -380,17 +377,14 @@ void Keyboard::loadKeymap()
 
 std::string Keyboard::getCharForCoordinates(int x, int y)
 {
-	std::list<KeyboardLayer>::iterator layer;
-	std::vector<touchArea>::iterator it;
-
-	for (layer = this->keyboard.begin(); layer != this->keyboard.end(); ++layer) {
-		if ((*layer).layerNum == this->activeLayer) {
-			for (it = (*layer).keyList.begin(); it != (*layer).keyList.end(); ++it) {
-				if (x > it->x1 && x < it->x2 && y > it->y1 && y < it->y2) {
-					return it->keyChar;
+	for (const auto &layer : keyboard) {
+		if (layer.layerNum == activeLayer) {
+			for (const auto &it : layer.keyVector) {
+				if (x > it.x1 && x < it.x2 && y > it.y1 && y < it.y2) {
+					return it.keyChar;
 				}
 			}
 		}
 	}
-	return "\0";
+	return "";
 }

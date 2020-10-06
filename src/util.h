@@ -23,9 +23,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "keyboard.h"
 #include "luksdevice.h"
 #include <SDL2/SDL.h>
+#include <cmath>
 #include <iostream>
-#include <list>
-#include <math.h>
 #include <string>
 #include <unistd.h>
 
@@ -51,22 +50,20 @@ struct Opts {
 int fetchOpts(int argc, char **args, Opts *opts);
 
 /**
-  Convert list of strings into a single string
-  @param strList List of strings
-  @return String with all elements of strList concatenated together
+  Convert vector of strings into a single string
+  @param strVector Vector of strings
+  @return String with all elements of strVector concatenated together
  */
-std::string strList2str(const std::list<std::string> *strList);
+std::string strVector2str(const std::vector<std::string> &strVector);
 
 /**
   Create wallpaper
-  @param renderer Initialized SDL_Renderer
   @param config Config paramters
   @param width Width of wallpaper to generate
   @param height Height of wallpaper to generate
   @return Initialized SDL_Surface, else nullptr on failure
  */
-SDL_Surface *make_wallpaper(SDL_Renderer *renderer, Config *config,
-	int width, int height);
+SDL_Surface *make_wallpaper(Config *config, int width, int height);
 
 /**
   Draw a circle
@@ -95,6 +92,6 @@ void handleVirtualKeyPress(const std::string &tapped, Keyboard &kbd, LuksDevice 
   @param y Vertical position of the input box
   @param busy if true the dots will play a loading animation
  */
-void draw_password_box_dots(SDL_Renderer *renderer, Config *config, int inputHeight,
-	int screenWidth, int numDots, int y, bool busy);
+void draw_password_box_dots(SDL_Renderer *renderer, Config *config, int inputHeight, int screenWidth, int numDots,
+	int y, bool busy);
 #endif

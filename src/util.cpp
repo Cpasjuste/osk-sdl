@@ -19,6 +19,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "util.h"
 #include "draw_helpers.h"
+#include <numeric>
 
 int fetchOpts(int argc, char **args, Opts *opts)
 {
@@ -62,17 +63,19 @@ int fetchOpts(int argc, char **args, Opts *opts)
 	return 0;
 }
 
-std::string strList2str(const std::list<std::string> *strList)
+std::string strVector2str(const std::vector<std::string> &strVector)
 {
-	std::string str = "";
-	std::list<std::string>::const_iterator it;
-	for (it = strList->begin(); it != strList->end(); ++it) {
-		str.append(*it);
+	const auto strLength = std::accumulate(strVector.begin(), strVector.end(), size_t {},
+		[](auto acc, const auto &s) { return acc + s.size(); });
+	std::string result;
+	result.reserve(strLength);
+	for (const auto &str : strVector) {
+		result.append(str);
 	}
-	return str;
+	return result;
 }
 
-SDL_Surface *make_wallpaper(SDL_Renderer *renderer, Config *config, int width, int height)
+SDL_Surface *make_wallpaper(Config *config, int width, int height)
 {
 	SDL_Surface *surface;
 	Uint32 rmask, gmask, bmask, amask;
@@ -91,8 +94,7 @@ SDL_Surface *make_wallpaper(SDL_Renderer *renderer, Config *config, int width, i
 	amask = 0xff000000;
 #endif
 
-	surface = SDL_CreateRGBSurface(SDL_SWSURFACE, width, height, 32, rmask, gmask,
-		bmask, amask);
+	surface = SDL_CreateRGBSurface(SDL_SWSURFACE, width, height, 32, rmask, gmask, bmask, amask);
 
 	if (config->wallpaper[0] == '#') {
 		unsigned char r, g, b;

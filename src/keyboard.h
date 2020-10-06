@@ -59,10 +59,10 @@ struct argb {
 };
 
 struct KeyboardLayer {
-	SDL_Surface *surface;
-	SDL_Texture *texture;
-	std::list<std::string> rows[3];
-	std::vector<touchArea> keyList;
+	SDL_Surface *surface = nullptr;
+	SDL_Texture *texture = nullptr;
+	std::array<std::vector<std::string>, 3> rows;
+	std::vector<touchArea> keyVector;
 	int layerNum;
 };
 
@@ -149,7 +149,7 @@ private:
 	int keyboardWidth;
 	int keyboardHeight;
 	int activeLayer = 0;
-	std::list<KeyboardLayer> keyboard;
+	std::vector<KeyboardLayer> keyboard;
 	Config *config;
 
 	/**
@@ -165,9 +165,9 @@ private:
 	  @param padding Spacing to reserve around the key
 	  @param font Font to use for key character
 	  */
-	void drawRow(SDL_Surface *surface, std::vector<touchArea> *keyList, int x, int y,
-		int width, int height, std::list<std::string> *keys, int padding,
-		TTF_Font *font);
+	void drawRow(SDL_Surface *surface, std::vector<touchArea> &keyVector, int x, int y,
+		int width, int height, const std::vector<std::string> &keys, int padding,
+		TTF_Font *font) const;
 
 	/**
 	  Internal function to gradually update the animations.

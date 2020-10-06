@@ -39,7 +39,7 @@ constexpr char ErrorText[] = "Incorrect passphrase";
 
 int main(int argc, char **args)
 {
-	std::list<std::string> passphrase;
+	std::vector<std::string> passphrase;
 	Opts opts {};
 	Config config;
 	SDL_Event event;
@@ -219,10 +219,10 @@ int main(int argc, char **args)
 				prev_keydown_ticks = cur_ticks;
 				switch (event.key.keysym.sym) {
 				case SDLK_RETURN:
-					if (!passphrase.empty() && !luksDev->unlockRunning()) {
-						std::string pass = strList2str(&passphrase);
-						luksDev->setPassphrase(&pass);
-						luksDev->unlock();
+					if (!passphrase.empty() && !luksDev.unlockRunning()) {
+						std::string pass = strVector2str(passphrase);
+						luksDev.setPassphrase(pass);
+						luksDev.unlock();
 					}
 					break; // SDLK_RETURN
 				case SDLK_BACKSPACE:
