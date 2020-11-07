@@ -47,7 +47,7 @@ int main(int argc, char **args)
 	SDL_Renderer *renderer = nullptr;
 	int WIDTH = 480;
 	int HEIGHT = 800;
-	std::chrono::milliseconds repeat_delay { 100 }; // Keyboard key repeat rate in ms
+	std::chrono::milliseconds repeat_delay { 25 }; // Keyboard key repeat rate in ms
 	unsigned prev_keydown_ticks = 0; // Two sep. prev_ticks required for handling
 	unsigned prev_text_ticks = 0; // textinput & keydown event types
 
