@@ -113,15 +113,36 @@ SDL_Surface *make_wallpaper(Config *config, int width, int height)
 
 void draw_circle(SDL_Renderer *renderer, SDL_Point center, int radius)
 {
+	int x0 = center.x;
+	int y0 = center.y;
+	int x = 0;
+	int y = radius;
+	float d = 5 / 4.0 - radius;
 	SDL_SetRenderDrawColor(renderer, 229, 229, 229, 255);
-	for (int w = 0; w < radius * 2; w++) {
-		for (int h = 0; h < radius * 2; h++) {
-			int dx = radius - w; // horizontal offset
-			int dy = radius - h; // vertical offset
-			if ((dx * dx + dy * dy) <= (radius * radius)) {
-				SDL_RenderDrawPoint(renderer, center.x + dx, center.y + dy);
-			}
+
+	/*
+	 * This is a version of the midpoint circle algorithm that draws lines
+	 * between pairs of points for fill, rather than plotting every single
+	 * pixel/point within the circle.
+	 * https://stackoverflow.com/a/10878576
+	 * https://stackoverflow.com/a/1201304
+	 * */
+	while (x < y) {
+		if (d < 2 * (radius - y)) {
+			y -= 1;
+			d += 2 * y - 1;
+		} else if (d >= 2 * x) {
+			x += 1;
+			d -= 2 * x + 1;
+		} else {
+			x += 1;
+			y -= 1;
+			d += 2 * (y - x - 1);
 		}
+		SDL_RenderDrawLine(renderer, x0 - y, y0 + x, x0 + y, y0 + x);
+		SDL_RenderDrawLine(renderer, x0 - x, y0 + y, x0 + x, y0 + y);
+		SDL_RenderDrawLine(renderer, x0 - x, y0 - y, x0 + x, y0 - y);
+		SDL_RenderDrawLine(renderer, x0 - y, y0 - x, x0 + y, y0 - x);
 	}
 }
 
