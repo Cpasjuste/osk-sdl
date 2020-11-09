@@ -200,6 +200,9 @@ int main(int argc, char **args)
 		exit(EXIT_FAILURE);
 	}
 
+	SDL_RendererInfo rendererInfo;
+	SDL_GetRendererInfo(renderer, &rendererInfo);
+
 	// Start drawing keyboard when main loop starts
 	SDL_PushEvent(&renderEvent);
 
@@ -298,19 +301,28 @@ int main(int argc, char **args)
 			} // switch event.type
 			// Render event handler
 			if (event.type == EVENT_RENDER) {
-				/* NOTE ON DOUBLE BUFFERING / RENDERING TWICE:
+				/* NOTE ON MULTI BUFFERING / RENDERING MULTIPLE TIMES:
 				   We only re-schedule render events during animation, otherwise
 				   we render once and then do nothing for a long while.
 
 				   A single render may however never reach the screen, since
-				   SDL_RenderCopy() page flips and with double buffering that
-				   may just fill the hidden backbuffer.
+				   SDL_RenderCopy() page flips and with multi buffering that
+				   may just fill the hidden backbuffer(s).
 
-				   Therefore, we need to render two times if not during animation
-				   to make sure it actually shows on screen during lengthy pauses.
+				   Therefore, we need to render multiple times if not during
+				   animation to make sure it actually shows on screen during
+				   lengthy pauses.
+
+				   For software rendering (directfb backend), rendering twice
+				   seems to be the sweet spot.
+
+				   For accelerated rendering, we render 3 times to make sure
+				   updates show on screen for drivers that use
+				   triple buffering
 				 */
 				int render_times = 0;
-				while (render_times < 2) { // double-flip so it reaches screen
+				int max_render_times = (rendererInfo.flags & SDL_RENDERER_ACCELERATED) ? 3 : 2;
+				while (render_times < max_render_times) {
 					render_times++;
 					SDL_RenderCopy(renderer, wallpaperTexture, nullptr, nullptr);
 					// Hide keyboard if unlock luks thread is running
