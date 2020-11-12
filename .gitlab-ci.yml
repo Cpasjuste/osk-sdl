@@ -35,7 +35,7 @@ static-analysis:
 build::amd64:
   <<: *only-default
   before_script:
-    - apk -q add build-base linux-headers sdl2-dev sdl2_ttf-dev cryptsetup-dev
+    - apk -q add build-base linux-headers sdl2-dev sdl2_ttf-dev cryptsetup-dev scdoc
   script:
     - make -j5
   artifacts:
