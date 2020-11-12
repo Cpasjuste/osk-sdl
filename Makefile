@@ -15,15 +15,23 @@ OBJ_DIR    := obj
 SOURCES    := ${wildcard $(SRC_DIR)/*.cpp}
 OBJECTS    := $(SOURCES:$(SRC_DIR)/%.cpp=$(OBJ_DIR)/%.o)
 
+ifeq ("$(V)", "1")
+	Q :=
+	E := @true
+else
+	Q := @
+	E := @echo
+endif
+
 all: directories $(BIN_DIR)/$(TARGET)
 
 $(OBJ_DIR)/%.o: $(SRC_DIR)/%.cpp
-	@echo CC $<
-	@$(CXX) -c -o $@ $< $(CXXFLAGS)
+	$(E) CC $<
+	$(Q)$(CXX) -c -o $@ $< $(CXXFLAGS) $(CPPFLAGS)
 
 $(BIN_DIR)/$(TARGET): $(OBJECTS)
-	@echo LD $@
-	@$(CXX) -o $@ $^ $(CXXFLAGS) $(LDFLAGS) $(LIBS)
+	$(E) LD $<
+	$(Q)$(CXX) -o $@ $^ $(CXXFLAGS) $(CPPFLAGS) $(LDFLAGS) $(LIBS)
 
 .PHONY: clean
 
