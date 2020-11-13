@@ -207,7 +207,8 @@ int main(int argc, char **args)
 	SDL_PushEvent(&renderEvent);
 
 	// The Main Loop.
-	while (luksDev.isLocked()) {
+	bool done = false;
+	while (luksDev.isLocked() && !done) {
 		if (SDL_WaitEvent(&event)) {
 			int cur_ticks = SDL_GetTicks();
 			// an event was found
@@ -225,7 +226,11 @@ int main(int argc, char **args)
 					if (!passphrase.empty() && !luksDev.unlockRunning()) {
 						std::string pass = strVector2str(passphrase);
 						luksDev.setPassphrase(pass);
-						luksDev.unlock();
+						if (opts.keyscript) {
+							done = true;
+						} else {
+							luksDev.unlock();
+						}
 					}
 					break; // SDLK_RETURN
 				case SDLK_BACKSPACE:
@@ -253,7 +258,7 @@ int main(int argc, char **args)
 				auto offsetYTouch = yTouch - static_cast<int>(HEIGHT - (keyboard.getHeight() * keyboard.getPosition()));
 				tapped = keyboard.getCharForCoordinates(xTouch, offsetYTouch);
 				if (!luksDev.unlockRunning()) {
-					handleVirtualKeyPress(tapped, keyboard, luksDev, passphrase);
+					done = handleVirtualKeyPress(tapped, keyboard, luksDev, passphrase, opts.keyscript);
 				}
 				SDL_PushEvent(&renderEvent);
 				break; // SDL_FINGERUP
@@ -269,7 +274,7 @@ int main(int argc, char **args)
 				auto offsetYMouse = yMouse - static_cast<int>(HEIGHT - (keyboard.getHeight() * keyboard.getPosition()));
 				tapped = keyboard.getCharForCoordinates(xMouse, offsetYMouse);
 				if (!luksDev.unlockRunning()) {
-					handleVirtualKeyPress(tapped, keyboard, luksDev, passphrase);
+					done = handleVirtualKeyPress(tapped, keyboard, luksDev, passphrase, opts.keyscript);
 				}
 				SDL_PushEvent(&renderEvent);
 				break; // SDL_MOUSEBUTTONUP
@@ -369,5 +374,11 @@ int main(int argc, char **args)
 QUIT:
 	SDL_QuitSubSystem(SDL_INIT_VIDEO | SDL_INIT_EVENTS | SDL_INIT_TIMER);
 	atexit(SDL_Quit);
+
+	if (opts.keyscript) {
+		std::string pass = strVector2str(passphrase);
+		printf("%s", pass.c_str());
+		fflush(stdout);
+	}
 	return 0;
 }

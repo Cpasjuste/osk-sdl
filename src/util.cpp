@@ -25,7 +25,7 @@ int fetchOpts(int argc, char **args, Opts *opts)
 {
 	int opt;
 
-	while ((opt = getopt(argc, args, "td:n:c:v")) != -1)
+	while ((opt = getopt(argc, args, "td:n:c:kv")) != -1)
 		switch (opt) {
 		case 't':
 			opts->luksDevPath = DEFAULT_LUKSDEVPATH;
@@ -41,11 +41,14 @@ int fetchOpts(int argc, char **args, Opts *opts)
 		case 'c':
 			opts->confPath = optarg;
 			break;
+		case 'k':
+			opts->keyscript = true;
+			break;
 		case 'v':
 			opts->verbose = true;
 			break;
 		default:
-			fprintf(stdout, "Usage: osk-sdl [-t] [-d /dev/sda] [-n device_name] "
+			fprintf(stdout, "Usage: osk-sdl [-t] [-k] [-d /dev/sda] [-n device_name] "
 							"[-c /etc/osk.conf] -v\n");
 			return 1;
 		}
@@ -165,13 +168,16 @@ void draw_password_box_dots(SDL_Renderer *renderer, Config *config, int inputHei
 	}
 }
 
-void handleVirtualKeyPress(const std::string &tapped, Keyboard &kbd, LuksDevice &lkd,
-	std::vector<std::string> &passphrase)
+bool handleVirtualKeyPress(const std::string &tapped, Keyboard &kbd, LuksDevice &lkd,
+	std::vector<std::string> &passphrase, bool keyscript)
 {
 	// return pressed
 	if (tapped == "\n") {
 		std::string pass = strVector2str(passphrase);
 		lkd.setPassphrase(pass);
+		if (keyscript) {
+			return true;
+		}
 		lkd.unlock();
 	}
 	// Backspace pressed
@@ -204,4 +210,5 @@ void handleVirtualKeyPress(const std::string &tapped, Keyboard &kbd, LuksDevice 
 	else if (!tapped.empty()) {
 		passphrase.push_back(tapped);
 	}
+	return false;
 }

@@ -38,6 +38,7 @@ struct Opts {
 	std::string confPath;
 	bool testMode;
 	bool verbose;
+	bool keyscript;
 };
 
 /**
@@ -79,9 +80,11 @@ void draw_circle(SDL_Renderer *renderer, SDL_Point center, int radius);
   @param kbd Initialized Keyboard obj
   @param lkd Initialized LuksDevice obj
   @param lkd passphrase Passphrase to modify
+  @param keyscript Whether we're in keyscript mode
+  @return Whether we're done with the main loop
  */
-void handleVirtualKeyPress(const std::string &tapped, Keyboard &kbd, LuksDevice &lkd,
-	std::vector<std::string> &passphrase);
+bool handleVirtualKeyPress(const std::string &tapped, Keyboard &kbd, LuksDevice &lkd,
+	std::vector<std::string> &passphrase, bool keyscript);
 
 /**
   Draw the dots to represent hidden characters
