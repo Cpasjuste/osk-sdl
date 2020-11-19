@@ -52,13 +52,15 @@ int fetchOpts(int argc, char **args, Opts *opts)
 							"[-c /etc/osk.conf] -v\n");
 			return 1;
 		}
-	if (opts->luksDevPath.empty()) {
-		fprintf(stderr, "No device path specified, use -d [path] or -t\n");
-		return 1;
-	}
-	if (opts->luksDevName.empty()) {
-		fprintf(stderr, "No device name specified, use -n [name] or -t\n");
-		return 1;
+	if (!opts->keyscript) {
+		if (opts->luksDevPath.empty()) {
+			fprintf(stderr, "No device path specified, use -d [path] or -t\n");
+			return 1;
+		}
+		if (opts->luksDevName.empty()) {
+			fprintf(stderr, "No device name specified, use -n [name] or -t\n");
+			return 1;
+		}
 	}
 	if (opts->confPath.empty()) {
 		opts->confPath = DEFAULT_CONFPATH;
