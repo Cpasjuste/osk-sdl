@@ -60,7 +60,7 @@ int main(int argc, char **args)
 	}
 
 	if (!config.Read(opts.confPath)) {
-		fprintf(stderr, "No valid config file specified, use -c [path]");
+		fprintf(stderr, "No valid config file specified, use -c [path]\n");
 		exit(EXIT_FAILURE);
 	}
 
