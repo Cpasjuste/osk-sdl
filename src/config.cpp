@@ -80,6 +80,12 @@ bool Config::Read(const std::string &path)
 		Config::keyForeground = parseHexString(hex);
 	}
 
+	it = Config::options.find("key-foreground-highlighted");
+	if (it != Config::options.end()) {
+		std::string hex = Config::options["key-foreground-highlighted"];
+		Config::keyForegroundHighlighted = parseHexString(hex);
+	}
+
 	it = Config::options.find("key-background-letter");
 	if (it != Config::options.end()) {
 		std::string hex = Config::options["key-background-letter"];
@@ -96,6 +102,12 @@ bool Config::Read(const std::string &path)
 	if (it != Config::options.end()) {
 		std::string hex = Config::options["key-background-other"];
 		Config::keyBackgroundOther = parseHexString(hex);
+	}
+
+	it = Config::options.find("key-background-highlighted");
+	if (it != Config::options.end()) {
+		std::string hex = Config::options["key-background-highlighted"];
+		Config::keyBackgroundHighlighted = parseHexString(hex);
 	}
 
 	it = Config::options.find("key-radius");

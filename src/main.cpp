@@ -241,6 +241,14 @@ int main(int argc, char **args)
 				SDL_PushEvent(&renderEvent);
 				break; // SDL_KEYDOWN
 				// handle touchscreen
+			case SDL_FINGERDOWN: {
+				// x and y values are normalized!
+				auto xTouch = static_cast<unsigned>(event.tfinger.x * WIDTH);
+				auto yTouch = static_cast<unsigned>(event.tfinger.y * HEIGHT);
+				handleTapBegin(xTouch, yTouch, HEIGHT, keyboard);
+				SDL_PushEvent(&renderEvent);
+				break; // SDL_FINGERDOWN
+			}
 			case SDL_FINGERUP: {
 				auto xTouch = static_cast<unsigned>(event.tfinger.x * WIDTH);
 				auto yTouch = static_cast<unsigned>(event.tfinger.y * HEIGHT);
@@ -249,6 +257,11 @@ int main(int argc, char **args)
 				break; // SDL_FINGERUP
 			}
 				// handle the mouse
+			case SDL_MOUSEBUTTONDOWN: {
+				handleTapBegin(event.button.x, event.button.y, HEIGHT, keyboard);
+				SDL_PushEvent(&renderEvent);
+				break; // SDL_MOUSEBUTTONDOWN
+			}
 			case SDL_MOUSEBUTTONUP: {
 				handleTapEnd(event.button.x, event.button.y, HEIGHT, keyboard, luksDev, passphrase, opts.keyscript, showPasswordError, done);
 				SDL_PushEvent(&renderEvent);
@@ -303,9 +316,6 @@ int main(int argc, char **args)
 				while (render_times < max_render_times) {
 					render_times++;
 					SDL_RenderCopy(renderer, wallpaperTexture, nullptr, nullptr);
-					// Hide keyboard if unlock luks thread is running
-					keyboard.setTargetPosition(!luksDev.unlockRunning());
-					keyboard.draw(renderer, HEIGHT);
 
 					topHalf = static_cast<int>(HEIGHT - (keyboard.getHeight() * keyboard.getPosition()));
 					// Only show either error box or password input box, not both
@@ -318,6 +328,11 @@ int main(int argc, char **args)
 						draw_password_box_dots(renderer, &config, inputHeight, WIDTH, passphrase.size(), inputBoxRect.y,
 							luksDev.unlockRunning());
 					}
+
+					// Hide keyboard if unlock luks thread is running
+					keyboard.setTargetPosition(!luksDev.unlockRunning());
+					// Draw keyboard last so that key previews don't get drawn over by e.g. the input box
+					keyboard.draw(renderer, HEIGHT);
 					SDL_RenderPresent(renderer);
 					if (keyboard.isInSlideAnimation()) {
 						// No need to double-flip if we'll redraw more for animation

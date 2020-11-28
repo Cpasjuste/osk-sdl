@@ -44,9 +44,11 @@ public:
 	int keyboardFontSize = 24;
 	std::string keyboardMap = "us";
 	argb keyForeground = parseHexString("#FFFFFF");
+	argb keyForegroundHighlighted = parseHexString("#000000");
 	argb keyBackgroundLetter = parseHexString("#5A606A");
 	argb keyBackgroundReturn = parseHexString("#003C00");
 	argb keyBackgroundOther = parseHexString("#32363E");
+	argb keyBackgroundHighlighted = parseHexString("#FFFFFF");
 	std::string keyRadius = "0";
 	argb inputBoxBackground = parseHexString("#32363E");
 	std::string inputBoxRadius = "0";

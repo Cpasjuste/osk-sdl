@@ -43,14 +43,14 @@ int Keyboard::init(SDL_Renderer *renderer)
 		keyRadius = keyLong;
 	}
 	for (auto &layer : keyboard) {
-		layer.surface = makeKeyboard(&layer);
-		if (!layer.surface) {
-			SDL_LogError(SDL_LOG_CATEGORY_VIDEO, "Unable to generate keyboard surface");
-			return 1;
-		}
-		layer.texture = SDL_CreateTextureFromSurface(renderer, layer.surface);
+		layer.texture = makeKeyboardTexture(renderer, &layer, false);
 		if (!layer.texture) {
 			SDL_LogError(SDL_LOG_CATEGORY_VIDEO, "Unable to generate keyboard texture");
+			return 1;
+		}
+		layer.highlightedTexture = makeKeyboardTexture(renderer, &layer, true);
+		if (!layer.highlightedTexture) {
+			SDL_LogError(SDL_LOG_CATEGORY_VIDEO, "Unable to generate highlighted keyboard texture");
 			return 1;
 		}
 	}
@@ -111,7 +111,7 @@ void Keyboard::draw(SDL_Renderer *renderer, int screenHeight)
 {
 	updateAnimations();
 
-	SDL_Rect keyboardRect, srcRect;
+	SDL_Rect keyboardRect, srcRect, highlightDstRect, highlightSrcRect;
 
 	keyboardRect.x = 0;
 	keyboardRect.y = static_cast<int>(screenHeight - (keyboardHeight * position));
@@ -125,12 +125,36 @@ void Keyboard::draw(SDL_Renderer *renderer, int screenHeight)
 	srcRect.w = keyboardWidth;
 	srcRect.h = keyboardRect.h;
 
-	SDL_SetRenderDrawColor(renderer, config->keyboardBackground.r, config->keyboardBackground.g, config->keyboardBackground.b, config->keyboardBackground.a);
+	if (isKeyHighlighted) {
+		int padding = keyboardWidth / 100;
+
+		highlightSrcRect.x = highlightedKey.x1 + padding;
+		highlightSrcRect.y = highlightedKey.y1 + padding;
+		highlightSrcRect.w = highlightedKey.x2 - highlightedKey.x1 - 2 * padding;
+		highlightSrcRect.h = highlightedKey.y2 - highlightedKey.y1 - 2 * padding;
+
+		highlightDstRect = highlightSrcRect;
+		highlightDstRect.y += keyboardRect.y;
+	}
 
 	for (const auto &layer : keyboard) {
-		if (layer.layerNum == activeLayer) {
-			SDL_RenderCopy(renderer, layer.texture, &srcRect, &keyboardRect);
+		if (layer.layerNum != activeLayer) {
+			continue;
 		}
+
+		SDL_RenderCopy(renderer, layer.texture, &srcRect, &keyboardRect);
+
+		if (!isKeyHighlighted) {
+			continue;
+		}
+
+		if (highlightedKey.isPreviewEnabled) {
+			SDL_SetRenderDrawColor(renderer, config->keyBackgroundHighlighted.r, config->keyBackgroundHighlighted.g,
+				config->keyBackgroundHighlighted.b, config->keyBackgroundHighlighted.a);
+			SDL_RenderFillRect(renderer, &highlightDstRect);
+			highlightDstRect.y -= highlightDstRect.h;
+		}
+		SDL_RenderCopy(renderer, layer.highlightedTexture, &highlightSrcRect, &highlightDstRect);
 	}
 }
 
@@ -140,12 +164,14 @@ bool Keyboard::isInSlideAnimation() const
 }
 
 void Keyboard::drawRow(SDL_Surface *surface, std::vector<touchArea> &keyVector, int x, int y, int width, int height,
-	const std::vector<std::string> &keys, int padding, TTF_Font *font) const
+	const std::vector<std::string> &keys, int padding, TTF_Font *font, bool isHighlighted, bool isPreviewEnabled,
+	argb foreground, argb background) const
 {
-	auto keyBackground = SDL_MapRGB(surface->format, config->keyBackgroundLetter.r, config->keyBackgroundLetter.g, config->keyBackgroundLetter.b);
-	SDL_Color textColor = { config->keyForeground.r, config->keyForeground.g, config->keyForeground.b, config->keyForeground.a };
+	auto keyBackground = SDL_MapRGB(surface->format, background.r, background.g, background.b);
+	SDL_Color textColor = { foreground.r, foreground.g, foreground.b, foreground.a };
 
-	auto background = SDL_MapRGB(surface->format, config->keyboardBackground.r, config->keyboardBackground.g, config->keyboardBackground.b);
+	auto keyboardBackground = SDL_MapRGB(surface->format, config->keyboardBackground.r, config->keyboardBackground.g,
+		config->keyboardBackground.b);
 	int i = 0;
 	for (const auto &keyCap : keys) {
 		SDL_Rect keyRect;
@@ -155,10 +181,13 @@ void Keyboard::drawRow(SDL_Surface *surface, std::vector<touchArea> &keyVector, 
 		keyRect.h = height - (2 * padding);
 		SDL_FillRect(surface, &keyRect, keyBackground);
 		if (keyRadius > 0) {
-			smooth_corners_surface(surface, background, &keyRect, keyRadius);
+			smooth_corners_surface(surface, keyboardBackground, &keyRect, keyRadius);
 		}
 		SDL_Surface *textSurface;
-		keyVector.push_back({ keyCap, x + (i * width), x + (i * width) + width, y, y + height });
+
+		if (!isHighlighted) {
+			keyVector.push_back({ keyCap, isPreviewEnabled, x + (i * width), x + (i * width) + width, y, y + height });
+		}
 
 		textSurface = TTF_RenderUTF8_Blended(font, keyCap.c_str(), textColor);
 
@@ -174,10 +203,11 @@ void Keyboard::drawRow(SDL_Surface *surface, std::vector<touchArea> &keyVector, 
 }
 
 void Keyboard::drawKey(SDL_Surface *surface, std::vector<touchArea> &keyVector, int x, int y, int width, int height,
-	char *cap, const char *key, int padding, TTF_Font *font, argb background) const
+	char *cap, const char *key, int padding, TTF_Font *font, bool isHighlighted, bool isPreviewEnabled, argb foreground,
+	argb background) const
 {
 	auto keyBackground = SDL_MapRGB(surface->format, background.r, background.g, background.b);
-	SDL_Color textColor = { config->keyForeground.r, config->keyForeground.g, config->keyForeground.b, config->keyForeground.a };
+	SDL_Color textColor = { foreground.r, foreground.g, foreground.b, foreground.a };
 
 	SDL_Rect keyRect;
 	keyRect.x = x + padding;
@@ -187,7 +217,9 @@ void Keyboard::drawKey(SDL_Surface *surface, std::vector<touchArea> &keyVector, 
 	SDL_FillRect(surface, &keyRect, keyBackground);
 	SDL_Surface *textSurface;
 
-	keyVector.push_back({ key, x, x + width, y, y + height });
+	if (!isHighlighted) {
+		keyVector.push_back({ key, isPreviewEnabled, x, x + width, y, y + height });
+	}
 
 	textSurface = TTF_RenderUTF8_Blended(font, cap, textColor);
 
@@ -199,7 +231,7 @@ void Keyboard::drawKey(SDL_Surface *surface, std::vector<touchArea> &keyVector, 
 	SDL_BlitSurface(textSurface, nullptr, surface, &keyCapRect);
 }
 
-SDL_Surface *Keyboard::makeKeyboard(KeyboardLayer *layer) const
+SDL_Surface *Keyboard::makeKeyboard(KeyboardLayer *layer, bool isHighlighted) const
 {
 	SDL_Surface *surface;
 	Uint32 rmask, gmask, bmask, amask;
@@ -226,8 +258,10 @@ SDL_Surface *Keyboard::makeKeyboard(KeyboardLayer *layer) const
 		return nullptr;
 	}
 
-	SDL_FillRect(surface, nullptr,
-		SDL_MapRGB(surface->format, config->keyboardBackground.r, config->keyboardBackground.g, config->keyboardBackground.b));
+	if (!isHighlighted) {
+		SDL_FillRect(surface, nullptr,
+			SDL_MapRGB(surface->format, config->keyboardBackground.r, config->keyboardBackground.g, config->keyboardBackground.b));
+	}
 
 	int rowCount = layer->rows.size();
 	int rowHeight = keyboardHeight / (rowCount + 1);
@@ -243,6 +277,11 @@ SDL_Surface *Keyboard::makeKeyboard(KeyboardLayer *layer) const
 		return nullptr;
 	}
 
+	argb keyForeground = isHighlighted ? config->keyForegroundHighlighted : config->keyForeground;
+	argb keyBackgroundLetter = isHighlighted ? config->keyBackgroundHighlighted : config->keyBackgroundLetter;
+	argb keyBackgroundReturn = isHighlighted ? config->keyBackgroundHighlighted : config->keyBackgroundReturn;
+	argb keyBackgroundOther = isHighlighted ? config->keyBackgroundHighlighted : config->keyBackgroundOther;
+
 	// Divide the bottom row in 20 columns and use that for calculations
 	int colw = keyboardWidth / 20;
 
@@ -257,7 +296,7 @@ SDL_Surface *Keyboard::makeKeyboard(KeyboardLayer *layer) const
 		if (i == 2) /* leave room for shift, "123" or "=\<" key */
 			x = keyboardWidth / 20 + colw * 2;
 		drawRow(surface, layer->keyVector, x, y, keyboardWidth / 10,
-			rowHeight, layer->rows[i], keyboardWidth / 100, font);
+			rowHeight, layer->rows[i], keyboardWidth / 100, font, isHighlighted, true, keyForeground, keyBackgroundLetter);
 		y += rowHeight;
 		i++;
 	}
@@ -266,29 +305,29 @@ SDL_Surface *Keyboard::makeKeyboard(KeyboardLayer *layer) const
 	if (layer->layerNum < 2) {
 		char nums[] = "123";
 		drawKey(surface, layer->keyVector, colw, y, colw * 3, rowHeight,
-			nums, KEYCAP_NUMBERS, keyboardWidth / 100, font, config->keyBackgroundOther);
+			nums, KEYCAP_NUMBERS, keyboardWidth / 100, font, isHighlighted, false, keyForeground, keyBackgroundOther);
 	} else {
 		char abc[] = "abc";
 		drawKey(surface, layer->keyVector, colw, y, colw * 3, rowHeight,
-			abc, KEYCAP_ABC, keyboardWidth / 100, font, config->keyBackgroundOther);
+			abc, KEYCAP_ABC, keyboardWidth / 100, font, isHighlighted, false, keyForeground, keyBackgroundOther);
 	}
 	/* Shift-key that transforms into "123" or "=\<" depending on layer: */
 	if (layer->layerNum == 2) {
 		char symb[] = "=\\<";
 		drawKey(surface, layer->keyVector, 0, y - rowHeight,
 			sidebuttonsWidth, rowHeight,
-			symb, KEYCAP_SYMBOLS, keyboardWidth / 100, font, config->keyBackgroundOther);
+			symb, KEYCAP_SYMBOLS, keyboardWidth / 100, font, isHighlighted, false, keyForeground, keyBackgroundOther);
 	} else if (layer->layerNum == 3) {
 		char nums[] = "123";
 		drawKey(surface, layer->keyVector, 0, y - rowHeight,
 			sidebuttonsWidth, rowHeight,
-			nums, KEYCAP_NUMBERS, keyboardWidth / 100, font, config->keyBackgroundOther);
+			nums, KEYCAP_NUMBERS, keyboardWidth / 100, font, isHighlighted, false, keyForeground, keyBackgroundOther);
 	} else {
 		char shift[64] = "";
 		memcpy(shift, KEYCAP_SHIFT, strlen(KEYCAP_SHIFT) + 1);
 		drawKey(surface, layer->keyVector, 0, y - rowHeight,
 			sidebuttonsWidth, rowHeight,
-			shift, KEYCAP_SHIFT, keyboardWidth / 100, font, config->keyBackgroundOther);
+			shift, KEYCAP_SHIFT, keyboardWidth / 100, font, isHighlighted, false, keyForeground, keyBackgroundOther);
 	}
 	/* Backspace key that is larger-sized (hence also drawn separately) */
 	{
@@ -297,22 +336,34 @@ SDL_Surface *Keyboard::makeKeyboard(KeyboardLayer *layer) const
 			strlen(KEYCAP_BACKSPACE) + 1);
 		drawKey(surface, layer->keyVector, keyboardWidth / 20 + colw * 16,
 			y - rowHeight, sidebuttonsWidth, rowHeight,
-			bcksp, KEYCAP_BACKSPACE, keyboardWidth / 100, font, config->keyBackgroundOther);
+			bcksp, KEYCAP_BACKSPACE, keyboardWidth / 100, font, isHighlighted, false, keyForeground, keyBackgroundOther);
 	}
 
 	char space[] = " ";
 	drawKey(surface, layer->keyVector, colw * 5, y, colw * 8, rowHeight,
-		space, KEYCAP_SPACE, keyboardWidth / 100, font, config->keyBackgroundLetter);
+		space, KEYCAP_SPACE, keyboardWidth / 100, font, isHighlighted, false, keyForeground, keyBackgroundLetter);
 
 	char period[] = ".";
 	drawKey(surface, layer->keyVector, colw * 13, y, colw * 2, rowHeight,
-		period, KEYCAP_PERIOD, keyboardWidth / 100, font, config->keyBackgroundOther);
+		period, KEYCAP_PERIOD, keyboardWidth / 100, font, isHighlighted, true, keyForeground, keyBackgroundOther);
 
 	char enter[] = "OK";
 	drawKey(surface, layer->keyVector, colw * 15, y, colw * 5, rowHeight,
-		enter, KEYCAP_RETURN, keyboardWidth / 100, font, config->keyBackgroundReturn);
+		enter, KEYCAP_RETURN, keyboardWidth / 100, font, isHighlighted, false, keyForeground, keyBackgroundReturn);
 
 	return surface;
+}
+
+SDL_Texture *Keyboard::makeKeyboardTexture(SDL_Renderer *renderer, KeyboardLayer *layer, bool isHighlighted) const
+{
+	SDL_Surface *surface = makeKeyboard(layer, isHighlighted);
+	if (!surface) {
+		SDL_LogError(SDL_LOG_CATEGORY_VIDEO, "Unable to generate keyboard surface");
+		return nullptr;
+	}
+	SDL_Texture *texture = SDL_CreateTextureFromSurface(renderer, surface);
+	SDL_FreeSurface(surface);
+	return texture;
 }
 
 void Keyboard::setActiveLayer(int layerNum)
@@ -370,16 +421,33 @@ void Keyboard::loadKeymap()
 	keyboard.push_back(layer3);
 }
 
-std::string Keyboard::getCharForCoordinates(int x, int y)
+touchArea Keyboard::getKeyForCoordinates(int x, int y)
 {
 	for (const auto &layer : keyboard) {
 		if (layer.layerNum == activeLayer) {
 			for (const auto &it : layer.keyVector) {
 				if (x > it.x1 && x < it.x2 && y > it.y1 && y < it.y2) {
-					return it.keyChar;
+					return it;
 				}
 			}
 		}
 	}
-	return "";
+	return { "", false, 0, 0, 0, 0 };
+}
+
+void Keyboard::setHighlightedKey(touchArea &area)
+{
+	highlightedKey = area;
+	isKeyHighlighted = true;
+}
+
+void Keyboard::unsetHighlightedKey()
+{
+	highlightedKey = { "", false, 0, 0, 0, 0 };
+	isKeyHighlighted = false;
+}
+
+touchArea Keyboard::getHighlightedKey()
+{
+	return highlightedKey;
 }

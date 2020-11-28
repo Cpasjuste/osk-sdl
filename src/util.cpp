@@ -201,11 +201,24 @@ bool handleVirtualKeyPress(const std::string &tapped, Keyboard &kbd, LuksDevice 
 	return false;
 }
 
+void handleTapBegin(unsigned xTapped, unsigned yTapped, int screenHeight, Keyboard &kbd)
+{
+	int offsetYTapped = yTapped - static_cast<int>(screenHeight - (kbd.getHeight() * kbd.getPosition()));
+	touchArea key = kbd.getKeyForCoordinates(xTapped, offsetYTapped);
+	kbd.setHighlightedKey(key);
+}
+
 void handleTapEnd(unsigned xTapped, unsigned yTapped, int screenHeight, Keyboard &kbd, LuksDevice &lkd, std::vector<std::string> &passphrase, bool keyscript, bool &showPasswordError, bool &done)
 {
 	showPasswordError = false;
 	int offsetYTapped = yTapped - static_cast<int>(screenHeight - (kbd.getHeight() * kbd.getPosition()));
-	std::string tapped = kbd.getCharForCoordinates(xTapped, offsetYTapped);
+	touchArea key = kbd.getKeyForCoordinates(xTapped, offsetYTapped);
+	touchArea highlightedKey = kbd.getHighlightedKey();
+	kbd.unsetHighlightedKey();
+	if (key.x1 != highlightedKey.x1 || key.y1 != highlightedKey.y1) {
+		return;
+	}
+	std::string tapped = key.keyChar;
 	if (!lkd.unlockRunning()) {
 		done = handleVirtualKeyPress(tapped, kbd, lkd, passphrase, keyscript);
 	}

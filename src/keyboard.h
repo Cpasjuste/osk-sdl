@@ -39,6 +39,7 @@ constexpr char KEYCAP_PERIOD[] = ".";
 
 struct touchArea {
 	std::string keyChar;
+	bool isPreviewEnabled;
 	int x1;
 	int x2;
 	int y1;
@@ -52,8 +53,8 @@ struct rgb {
 };
 
 struct KeyboardLayer {
-	SDL_Surface *surface = nullptr;
 	SDL_Texture *texture = nullptr;
+	SDL_Texture *highlightedTexture = nullptr;
 	std::array<std::vector<std::string>, 3> rows;
 	std::vector<touchArea> keyVector;
 	int layerNum;
@@ -75,9 +76,23 @@ public:
 	  Get the character/key at the given coordinates
 	  @param x X-axis coordinate
 	  @param y Y-axis coordinate
-	  @return String with value of key at the given coordinates
+	  @return Touch area for the key at the given coordinates. When no key is found, keyChar will be an empty string.
 	  */
-	std::string getCharForCoordinates(int x, int y);
+	touchArea getKeyForCoordinates(int x, int y);
+	/**
+	  Set the key to be highlighted on the next render pass
+	  @param area Touch area of the key
+	  */
+	void setHighlightedKey(touchArea &area);
+	/**
+	  Unset the key to be highlighted on the next render pass
+	  */
+	void unsetHighlightedKey();
+	/**
+	  Get the currently highlighted key. If no key is highlighted, keyChar will be an empty string.
+	  @return Touch area of the key
+	  */
+	touchArea getHighlightedKey();
 	/**
 	  Get position of keyboard
 	  @return Position as a value between 0 and 1 (0% and 100%)
@@ -135,11 +150,13 @@ private:
 	int activeLayer = 0;
 	std::vector<KeyboardLayer> keyboard;
 	Config *config;
+	touchArea highlightedKey = { "", false, 0, 0, 0, 0 };
+	bool isKeyHighlighted = false;
 
 	/**
 	  Draw keyboard row
 	  @param surface Surface to draw on
-	  @param keyList List of keys for keyboard layout
+	  @param keyVector List of keys for keyboard layout
 	  @param x X-axis coord. for start of row
 	  @param y Y-axis coord. for start of row
 	  @param width Width of row
@@ -148,10 +165,14 @@ private:
 	  @param key Key text
 	  @param padding Spacing to reserve around the key
 	  @param font Font to use for key character
+	  @param isHighlighted Whether the drawing is for the highlighted keys
+	  @param isPreviewEnabled Whether this key will show a preview on press
+	  @param foreground Foreground color for the keycap
+	  @param background Background color for the keycap
 	  */
 	void drawRow(SDL_Surface *surface, std::vector<touchArea> &keyVector, int x, int y,
 		int width, int height, const std::vector<std::string> &keys, int padding,
-		TTF_Font *font) const;
+		TTF_Font *font, bool isHighlighted, bool isPreviewEnabled, argb foreground, argb background) const;
 
 	/**
 	  Internal function to gradually update the animations.
@@ -162,7 +183,7 @@ private:
 	/**
 	  Draw key for keyboard
 	  @param surface Surface to draw on
-	  @param keyList List of keys for keyboard layout
+	  @param keyVector List of keys for keyboard layout
 	  @param x X-axis coord. for start of row
 	  @param y Y-axis coord. for start of row
 	  @param width Width of row
@@ -171,16 +192,29 @@ private:
 	  @param key Key text
 	  @param padding Spacing to reserve around the key
 	  @param font Font to use for key character
+	  @param isHighlighted Whether the drawing is for the highlighted keys
+	  @param isPreviewEnabled Whether this key will show a preview on press
+	  @param foreground Foreground color for the keycap
 	  @param background Background color for the keycap
 	  */
 	void drawKey(SDL_Surface *surface, std::vector<touchArea> &keyVector, int x, int y,
-		int width, int height, char *cap, const char *key, int padding, TTF_Font *font, argb background) const;
+		int width, int height, char *cap, const char *key, int padding, TTF_Font *font, bool isHighlighted,
+		bool isPreviewEnabled, argb foreground, argb background) const;
 	/**
-	  Prepare new keyboard
+	  Prepare new keyboard surface
 	  @param layer Keyboard layer to use
+	  @param isHighlighted Whether the drawing is for the highlighted keys
 	  @return New SDL_Surface, or nullptr on error
 	  */
-	SDL_Surface *makeKeyboard(KeyboardLayer *layer) const;
+	SDL_Surface *makeKeyboard(KeyboardLayer *layer, bool isHighlighted) const;
+	/**
+	  Prepare new keyboard texture
+	  @param renderer Initialized SDL_Renderer object
+	  @param layer Keyboard layer to use
+	  @param isHighlighted Whether the drawing is for the highlighted keys
+	  @return New SDL_Surface, or nullptr on error
+	  */
+	SDL_Texture *makeKeyboardTexture(SDL_Renderer *renderer, KeyboardLayer *layer, bool isHighlighted) const;
 	/**
 	  Load a keymap into the keyboard
 	  */

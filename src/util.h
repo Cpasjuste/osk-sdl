@@ -99,6 +99,15 @@ void draw_password_box_dots(SDL_Renderer *renderer, Config *config, int inputHei
 	int y, bool busy);
 
 /**
+  Handle a finger or mouse down event
+  @param xTapped X coordinate of the tap
+  @param yTapped Y coordinate of the tap
+  @param screenHeight Height of overall screen
+  @param kbd Initialized Keyboard obj
+ */
+void handleTapBegin(unsigned xTapped, unsigned yTapped, int screenHeight, Keyboard &kbd);
+
+/**
   Handle a finger or mouse up event
   @param xTapped X coordinate of the tap
   @param yTapped Y coordinate of the tap
