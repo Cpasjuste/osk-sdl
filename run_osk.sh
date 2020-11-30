@@ -17,7 +17,7 @@
 export TSLIB_TSDEVICE=/dev/input/event3
 export DFBARGS=system=fbdev,no-cursor,disable-module=linux_input
 export TERM=xterm
-export osk_cmd="./osk-sdl -d a -n a -c osk.conf"
+export osk_cmd="./bin/osk-sdl -d a -n a -c osk.conf"
 
 echo "WARNING: This script is meant to assist with debugging osk-sdl and NOT"
 echo "for unlocking rootfs!"
