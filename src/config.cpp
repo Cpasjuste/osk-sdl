@@ -25,6 +25,16 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <sstream>
 #include <string>
 
+argb parseHexString(const std::string &hex)
+{
+	argb result = { 255, 0, 0, 0 };
+	if (sscanf(hex.c_str(), "#%02hhx%02hhx%02hhx", &result.r, &result.g, &result.b) != 3) {
+		SDL_LogError(SDL_LOG_CATEGORY_ERROR, "Could not parse color code %s", hex.c_str());
+		exit(EXIT_FAILURE);
+	}
+	return result;
+}
+
 bool Config::Read(const std::string &path)
 {
 	std::ifstream is(path, std::ifstream::binary);
@@ -39,12 +49,14 @@ bool Config::Read(const std::string &path)
 
 	auto it = Config::options.find("wallpaper");
 	if (it != Config::options.end()) {
-		Config::wallpaper = Config::options["wallpaper"];
+		std::string hex = Config::options["wallpaper"];
+		Config::wallpaper = parseHexString(hex);
 	}
 
 	it = Config::options.find("keyboard-background");
 	if (it != Config::options.end()) {
-		Config::keyboardBackground = Config::options["keyboard-background"];
+		std::string hex = Config::options["keyboard-background"];
+		Config::keyboardBackground = parseHexString(hex);
 	}
 
 	it = Config::options.find("keyboard-font");
@@ -52,14 +64,49 @@ bool Config::Read(const std::string &path)
 		Config::keyboardFont = Config::options["keyboard-font"];
 	}
 
+	it = Config::options.find("keyboard-font-size");
+	if (it != Config::options.end()) {
+		Config::keyboardFontSize = std::stoi(Config::options["keyboard-font-size"]);
+	}
+
 	it = Config::options.find("keyboard-map");
 	if (it != Config::options.end()) {
 		Config::keyboardMap = Config::options["keyboard-map"];
 	}
 
+	it = Config::options.find("key-foreground");
+	if (it != Config::options.end()) {
+		std::string hex = Config::options["key-foreground"];
+		Config::keyForeground = parseHexString(hex);
+	}
+
+	it = Config::options.find("key-background-letter");
+	if (it != Config::options.end()) {
+		std::string hex = Config::options["key-background-letter"];
+		Config::keyBackgroundLetter = parseHexString(hex);
+	}
+
+	it = Config::options.find("key-background-return");
+	if (it != Config::options.end()) {
+		std::string hex = Config::options["key-background-return"];
+		Config::keyBackgroundReturn = parseHexString(hex);
+	}
+
+	it = Config::options.find("key-background-other");
+	if (it != Config::options.end()) {
+		std::string hex = Config::options["key-background-other"];
+		Config::keyBackgroundOther = parseHexString(hex);
+	}
+
 	it = Config::options.find("key-radius");
 	if (it != Config::options.end()) {
 		Config::keyRadius = Config::options["key-radius"];
+	}
+
+	it = Config::options.find("inputbox-background");
+	if (it != Config::options.end()) {
+		std::string hex = Config::options["inputbox-background"];
+		Config::inputBoxBackground = parseHexString(hex);
 	}
 
 	it = Config::options.find("inputbox-radius");

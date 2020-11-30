@@ -141,7 +141,6 @@ int main(int argc, char **args)
 
 	// Initialize virtual keyboard
 	Keyboard keyboard(0, 1, WIDTH, keyboardHeight, &config);
-	keyboard.setKeyboardColor(0, 30, 30, 30);
 	if (keyboard.init(renderer)) {
 		SDL_LogError(SDL_LOG_CATEGORY_VIDEO, "Failed to initialize keyboard!");
 		atexit(SDL_Quit);
@@ -175,17 +174,8 @@ int main(int argc, char **args)
 			inputHeight / 1.5, inputBoxRadius);
 		inputBoxRadius = 0;
 	}
-	argb wallpaperColor {};
-	wallpaperColor.a = 255;
-	if (sscanf(config.wallpaper.c_str(), "#%02hhx%02hhx%02hhx", &wallpaperColor.r, &wallpaperColor.g,
-			&wallpaperColor.b)
-		!= 3) {
-		SDL_LogWarn(SDL_LOG_CATEGORY_ERROR, "Could not parse color code %s", config.wallpaper.c_str());
-		//to avoid akward colors just remove the radius
-		inputBoxRadius = 0;
-	}
 
-	argb inputBoxColor = argb { 255, 30, 30, 30 };
+	argb inputBoxColor = config.inputBoxBackground;
 
 	SDL_Surface *inputBox = make_input_box(static_cast<int>(WIDTH * 0.9), inputHeight, &inputBoxColor, inputBoxRadius);
 	SDL_Texture *inputBoxTexture = SDL_CreateTextureFromSurface(renderer, inputBox);

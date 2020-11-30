@@ -51,13 +51,6 @@ struct rgb {
 	unsigned char b;
 };
 
-struct argb {
-	unsigned char a;
-	unsigned char r;
-	unsigned char g;
-	unsigned char b;
-};
-
 struct KeyboardLayer {
 	SDL_Surface *surface = nullptr;
 	SDL_Texture *texture = nullptr;
@@ -85,14 +78,6 @@ public:
 	  @return String with value of key at the given coordinates
 	  */
 	std::string getCharForCoordinates(int x, int y);
-	/**
-	  Set keyboard color
-	  @param a Alpha value
-	  @param r Red value
-	  @param g Green value
-	  @param b Blue value
-	  */
-	void setKeyboardColor(uint8_t a, uint8_t r, uint8_t g, uint8_t b);
 	/**
 	  Get position of keyboard
 	  @return Position as a value between 0 and 1 (0% and 100%)
@@ -141,7 +126,6 @@ public:
 	bool isInSlideAnimation() const;
 
 private:
-	argb keyboardColor = { 0, 0, 0, 0 };
 	int keyRadius = 0;
 	float position;
 	float targetPosition;
@@ -187,9 +171,10 @@ private:
 	  @param key Key text
 	  @param padding Spacing to reserve around the key
 	  @param font Font to use for key character
+	  @param background Background color for the keycap
 	  */
 	void drawKey(SDL_Surface *surface, std::vector<touchArea> &keyVector, int x, int y,
-		int width, int height, char *cap, const char *key, int padding, TTF_Font *font) const;
+		int width, int height, char *cap, const char *key, int padding, TTF_Font *font, argb background) const;
 	/**
 	  Prepare new keyboard
 	  @param layer Keyboard layer to use

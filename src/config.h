@@ -22,14 +22,34 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <map>
 #include <string>
 
+struct argb {
+	unsigned char a;
+	unsigned char r;
+	unsigned char g;
+	unsigned char b;
+};
+
+/**
+	Convert color hex string into ARGB
+	@hex 6-character hex string with leading #
+	@return ARGB structure to write the extracted values into
+	*/
+argb parseHexString(const std::string &hex);
+
 class Config {
 public:
-	std::string keyboardBackground = "#333333";
-	std::string wallpaper = "#FF9900";
+	argb wallpaper = parseHexString("#000000");
+	argb keyboardBackground = parseHexString("#0E0E12");
 	std::string keyboardFont = "DejaVu";
+	int keyboardFontSize = 24;
 	std::string keyboardMap = "us";
-	std::string inputBoxRadius = "0";
+	argb keyForeground = parseHexString("#FFFFFF");
+	argb keyBackgroundLetter = parseHexString("#5A606A");
+	argb keyBackgroundReturn = parseHexString("#003C00");
+	argb keyBackgroundOther = parseHexString("#32363E");
 	std::string keyRadius = "0";
+	argb inputBoxBackground = parseHexString("#32363E");
+	std::string inputBoxRadius = "0";
 	bool animations = true;
 
 	/**

@@ -98,19 +98,7 @@ SDL_Surface *make_wallpaper(Config *config, int width, int height)
 #endif
 
 	surface = SDL_CreateRGBSurface(SDL_SWSURFACE, width, height, 32, rmask, gmask, bmask, amask);
-
-	if (config->wallpaper[0] == '#') {
-		unsigned char r, g, b;
-		if (sscanf(config->wallpaper.c_str(), "#%02hhx%02hhx%02hhx", &r, &g, &b) != 3) {
-			SDL_LogError(SDL_LOG_CATEGORY_ERROR, "Could not parse color code %s", config->wallpaper.c_str());
-			exit(EXIT_FAILURE);
-		}
-		SDL_FillRect(surface, nullptr, SDL_MapRGB(surface->format, r, g, b));
-	} else {
-		// Implement image loading
-		SDL_LogError(SDL_LOG_CATEGORY_ERROR, "Image loading not supported yet");
-		exit(EXIT_FAILURE);
-	}
+	SDL_FillRect(surface, nullptr, SDL_MapRGB(surface->format, config->wallpaper.r, config->wallpaper.g, config->wallpaper.b));
 	return surface;
 }
 

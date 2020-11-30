@@ -68,14 +68,6 @@ void Keyboard::setTargetPosition(float p)
 	targetPosition = p;
 }
 
-void Keyboard::setKeyboardColor(uint8_t a, uint8_t r, uint8_t g, uint8_t b)
-{
-	keyboardColor.a = a;
-	keyboardColor.r = r;
-	keyboardColor.g = g;
-	keyboardColor.b = b;
-}
-
 void Keyboard::updateAnimations()
 {
 	const int animStep = 20; // 20ms -> 50 FPS
@@ -133,7 +125,7 @@ void Keyboard::draw(SDL_Renderer *renderer, int screenHeight)
 	srcRect.w = keyboardWidth;
 	srcRect.h = keyboardRect.h;
 
-	SDL_SetRenderDrawColor(renderer, keyboardColor.r, keyboardColor.g, keyboardColor.b, keyboardColor.a);
+	SDL_SetRenderDrawColor(renderer, config->keyboardBackground.r, config->keyboardBackground.g, config->keyboardBackground.b, config->keyboardBackground.a);
 
 	for (const auto &layer : keyboard) {
 		if (layer.layerNum == activeLayer) {
@@ -150,10 +142,10 @@ bool Keyboard::isInSlideAnimation() const
 void Keyboard::drawRow(SDL_Surface *surface, std::vector<touchArea> &keyVector, int x, int y, int width, int height,
 	const std::vector<std::string> &keys, int padding, TTF_Font *font) const
 {
-	auto keyBackground = SDL_MapRGB(surface->format, 15, 15, 15);
-	SDL_Color textColor = { 255, 255, 255, 0 };
+	auto keyBackground = SDL_MapRGB(surface->format, config->keyBackgroundLetter.r, config->keyBackgroundLetter.g, config->keyBackgroundLetter.b);
+	SDL_Color textColor = { config->keyForeground.r, config->keyForeground.g, config->keyForeground.b, config->keyForeground.a };
 
-	auto background = SDL_MapRGB(surface->format, keyboardColor.r, keyboardColor.g, keyboardColor.b);
+	auto background = SDL_MapRGB(surface->format, config->keyboardBackground.r, config->keyboardBackground.g, config->keyboardBackground.b);
 	int i = 0;
 	for (const auto &keyCap : keys) {
 		SDL_Rect keyRect;
@@ -182,10 +174,10 @@ void Keyboard::drawRow(SDL_Surface *surface, std::vector<touchArea> &keyVector, 
 }
 
 void Keyboard::drawKey(SDL_Surface *surface, std::vector<touchArea> &keyVector, int x, int y, int width, int height,
-	char *cap, const char *key, int padding, TTF_Font *font) const
+	char *cap, const char *key, int padding, TTF_Font *font, argb background) const
 {
-	auto keyBackground = SDL_MapRGB(surface->format, 15, 15, 15);
-	SDL_Color textColor = { 255, 255, 255, 0 };
+	auto keyBackground = SDL_MapRGB(surface->format, background.r, background.g, background.b);
+	SDL_Color textColor = { config->keyForeground.r, config->keyForeground.g, config->keyForeground.b, config->keyForeground.a };
 
 	SDL_Rect keyRect;
 	keyRect.x = x + padding;
@@ -235,7 +227,7 @@ SDL_Surface *Keyboard::makeKeyboard(KeyboardLayer *layer) const
 	}
 
 	SDL_FillRect(surface, nullptr,
-		SDL_MapRGB(surface->format, keyboardColor.r, keyboardColor.g, keyboardColor.b));
+		SDL_MapRGB(surface->format, config->keyboardBackground.r, config->keyboardBackground.g, config->keyboardBackground.b));
 
 	int rowCount = layer->rows.size();
 	int rowHeight = keyboardHeight / (rowCount + 1);
@@ -245,7 +237,7 @@ SDL_Surface *Keyboard::makeKeyboard(KeyboardLayer *layer) const
 		return nullptr;
 	}
 
-	TTF_Font *font = TTF_OpenFont(config->keyboardFont.c_str(), 24);
+	TTF_Font *font = TTF_OpenFont(config->keyboardFont.c_str(), config->keyboardFontSize);
 	if (!font) {
 		SDL_LogError(SDL_LOG_CATEGORY_VIDEO, "TTF_OpenFont: %s", TTF_GetError());
 		return nullptr;
@@ -274,29 +266,29 @@ SDL_Surface *Keyboard::makeKeyboard(KeyboardLayer *layer) const
 	if (layer->layerNum < 2) {
 		char nums[] = "123";
 		drawKey(surface, layer->keyVector, colw, y, colw * 3, rowHeight,
-			nums, KEYCAP_NUMBERS, keyboardWidth / 100, font);
+			nums, KEYCAP_NUMBERS, keyboardWidth / 100, font, config->keyBackgroundOther);
 	} else {
 		char abc[] = "abc";
 		drawKey(surface, layer->keyVector, colw, y, colw * 3, rowHeight,
-			abc, KEYCAP_ABC, keyboardWidth / 100, font);
+			abc, KEYCAP_ABC, keyboardWidth / 100, font, config->keyBackgroundOther);
 	}
 	/* Shift-key that transforms into "123" or "=\<" depending on layer: */
 	if (layer->layerNum == 2) {
 		char symb[] = "=\\<";
 		drawKey(surface, layer->keyVector, 0, y - rowHeight,
 			sidebuttonsWidth, rowHeight,
-			symb, KEYCAP_SYMBOLS, keyboardWidth / 100, font);
+			symb, KEYCAP_SYMBOLS, keyboardWidth / 100, font, config->keyBackgroundOther);
 	} else if (layer->layerNum == 3) {
 		char nums[] = "123";
 		drawKey(surface, layer->keyVector, 0, y - rowHeight,
 			sidebuttonsWidth, rowHeight,
-			nums, KEYCAP_NUMBERS, keyboardWidth / 100, font);
+			nums, KEYCAP_NUMBERS, keyboardWidth / 100, font, config->keyBackgroundOther);
 	} else {
 		char shift[64] = "";
 		memcpy(shift, KEYCAP_SHIFT, strlen(KEYCAP_SHIFT) + 1);
 		drawKey(surface, layer->keyVector, 0, y - rowHeight,
 			sidebuttonsWidth, rowHeight,
-			shift, KEYCAP_SHIFT, keyboardWidth / 100, font);
+			shift, KEYCAP_SHIFT, keyboardWidth / 100, font, config->keyBackgroundOther);
 	}
 	/* Backspace key that is larger-sized (hence also drawn separately) */
 	{
@@ -305,20 +297,20 @@ SDL_Surface *Keyboard::makeKeyboard(KeyboardLayer *layer) const
 			strlen(KEYCAP_BACKSPACE) + 1);
 		drawKey(surface, layer->keyVector, keyboardWidth / 20 + colw * 16,
 			y - rowHeight, sidebuttonsWidth, rowHeight,
-			bcksp, KEYCAP_BACKSPACE, keyboardWidth / 100, font);
+			bcksp, KEYCAP_BACKSPACE, keyboardWidth / 100, font, config->keyBackgroundOther);
 	}
 
 	char space[] = " ";
 	drawKey(surface, layer->keyVector, colw * 5, y, colw * 8, rowHeight,
-		space, KEYCAP_SPACE, keyboardWidth / 100, font);
+		space, KEYCAP_SPACE, keyboardWidth / 100, font, config->keyBackgroundLetter);
 
 	char period[] = ".";
 	drawKey(surface, layer->keyVector, colw * 13, y, colw * 2, rowHeight,
-		period, KEYCAP_PERIOD, keyboardWidth / 100, font);
+		period, KEYCAP_PERIOD, keyboardWidth / 100, font, config->keyBackgroundOther);
 
 	char enter[] = "OK";
 	drawKey(surface, layer->keyVector, colw * 15, y, colw * 5, rowHeight,
-		enter, KEYCAP_RETURN, keyboardWidth / 100, font);
+		enter, KEYCAP_RETURN, keyboardWidth / 100, font, config->keyBackgroundReturn);
 
 	return surface;
 }

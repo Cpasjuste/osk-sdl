@@ -51,7 +51,7 @@ int Tooltip::init(SDL_Renderer *renderer, const std::string &text)
 	}
 	SDL_FillRect(surface, nullptr, SDL_MapRGB(surface->format, 30, 30, 30));
 
-	TTF_Font *font = TTF_OpenFont(config->keyboardFont.c_str(), 24);
+	TTF_Font *font = TTF_OpenFont(config->keyboardFont.c_str(), config->keyboardFontSize);
 	SDL_Surface *textSurface;
 	SDL_Color textColor = { 255, 255, 255, 0 };
 	textSurface = TTF_RenderText_Blended(font, text.c_str(), textColor);
