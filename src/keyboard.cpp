@@ -36,7 +36,7 @@ int Keyboard::init(SDL_Renderer *renderer)
 	loadKeymap();
 	int keyLong = std::strtol(config->keyRadius.c_str(), nullptr, 10);
 	if (keyLong >= BEZIER_RESOLUTION || static_cast<double>(keyLong) > (keyboardHeight / 5.0) / 1.5) {
-		fprintf(stderr, "key-radius must be below %d and %f, it is %d\n",
+		SDL_LogWarn(SDL_LOG_CATEGORY_VIDEO, "key-radius must be below %d and %f, it is %d",
 			BEZIER_RESOLUTION, (keyboardHeight / 5.0) / 1.5, keyLong);
 		keyRadius = 0;
 	} else {
@@ -45,12 +45,12 @@ int Keyboard::init(SDL_Renderer *renderer)
 	for (auto &layer : keyboard) {
 		layer.surface = makeKeyboard(&layer);
 		if (!layer.surface) {
-			fprintf(stderr, "ERROR: Unable to generate keyboard surface\n");
+			SDL_LogError(SDL_LOG_CATEGORY_VIDEO, "Unable to generate keyboard surface");
 			return 1;
 		}
 		layer.texture = SDL_CreateTextureFromSurface(renderer, layer.surface);
 		if (!layer.texture) {
-			fprintf(stderr, "ERROR: Unable to generate keyboard texture\n");
+			SDL_LogError(SDL_LOG_CATEGORY_VIDEO, "Unable to generate keyboard texture");
 			return 1;
 		}
 	}
@@ -230,7 +230,7 @@ SDL_Surface *Keyboard::makeKeyboard(KeyboardLayer *layer) const
 		bmask, amask);
 
 	if (surface == nullptr) {
-		fprintf(stderr, "CreateRGBSurface failed: %s\n", SDL_GetError());
+		SDL_LogError(SDL_LOG_CATEGORY_VIDEO, "CreateRGBSurface failed: %s", SDL_GetError());
 		return nullptr;
 	}
 
@@ -241,13 +241,13 @@ SDL_Surface *Keyboard::makeKeyboard(KeyboardLayer *layer) const
 	int rowHeight = keyboardHeight / (rowCount + 1);
 
 	if (TTF_Init() == -1) {
-		printf("TTF_Init: %s\n", TTF_GetError());
+		SDL_LogError(SDL_LOG_CATEGORY_VIDEO, "TTF_Init: %s", TTF_GetError());
 		return nullptr;
 	}
 
 	TTF_Font *font = TTF_OpenFont(config->keyboardFont.c_str(), 24);
 	if (!font) {
-		printf("TTF_OpenFont: %s\n", TTF_GetError());
+		SDL_LogError(SDL_LOG_CATEGORY_VIDEO, "TTF_OpenFont: %s", TTF_GetError());
 		return nullptr;
 	}
 
@@ -331,7 +331,7 @@ void Keyboard::setActiveLayer(int layerNum)
 			return;
 		}
 	}
-	fprintf(stderr, "Unknown layer number: %i\n", layerNum);
+	SDL_LogWarn(SDL_LOG_CATEGORY_ERROR, "Unknown layer number: %i", layerNum);
 }
 
 /*

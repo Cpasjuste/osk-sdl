@@ -48,16 +48,16 @@ int fetchOpts(int argc, char **args, Opts *opts)
 			opts->verbose = true;
 			break;
 		default:
-			fprintf(stdout, "Usage: osk-sdl [-t] [-k] [-d /dev/sda] [-n device_name] "
-							"[-c /etc/osk.conf] -v\n");
+			SDL_LogError(SDL_LOG_CATEGORY_ERROR, "Usage: osk-sdl [-t] [-k] [-d /dev/sda] [-n device_name] "
+												 "[-c /etc/osk.conf] -v");
 			return 1;
 		}
 	if (opts->luksDevPath.empty()) {
-		fprintf(stderr, "No device path specified, use -d [path] or -t\n");
+		SDL_LogError(SDL_LOG_CATEGORY_ERROR, "No device path specified, use -d [path] or -t");
 		return 1;
 	}
 	if (opts->luksDevName.empty()) {
-		fprintf(stderr, "No device name specified, use -n [name] or -t\n");
+		SDL_LogError(SDL_LOG_CATEGORY_ERROR, "No device name specified, use -n [name] or -t");
 		return 1;
 	}
 	if (opts->confPath.empty()) {
@@ -102,13 +102,13 @@ SDL_Surface *make_wallpaper(Config *config, int width, int height)
 	if (config->wallpaper[0] == '#') {
 		unsigned char r, g, b;
 		if (sscanf(config->wallpaper.c_str(), "#%02hhx%02hhx%02hhx", &r, &g, &b) != 3) {
-			fprintf(stderr, "Could not parse color code %s\n", config->wallpaper.c_str());
+			SDL_LogError(SDL_LOG_CATEGORY_ERROR, "Could not parse color code %s", config->wallpaper.c_str());
 			exit(EXIT_FAILURE);
 		}
 		SDL_FillRect(surface, nullptr, SDL_MapRGB(surface->format, r, g, b));
 	} else {
 		// Implement image loading
-		fprintf(stderr, "Image loading not supported yet\n");
+		SDL_LogError(SDL_LOG_CATEGORY_ERROR, "Image loading not supported yet");
 		exit(EXIT_FAILURE);
 	}
 	return surface;

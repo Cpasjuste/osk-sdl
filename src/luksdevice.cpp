@@ -40,7 +40,7 @@ int LuksDevice::unlock(void *luksDev)
 	// Initialize crypt device
 	ret = crypt_init(&cd, lcd->devicePath.c_str());
 	if (ret < 0) {
-		printf("crypt_init() failed for %s.\n", lcd->devicePath.c_str());
+		SDL_LogError(SDL_LOG_CATEGORY_ERROR, "crypt_init() failed for %s.", lcd->devicePath.c_str());
 		lcd->running = false;
 		return ret;
 	}
@@ -48,7 +48,7 @@ int LuksDevice::unlock(void *luksDev)
 	// Load header
 	ret = crypt_load(cd, nullptr, nullptr);
 	if (ret < 0) {
-		printf("crypt_load() failed on device %s.\n", crypt_get_device_name(cd));
+		SDL_LogError(SDL_LOG_CATEGORY_ERROR, "crypt_load() failed on device %s.", crypt_get_device_name(cd));
 		crypt_free(cd);
 		lcd->running = false;
 		return ret;
@@ -62,12 +62,12 @@ int LuksDevice::unlock(void *luksDev)
 		// Enable TRIM support
 		CRYPT_ACTIVATE_ALLOW_DISCARDS);
 	if (ret < 0) {
-		printf("crypt_activate_by_passphrase failed on device. Errno %i\n", ret);
+		SDL_Log("crypt_activate_by_passphrase failed on device. Errno %i", ret);
 		crypt_free(cd);
 		lcd->running = false;
 		return ret;
 	}
-	printf("Successfully unlocked device %s\n", lcd->devicePath.c_str());
+	SDL_Log("Successfully unlocked device %s", lcd->devicePath.c_str());
 	crypt_free(cd);
 	lcd->locked = false;
 	lcd->running = false;

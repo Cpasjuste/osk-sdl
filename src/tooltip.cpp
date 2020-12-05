@@ -46,7 +46,7 @@ int Tooltip::init(SDL_Renderer *renderer, const std::string &text)
 	surface = SDL_CreateRGBSurface(SDL_SWSURFACE, width, height, 32, rmask, gmask,
 		bmask, amask);
 	if (surface == nullptr) {
-		fprintf(stderr, "CreateRGBSurface failed: %s\n", SDL_GetError());
+		SDL_LogError(SDL_LOG_CATEGORY_VIDEO, "CreateRGBSurface failed: %s", SDL_GetError());
 		return -1;
 	}
 	SDL_FillRect(surface, nullptr, SDL_MapRGB(surface->format, 30, 30, 30));

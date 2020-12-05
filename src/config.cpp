@@ -18,6 +18,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
 #include "config.h"
+#include <SDL2/SDL.h>
 #include <fstream>
 #include <iostream>
 #include <map>
@@ -28,11 +29,11 @@ bool Config::Read(const std::string &path)
 {
 	std::ifstream is(path, std::ifstream::binary);
 	if (!is) {
-		fprintf(stderr, "Could not open config file: %s\n", path.c_str());
+		SDL_LogError(SDL_LOG_CATEGORY_ERROR, "Could not open config file: %s", path.c_str());
 		return false;
 	}
 	if (!Config::Parse(is)) {
-		fprintf(stderr, "Could not parse config file: %s\n", path.c_str());
+		SDL_LogError(SDL_LOG_CATEGORY_ERROR, "Could not parse config file: %s", path.c_str());
 		return false;
 	}
 
@@ -95,7 +96,7 @@ bool Config::Parse(std::istream &file)
 		}
 
 		if (error) {
-			fprintf(stderr, "Syntax error on line %d\n", lineno);
+			SDL_LogError(SDL_LOG_CATEGORY_ERROR, "Syntax error on line %d", lineno);
 			return false;
 		} else {
 			Config::options[id] = val;

@@ -55,22 +55,23 @@ int main(int argc, char **args)
 		.type = EVENT_RENDER
 	};
 
+	SDL_LogSetAllPriority(SDL_LOG_PRIORITY_ERROR);
+	SDL_LogSetPriority(SDL_LOG_CATEGORY_APPLICATION, SDL_LOG_PRIORITY_INFO);
+
 	if (fetchOpts(argc, args, &opts)) {
 		exit(EXIT_FAILURE);
 	}
 
+	if (opts.verbose) {
+		SDL_LogSetAllPriority(SDL_LOG_PRIORITY_INFO);
+	}
+
 	if (!config.Read(opts.confPath)) {
-		fprintf(stderr, "No valid config file specified, use -c [path]\n");
+		SDL_LogError(SDL_LOG_CATEGORY_ERROR, "No valid config file specified, use -c [path]");
 		exit(EXIT_FAILURE);
 	}
 
 	LuksDevice luksDev(opts.luksDevName, opts.luksDevPath);
-
-	if (opts.verbose) {
-		SDL_LogSetAllPriority(SDL_LOG_PRIORITY_INFO);
-	} else {
-		SDL_LogSetAllPriority(SDL_LOG_PRIORITY_ERROR);
-	}
 
 	if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_EVENTS | SDL_INIT_TIMER) < 0) {
 		SDL_LogError(SDL_LOG_CATEGORY_ERROR, "SDL_Init failed: %s", SDL_GetError());
@@ -105,7 +106,7 @@ int main(int argc, char **args)
 	display = SDL_CreateWindow("OSK SDL", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, WIDTH, HEIGHT,
 		windowFlags);
 	if (display == nullptr) {
-		fprintf(stderr, "ERROR: Could not create window/display: %s\n", SDL_GetError());
+		SDL_LogError(SDL_LOG_CATEGORY_VIDEO, "Could not create window/display: %s", SDL_GetError());
 		atexit(SDL_Quit);
 		exit(EXIT_FAILURE);
 	}
@@ -113,7 +114,7 @@ int main(int argc, char **args)
 	renderer = SDL_CreateRenderer(display, -1, 0);
 
 	if (renderer == nullptr) {
-		SDL_LogError(SDL_LOG_CATEGORY_VIDEO, "ERROR: Could not create renderer: %s\n", SDL_GetError());
+		SDL_LogError(SDL_LOG_CATEGORY_VIDEO, "Could not create renderer: %s", SDL_GetError());
 		atexit(SDL_Quit);
 		exit(EXIT_FAILURE);
 	}
@@ -127,13 +128,13 @@ int main(int argc, char **args)
 	int inputHeight = WIDTH / 10;
 
 	if (SDL_SetRenderDrawColor(renderer, 255, 128, 0, SDL_ALPHA_OPAQUE) != 0) {
-		SDL_LogError(SDL_LOG_CATEGORY_VIDEO, "ERROR: Could not set background color: %s\n", SDL_GetError());
+		SDL_LogError(SDL_LOG_CATEGORY_VIDEO, "Could not set background color: %s", SDL_GetError());
 		atexit(SDL_Quit);
 		exit(EXIT_FAILURE);
 	}
 
 	if (SDL_RenderFillRect(renderer, nullptr) != 0) {
-		SDL_LogError(SDL_LOG_CATEGORY_VIDEO, "ERROR: Could not fill background color: %s\n", SDL_GetError());
+		SDL_LogError(SDL_LOG_CATEGORY_VIDEO, "Could not fill background color: %s", SDL_GetError());
 		atexit(SDL_Quit);
 		exit(EXIT_FAILURE);
 	}
@@ -142,18 +143,22 @@ int main(int argc, char **args)
 	Keyboard keyboard(0, 1, WIDTH, keyboardHeight, &config);
 	keyboard.setKeyboardColor(0, 30, 30, 30);
 	if (keyboard.init(renderer)) {
-		fprintf(stderr, "ERROR: Failed to initialize keyboard!\n");
+		SDL_LogError(SDL_LOG_CATEGORY_VIDEO, "Failed to initialize keyboard!");
 		atexit(SDL_Quit);
 		exit(EXIT_FAILURE);
 	}
 
 	// Initialize tooltip for password error
 	Tooltip tooltip(static_cast<int>(WIDTH * 0.9), inputHeight, &config);
-	tooltip.init(renderer, ErrorText);
+	if (tooltip.init(renderer, ErrorText)) {
+		SDL_LogError(SDL_LOG_CATEGORY_VIDEO, "Failed to initialize tooltip!");
+		atexit(SDL_Quit);
+		exit(EXIT_FAILURE);
+	}
 
 	// Disable mouse cursor if not in testmode
 	if (SDL_ShowCursor(opts.testMode) < 0) {
-		fprintf(stderr, "Setting cursor visibility failed: %s\n", SDL_GetError());
+		SDL_LogWarn(SDL_LOG_CATEGORY_VIDEO, "Setting cursor visibility failed: %s", SDL_GetError());
 		// Not stopping here, this is a pretty recoverable error.
 	}
 
@@ -166,7 +171,7 @@ int main(int argc, char **args)
 	std::string tapped;
 	int inputBoxRadius = std::strtol(config.inputBoxRadius.c_str(), nullptr, 10);
 	if (inputBoxRadius >= BEZIER_RESOLUTION || inputBoxRadius > inputHeight / 1.5) {
-		fprintf(stderr, "inputbox-radius must be below %d and %f, it is %d\n", BEZIER_RESOLUTION,
+		SDL_LogWarn(SDL_LOG_CATEGORY_VIDEO, "inputbox-radius must be below %d and %f, it is %d", BEZIER_RESOLUTION,
 			inputHeight / 1.5, inputBoxRadius);
 		inputBoxRadius = 0;
 	}
@@ -175,7 +180,7 @@ int main(int argc, char **args)
 	if (sscanf(config.wallpaper.c_str(), "#%02hhx%02hhx%02hhx", &wallpaperColor.r, &wallpaperColor.g,
 			&wallpaperColor.b)
 		!= 3) {
-		fprintf(stderr, "Could not parse color code %s\n", config.wallpaper.c_str());
+		SDL_LogWarn(SDL_LOG_CATEGORY_ERROR, "Could not parse color code %s", config.wallpaper.c_str());
 		//to avoid akward colors just remove the radius
 		inputBoxRadius = 0;
 	}
@@ -194,7 +199,7 @@ int main(int argc, char **args)
 	};
 
 	if (inputBoxTexture == nullptr) {
-		SDL_LogError(SDL_LOG_CATEGORY_VIDEO, "ERROR: Could not create input box texture: %s\n",
+		SDL_LogError(SDL_LOG_CATEGORY_VIDEO, "Could not create input box texture: %s",
 			SDL_GetError());
 		atexit(SDL_Quit);
 		exit(EXIT_FAILURE);
@@ -252,9 +257,7 @@ int main(int argc, char **args)
 				// x and y values are normalized!
 				auto xTouch = static_cast<unsigned>(event.tfinger.x * WIDTH);
 				auto yTouch = static_cast<unsigned>(event.tfinger.y * HEIGHT);
-				if (opts.verbose) {
-					printf("xTouch: %u\tyTouch: %u\n", xTouch, yTouch);
-				}
+				SDL_LogInfo(SDL_LOG_CATEGORY_VIDEO, "xTouch: %u\tyTouch: %u", xTouch, yTouch);
 				auto offsetYTouch = yTouch - static_cast<int>(HEIGHT - (keyboard.getHeight() * keyboard.getPosition()));
 				tapped = keyboard.getCharForCoordinates(xTouch, offsetYTouch);
 				if (!luksDev.unlockRunning()) {
@@ -268,9 +271,7 @@ int main(int argc, char **args)
 				showPasswordError = false;
 				auto xMouse = event.button.x;
 				auto yMouse = event.button.y;
-				if (opts.verbose) {
-					printf("xMouse: %u\tyMouse: %u\n", xMouse, yMouse);
-				}
+				SDL_LogInfo(SDL_LOG_CATEGORY_VIDEO, "xMouse: %u\tyMouse: %u", xMouse, yMouse);
 				auto offsetYMouse = yMouse - static_cast<int>(HEIGHT - (keyboard.getHeight() * keyboard.getPosition()));
 				tapped = keyboard.getCharForCoordinates(xMouse, offsetYMouse);
 				if (!luksDev.unlockRunning()) {
@@ -291,16 +292,14 @@ int main(int argc, char **args)
 					prev_text_ticks = cur_ticks;
 					if (!luksDev.unlockRunning()) {
 						passphrase.emplace_back(event.text.text);
-						if (opts.verbose) {
-							printf("Phys Keyboard Key Entered %s\n", event.text.text);
-						}
+						SDL_LogInfo(SDL_LOG_CATEGORY_INPUT, "Phys Keyboard Key Entered %s", event.text.text);
 					}
 				}
 				SDL_PushEvent(&renderEvent);
 				break; // SDL_TEXTINPUT
 			}
 			case SDL_QUIT:
-				printf("Quit requested, quitting.\n");
+				SDL_Log("Quit requested, quitting.");
 				exit(0);
 				break; // SDL_QUIT
 			} // switch event.type
@@ -377,8 +376,7 @@ QUIT:
 
 	if (opts.keyscript) {
 		std::string pass = strVector2str(passphrase);
-		printf("%s", pass.c_str());
-		fflush(stdout);
+		SDL_LogInfo(SDL_LOG_CATEGORY_INPUT, "%s", pass.c_str());
 	}
 	return 0;
 }
