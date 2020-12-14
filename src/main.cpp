@@ -167,7 +167,6 @@ int main(int argc, char **args)
 	SDL_Surface *wallpaper = make_wallpaper(&config, WIDTH, HEIGHT);
 	SDL_Texture *wallpaperTexture = SDL_CreateTextureFromSurface(renderer, wallpaper);
 
-	std::string tapped;
 	int inputBoxRadius = std::strtol(config.inputBoxRadius.c_str(), nullptr, 10);
 	if (inputBoxRadius >= BEZIER_RESOLUTION || inputBoxRadius > inputHeight / 1.5) {
 		SDL_LogWarn(SDL_LOG_CATEGORY_VIDEO, "inputbox-radius must be below %d and %f, it is %d", BEZIER_RESOLUTION,
@@ -243,30 +242,15 @@ int main(int argc, char **args)
 				break; // SDL_KEYDOWN
 				// handle touchscreen
 			case SDL_FINGERUP: {
-				showPasswordError = false;
-				// x and y values are normalized!
 				auto xTouch = static_cast<unsigned>(event.tfinger.x * WIDTH);
 				auto yTouch = static_cast<unsigned>(event.tfinger.y * HEIGHT);
-				SDL_LogInfo(SDL_LOG_CATEGORY_VIDEO, "xTouch: %u\tyTouch: %u", xTouch, yTouch);
-				auto offsetYTouch = yTouch - static_cast<int>(HEIGHT - (keyboard.getHeight() * keyboard.getPosition()));
-				tapped = keyboard.getCharForCoordinates(xTouch, offsetYTouch);
-				if (!luksDev.unlockRunning()) {
-					done = handleVirtualKeyPress(tapped, keyboard, luksDev, passphrase, opts.keyscript);
-				}
+				handleTapEnd(xTouch, yTouch, HEIGHT, keyboard, luksDev, passphrase, opts.keyscript, showPasswordError, done);
 				SDL_PushEvent(&renderEvent);
 				break; // SDL_FINGERUP
 			}
 				// handle the mouse
 			case SDL_MOUSEBUTTONUP: {
-				showPasswordError = false;
-				auto xMouse = event.button.x;
-				auto yMouse = event.button.y;
-				SDL_LogInfo(SDL_LOG_CATEGORY_VIDEO, "xMouse: %u\tyMouse: %u", xMouse, yMouse);
-				auto offsetYMouse = yMouse - static_cast<int>(HEIGHT - (keyboard.getHeight() * keyboard.getPosition()));
-				tapped = keyboard.getCharForCoordinates(xMouse, offsetYMouse);
-				if (!luksDev.unlockRunning()) {
-					done = handleVirtualKeyPress(tapped, keyboard, luksDev, passphrase, opts.keyscript);
-				}
+				handleTapEnd(event.button.x, event.button.y, HEIGHT, keyboard, luksDev, passphrase, opts.keyscript, showPasswordError, done);
 				SDL_PushEvent(&renderEvent);
 				break; // SDL_MOUSEBUTTONUP
 			}

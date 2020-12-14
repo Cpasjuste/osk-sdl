@@ -97,4 +97,18 @@ bool handleVirtualKeyPress(const std::string &tapped, Keyboard &kbd, LuksDevice 
  */
 void draw_password_box_dots(SDL_Renderer *renderer, Config *config, int inputHeight, int screenWidth, int numDots,
 	int y, bool busy);
+
+/**
+  Handle a finger or mouse up event
+  @param xTapped X coordinate of the tap
+  @param yTapped Y coordinate of the tap
+  @param screenHeight Height of overall screen
+  @param kbd Initialized Keyboard obj
+  @param lkd Initialized LuksDevice obj
+  @param passphrase The current passphrase
+  @param keyscript Whether we're in keyscript mode
+  @param showPasswordError Will be set to true if a password error should be shown, false otherwise
+  @param done Will be set to true if the device was unlocked, false otherwise
+ */
+void handleTapEnd(unsigned xTapped, unsigned yTapped, int screenHeight, Keyboard &kbd, LuksDevice &lkd, std::vector<std::string> &passphrase, bool keyscript, bool &showPasswordError, bool &done);
 #endif
