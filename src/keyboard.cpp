@@ -208,6 +208,7 @@ void Keyboard::drawKey(SDL_Surface *surface, std::vector<touchArea> &keyVector, 
 {
 	auto keyBackground = SDL_MapRGB(surface->format, background.r, background.g, background.b);
 	SDL_Color textColor = { foreground.r, foreground.g, foreground.b, foreground.a };
+	auto keyboardBackground = SDL_MapRGB(surface->format, config->keyboardBackground.r, config->keyboardBackground.g, config->keyboardBackground.b);
 
 	SDL_Rect keyRect;
 	keyRect.x = x + padding;
@@ -215,6 +216,9 @@ void Keyboard::drawKey(SDL_Surface *surface, std::vector<touchArea> &keyVector, 
 	keyRect.w = width - (2 * padding);
 	keyRect.h = height - (2 * padding);
 	SDL_FillRect(surface, &keyRect, keyBackground);
+	if (keyRadius > 0) {
+		smooth_corners_surface(surface, keyboardBackground, &keyRect, keyRadius);
+	}
 	SDL_Surface *textSurface;
 
 	if (!isHighlighted) {
