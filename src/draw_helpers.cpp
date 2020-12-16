@@ -26,8 +26,8 @@ SDL_Point *bezier_corner(SDL_Point *pts, SDL_Point *offset, SDL_Point *p1, SDL_P
 
 	for (size_t i = 0; i < BEZIER_RESOLUTION; ++i) {
 		double t = i * increment;
-		pts[i].x = static_cast<int>((1 - t) * (1 - t) * p1->x + 2 * (1 - t) * t * p2->x + t * t * p3->x) + offset->x;
-		pts[i].y = static_cast<int>((1 - t) * (1 - t) * p1->y + 2 * (1 - t) * t * p2->y + t * t * p3->y) + offset->y;
+		pts[i].x = static_cast<int>(round((1 - t) * (1 - t) * p1->x + 2 * (1 - t) * t * p2->x + t * t * p3->x)) + offset->x;
+		pts[i].y = static_cast<int>(round((1 - t) * (1 - t) * p1->y + 2 * (1 - t) * t * p2->y + t * t * p3->y)) + offset->y;
 	}
 	return pts;
 }
@@ -40,35 +40,35 @@ void smooth_corners(SDL_Rect *rect, int radius, const std::function<void(int, in
 		new SDL_Point { 0, radius },
 		new SDL_Point { 0, 0 }, new SDL_Point { radius, 0 });
 	for (int i = 0; i < BEZIER_RESOLUTION; i++) {
-		for (int x = rect->x; x < corner[i].x; x++) {
+		for (int x = rect->x; x <= corner[i].x && corner[i].y >= rect->y; x++) {
 			draw_cb(x, corner[i].y);
 		}
 	}
 
 	//Top Right
-	bezier_corner(corner, new SDL_Point { rect->x + rect->w + 1, rect->y - 1 }, new SDL_Point { 0, radius },
+	bezier_corner(corner, new SDL_Point { rect->x + rect->w, rect->y - 1 }, new SDL_Point { 0, radius },
 		new SDL_Point { 0, 0 }, new SDL_Point { -radius, 0 });
 	for (int i = 0; i < BEZIER_RESOLUTION; i++) {
-		for (int x = rect->x + rect->w; x > corner[i].x; x--) {
+		for (int x = rect->x + rect->w - 1; x >= corner[i].x && corner[i].y >= rect->y; x--) {
 			draw_cb(x, corner[i].y);
 		}
 	}
 
 	//Bottom Left
-	bezier_corner(corner, new SDL_Point { rect->x - 1, rect->y + rect->h + 1 },
+	bezier_corner(corner, new SDL_Point { rect->x - 1, rect->y + rect->h },
 		new SDL_Point { 0, -radius },
 		new SDL_Point { 0, 0 }, new SDL_Point { radius, 0 });
 	for (int i = 0; i < BEZIER_RESOLUTION; i++) {
-		for (int x = rect->x; x < corner[i].x; x++) {
+		for (int x = rect->x; x <= corner[i].x && corner[i].y < rect->y + rect->h; x++) {
 			draw_cb(x, corner[i].y);
 		}
 	}
 
 	//Bottom Right
-	bezier_corner(corner, new SDL_Point { rect->x + rect->w + 1, rect->y + rect->h + 1 }, new SDL_Point { 0, -radius },
+	bezier_corner(corner, new SDL_Point { rect->x + rect->w, rect->y + rect->h }, new SDL_Point { 0, -radius },
 		new SDL_Point { 0, 0 }, new SDL_Point { -radius, 0 });
 	for (int i = 0; i < BEZIER_RESOLUTION; i++) {
-		for (int x = rect->x + rect->w; x > corner[i].x; x--) {
+		for (int x = rect->x + rect->w - 1; x >= corner[i].x && corner[i].y < rect->y + rect->h; x--) {
 			draw_cb(x, corner[i].y);
 		}
 	}
@@ -78,8 +78,14 @@ void smooth_corners(SDL_Rect *rect, int radius, const std::function<void(int, in
 void smooth_corners_surface(SDL_Surface *surface, Uint32 color, SDL_Rect *rect, int radius)
 {
 	smooth_corners(rect, radius, [&](int x, int y) {
-		if (x >= surface->w || y >= surface->h || y < 0 || x < 0)
+		if (x >= surface->w || y >= surface->h || y < 0 || x < 0) {
+			SDL_LogError(SDL_LOG_CATEGORY_VIDEO, "Trying to draw outside of surface bounds during corner rounding");
 			return;
+		}
+		if (x >= rect->x + rect->w || y >= rect->y + rect->h || x < rect->x || y < rect->y) {
+			SDL_LogError(SDL_LOG_CATEGORY_VIDEO, "Trying to draw outside of rect bounds during corner rounding");
+			return;
+		}
 		Uint8 *pixel = static_cast<Uint8 *>(surface->pixels);
 		pixel += (y * surface->pitch) + (x * sizeof(Uint32));
 		*((Uint32 *)pixel) = color;
