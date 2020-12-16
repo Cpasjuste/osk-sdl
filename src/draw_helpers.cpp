@@ -22,10 +22,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 SDL_Point *bezier_corner(SDL_Point *pts, SDL_Point *offset, SDL_Point *p1, SDL_Point *p2, SDL_Point *p3)
 {
-	constexpr double increment = 1.0 / BEZIER_RESOLUTION;
-	double t = increment;
+	constexpr double increment = 1.0 / (BEZIER_RESOLUTION - 1);
 
 	for (size_t i = 0; i < BEZIER_RESOLUTION; ++i) {
+		double t = i * increment;
 		pts[i].x = static_cast<int>((1 - t) * (1 - t) * p1->x + 2 * (1 - t) * t * p2->x + t * t * p3->x) + offset->x;
 		pts[i].y = static_cast<int>((1 - t) * (1 - t) * p1->y + 2 * (1 - t) * t * p2->y + t * t * p3->y) + offset->y;
 	}
