@@ -148,10 +148,21 @@ void Keyboard::draw(SDL_Renderer *renderer, int screenHeight)
 			continue;
 		}
 
-		if (highlightedKey.isPreviewEnabled) {
+		// Fill rounded corners at intersection
+		if (highlightedKey.isPreviewEnabled && keyRadius > 0) {
 			SDL_SetRenderDrawColor(renderer, config->keyBackgroundHighlighted.r, config->keyBackgroundHighlighted.g,
 				config->keyBackgroundHighlighted.b, config->keyBackgroundHighlighted.a);
-			SDL_RenderFillRect(renderer, &highlightDstRect);
+			SDL_Rect cornerRect;
+			cornerRect.x = highlightSrcRect.x;
+			cornerRect.y = highlightSrcRect.y + keyboardRect.y - keyRadius;
+			cornerRect.w = highlightSrcRect.w;
+			cornerRect.h = 2 * keyRadius;
+			SDL_RenderFillRect(renderer, &cornerRect);
+		}
+
+		// Draw highlighted key & preview
+		if (highlightedKey.isPreviewEnabled) {
+			SDL_RenderCopy(renderer, layer.highlightedTexture, &highlightSrcRect, &highlightDstRect);
 			highlightDstRect.y -= highlightDstRect.h;
 		}
 		SDL_RenderCopy(renderer, layer.highlightedTexture, &highlightSrcRect, &highlightDstRect);
@@ -170,8 +181,16 @@ void Keyboard::drawRow(SDL_Surface *surface, std::vector<touchArea> &keyVector, 
 	auto keyBackground = SDL_MapRGB(surface->format, background.r, background.g, background.b);
 	SDL_Color textColor = { foreground.r, foreground.g, foreground.b, foreground.a };
 
-	auto keyboardBackground = SDL_MapRGB(surface->format, config->keyboardBackground.r, config->keyboardBackground.g,
-		config->keyboardBackground.b);
+	Uint32 keyboardBackground;
+	if (isHighlighted) {
+		// For the highlighted keys, we need to draw over the rounded corners with transparency because they will
+		// be rendered *on top of* the normal keys
+		keyboardBackground = SDL_MapRGBA(surface->format, 0, 0, 0, 0);
+	} else {
+		keyboardBackground = SDL_MapRGB(surface->format, config->keyboardBackground.r, config->keyboardBackground.g,
+			config->keyboardBackground.b);
+	}
+
 	int i = 0;
 	for (const auto &keyCap : keys) {
 		SDL_Rect keyRect;
@@ -208,7 +227,16 @@ void Keyboard::drawKey(SDL_Surface *surface, std::vector<touchArea> &keyVector, 
 {
 	auto keyBackground = SDL_MapRGB(surface->format, background.r, background.g, background.b);
 	SDL_Color textColor = { foreground.r, foreground.g, foreground.b, foreground.a };
-	auto keyboardBackground = SDL_MapRGB(surface->format, config->keyboardBackground.r, config->keyboardBackground.g, config->keyboardBackground.b);
+
+	Uint32 keyboardBackground;
+	if (isHighlighted) {
+		// For the highlighted keys, we need to draw over the rounded corners with transparency because they will
+		// be rendered *on top of* the normal keys
+		keyboardBackground = SDL_MapRGBA(surface->format, 0, 0, 0, 0);
+	} else {
+		keyboardBackground = SDL_MapRGB(surface->format, config->keyboardBackground.r, config->keyboardBackground.g,
+			config->keyboardBackground.b);
+	}
 
 	SDL_Rect keyRect;
 	keyRect.x = x + padding;
