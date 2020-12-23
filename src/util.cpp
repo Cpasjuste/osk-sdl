@@ -102,39 +102,83 @@ SDL_Surface *make_wallpaper(Config *config, int width, int height)
 	return surface;
 }
 
+SDL_Texture *circle = nullptr;
+int circleRadius = 0;
+
 void draw_circle(SDL_Renderer *renderer, SDL_Point center, int radius)
 {
-	int x0 = center.x;
-	int y0 = center.y;
-	int x = 0;
-	int y = radius;
-	float d = 5 / 4.0 - radius;
-	SDL_SetRenderDrawColor(renderer, 229, 229, 229, 255);
-
-	/*
-	 * This is a version of the midpoint circle algorithm that draws lines
-	 * between pairs of points for fill, rather than plotting every single
-	 * pixel/point within the circle.
-	 * https://stackoverflow.com/a/10878576
-	 * https://stackoverflow.com/a/1201304
-	 * */
-	while (x < y) {
-		if (d < 2 * (radius - y)) {
-			y -= 1;
-			d += 2 * y - 1;
-		} else if (d >= 2 * x) {
-			x += 1;
-			d -= 2 * x + 1;
-		} else {
-			x += 1;
-			y -= 1;
-			d += 2 * (y - x - 1);
-		}
-		SDL_RenderDrawLine(renderer, x0 - y, y0 + x, x0 + y, y0 + x);
-		SDL_RenderDrawLine(renderer, x0 - x, y0 + y, x0 + x, y0 + y);
-		SDL_RenderDrawLine(renderer, x0 - x, y0 - y, x0 + x, y0 - y);
-		SDL_RenderDrawLine(renderer, x0 - y, y0 - x, x0 + y, y0 - x);
+	// Destroy cached texture if radius doesn't match
+	if (circle && circleRadius != radius) {
+		SDL_LogWarn(SDL_LOG_CATEGORY_VIDEO, "Destroying previously cached circle texture with radius %i", circleRadius);
+		SDL_DestroyTexture(circle);
+		circle = nullptr;
+		circleRadius = 0;
 	}
+
+	// Cache a new texture if needed
+	if (!circle) {
+		SDL_LogInfo(SDL_LOG_CATEGORY_VIDEO, "Caching a new circle texture with radius %i", radius);
+		Uint32 rmask, gmask, bmask, amask;
+
+#if SDL_BYTEORDER == SDL_BIG_ENDIAN
+		rmask = 0xff000000;
+		gmask = 0x00ff0000;
+		bmask = 0x0000ff00;
+		amask = 0x000000ff;
+#else
+		rmask = 0x000000ff;
+		gmask = 0x0000ff00;
+		bmask = 0x00ff0000;
+		amask = 0xff000000;
+#endif
+
+		SDL_Surface *surface = SDL_CreateRGBSurface(0, 2 * radius, 2 * radius, 32, rmask, gmask, bmask, amask);
+		Uint32 color = SDL_MapRGB(surface->format, 229, 229, 229);
+		SDL_Rect rect;
+
+		int x0 = radius;
+		int y0 = radius;
+		int x = 0;
+		int y = radius;
+		float d = 5 / 4.0 - radius;
+
+		/*
+		* This is a version of the midpoint circle algorithm that draws rects
+		* between pairs of points for fill, rather than plotting every single
+		* pixel/point within the circle.
+		* https://stackoverflow.com/a/10878576
+		* https://stackoverflow.com/a/1201304
+		* */
+		while (x < y) {
+			if (d < 2 * (radius - y)) {
+				y -= 1;
+				d += 2 * y - 1;
+			} else if (d >= 2 * x) {
+				x += 1;
+				d -= 2 * x + 1;
+			} else {
+				x += 1;
+				y -= 1;
+				d += 2 * (y - x - 1);
+			}
+			rect = { x0 - y, y0 + x, 2 * y, 1 };
+			SDL_FillRect(surface, &rect, color);
+			rect = { x0 - x, y0 + y, 2 * x, 1 };
+			SDL_FillRect(surface, &rect, color);
+			rect = { x0 - x, y0 - y, 2 * x, 1 };
+			SDL_FillRect(surface, &rect, color);
+			rect = { x0 - y, y0 - x, 2 * y, 1 };
+			SDL_FillRect(surface, &rect, color);
+		}
+
+		circle = SDL_CreateTextureFromSurface(renderer, surface);
+		SDL_FreeSurface(surface);
+		circleRadius = radius;
+	}
+
+	// Copy cached texture into display
+	SDL_Rect rect = { center.x - radius, center.y - radius, 2 * radius, 2 * radius };
+	SDL_RenderCopy(renderer, circle, nullptr, &rect);
 }
 
 void draw_password_box_dots(SDL_Renderer *renderer, Config *config, int inputHeight, int screenWidth, int numDots, int y, bool busy)
