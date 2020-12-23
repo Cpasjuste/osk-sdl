@@ -55,7 +55,7 @@ struct rgb {
 struct KeyboardLayer {
 	SDL_Texture *texture = nullptr;
 	SDL_Texture *highlightedTexture = nullptr;
-	std::array<std::vector<std::string>, 3> rows;
+	std::array<std::vector<std::string>, 4> rows;
 	std::vector<touchArea> keyVector;
 	int layerNum;
 };

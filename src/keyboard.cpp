@@ -263,8 +263,17 @@ SDL_Surface *Keyboard::makeKeyboard(KeyboardLayer *layer, bool isHighlighted) co
 			SDL_MapRGB(surface->format, config->keyboardBackground.r, config->keyboardBackground.g, config->keyboardBackground.b));
 	}
 
+	int rowKeyWidth = keyboardWidth / 10;
+	int rowOffset = 0;
 	int rowCount = layer->rows.size();
 	int rowHeight = keyboardHeight / (rowCount + 1);
+
+	// Start drawing keys from the second row (skip first row) if there
+	// is not enough vertical space (key height becomes smaller than width)
+	if (rowHeight < rowKeyWidth) {
+		rowOffset++;
+		rowHeight = keyboardHeight / rowCount;
+	}
 
 	if (TTF_Init() == -1) {
 		SDL_LogError(SDL_LOG_CATEGORY_VIDEO, "TTF_Init: %s", TTF_GetError());
@@ -287,16 +296,17 @@ SDL_Surface *Keyboard::makeKeyboard(KeyboardLayer *layer, bool isHighlighted) co
 
 	int sidebuttonsWidth = keyboardWidth / 20 + colw * 2;
 	int y = 0;
-	int i = 0;
+	int i = rowOffset;
 	while (i < rowCount) {
 		int rowElementCount = layer->rows[i].size();
 		int x = 0;
-		if (i < 2 && rowElementCount < 10)
+		if (i < 3 && rowElementCount < 10)
 			x = keyboardWidth / 20;
-		if (i == 2) /* leave room for shift, "123" or "=\<" key */
+		if (i == 3) /* leave room for shift, "123" or "=\<" key */
 			x = keyboardWidth / 20 + colw * 2;
-		drawRow(surface, layer->keyVector, x, y, keyboardWidth / 10,
-			rowHeight, layer->rows[i], keyboardWidth / 100, font, isHighlighted, true, keyForeground, keyBackgroundLetter);
+		argb keyBackground = i == 0 ? keyBackgroundOther : keyBackgroundLetter;
+		drawRow(surface, layer->keyVector, x, y, rowKeyWidth,
+			rowHeight, layer->rows[i], keyboardWidth / 100, font, isHighlighted, true, keyForeground, keyBackground);
 		y += rowHeight;
 		i++;
 	}
@@ -395,24 +405,28 @@ void Keyboard::loadKeymap()
 	KeyboardLayer layer0, layer1, layer2, layer3;
 	keyboard.clear();
 
-	layer0.rows[0] = { "q", "w", "e", "r", "t", "y", "u", "i", "o", "p" };
-	layer0.rows[1] = { "a", "s", "d", "f", "g", "h", "j", "k", "l" };
-	layer0.rows[2] = { "z", "x", "c", "v", "b", "n", "m" };
+	layer0.rows[0] = { "1", "2", "3", "4", "5", "6", "7", "8", "9", "0" };
+	layer0.rows[1] = { "q", "w", "e", "r", "t", "y", "u", "i", "o", "p" };
+	layer0.rows[2] = { "a", "s", "d", "f", "g", "h", "j", "k", "l" };
+	layer0.rows[3] = { "z", "x", "c", "v", "b", "n", "m" };
 	layer0.layerNum = 0;
 
-	layer1.rows[0] = { "Q", "W", "E", "R", "T", "Y", "U", "I", "O", "P" };
-	layer1.rows[1] = { "A", "S", "D", "F", "G", "H", "J", "K", "L" };
-	layer1.rows[2] = { "Z", "X", "C", "V", "B", "N", "M" };
+	layer1.rows[0] = { "!", "@", "#", "$", "%", "^", "&", "*", "(", ")" };
+	layer1.rows[1] = { "Q", "W", "E", "R", "T", "Y", "U", "I", "O", "P" };
+	layer1.rows[2] = { "A", "S", "D", "F", "G", "H", "J", "K", "L" };
+	layer1.rows[3] = { "Z", "X", "C", "V", "B", "N", "M" };
 	layer1.layerNum = 1;
 
-	layer2.rows[0] = { "1", "2", "3", "4", "5", "6", "7", "8", "9", "0" };
-	layer2.rows[1] = { "@", "#", "$", "%", "&", "-", "_", "+", "(", ")" };
-	layer2.rows[2] = { ",", "\"", "'", ":", ";", "!", "?" };
+	layer2.rows[0] = {};
+	layer2.rows[1] = { "1", "2", "3", "4", "5", "6", "7", "8", "9", "0" };
+	layer2.rows[2] = { "@", "#", "$", "%", "&", "-", "_", "+", "(", ")" };
+	layer2.rows[3] = { ",", "\"", "'", ":", ";", "!", "?" };
 	layer2.layerNum = 2;
 
-	layer3.rows[0] = { "~", "`", "|", "·", "√", "π", "τ", "÷", "×", "¶" };
-	layer3.rows[1] = { "©", "®", "£", "€", "¥", "^", "°", "*", "{", "}" };
-	layer3.rows[2] = { "\\", "/", "<", ">", "=", "[", "]" };
+	layer3.rows[0] = {};
+	layer3.rows[1] = { "~", "`", "|", "·", "√", "π", "τ", "÷", "×", "¶" };
+	layer3.rows[2] = { "©", "®", "£", "€", "¥", "^", "°", "*", "{", "}" };
+	layer3.rows[3] = { "\\", "/", "<", ">", "=", "[", "]" };
 	layer3.layerNum = 3;
 
 	keyboard.push_back(layer0);
