@@ -185,13 +185,24 @@ void draw_password_box_dots(SDL_Renderer *renderer, Config *config, const SDL_Re
 {
 	int deflection = inputRect.h / 4;
 	int ypos = inputRect.y + inputRect.h / 2;
+	int xmax = inputRect.x + inputRect.w;
 	float tick = static_cast<float>(SDL_GetTicks());
-	// Draw password dots
 	int dotSize = static_cast<int>(inputRect.h / 5);
 	int padding = static_cast<int>(inputRect.h / 2);
-	for (int i = 0; i < numDots; i++) {
+	int offset = 0;
+	SDL_RenderSetClipRect(renderer, &inputRect); // Prevent drawing outside the input bounds
+	for (int i = numDots - 1; i >= 0; i--) {
 		SDL_Point dotPos;
-		dotPos.x = inputRect.x + padding + (i * dotSize * 3);
+		dotPos.x = inputRect.x + padding + (i * dotSize * 3) - offset;
+		// Offset dot center so that for long passwords the last dot aligns with right edge (minus padding)
+		if (dotPos.x + padding > xmax) {
+			offset = dotPos.x + padding - xmax;
+			dotPos.x -= offset;
+		}
+		// Stop once we reach a dot that is entirely outside the input rect
+		if (dotPos.x + dotSize < inputRect.x) {
+			break;
+		}
 		if (busy && config->animations) {
 			dotPos.y = static_cast<int>(ypos + std::sin(tick / 100.0f + i) * deflection);
 		} else {
@@ -199,6 +210,7 @@ void draw_password_box_dots(SDL_Renderer *renderer, Config *config, const SDL_Re
 		}
 		draw_circle(renderer, dotPos, dotSize);
 	}
+	SDL_RenderSetClipRect(renderer, nullptr); // Reset clip rect
 }
 
 bool handleVirtualKeyPress(const std::string &tapped, Keyboard &kbd, LuksDevice &lkd,
