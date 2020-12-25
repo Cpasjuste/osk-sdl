@@ -89,14 +89,11 @@ bool handleVirtualKeyPress(const std::string &tapped, Keyboard &kbd, LuksDevice 
 /**
   Draw the dots to represent hidden characters
   @param renderer Initialized SDL_Renderer object
-  @param inputHeight Height of input box
-  @param screenWidth Width of overall screen
+  @param inputRect Bounding box of the password input
   @param numDots Number of password 'dots' to draw
-  @param y Vertical position of the input box
   @param busy if true the dots will play a loading animation
  */
-void draw_password_box_dots(SDL_Renderer *renderer, Config *config, int inputHeight, int screenWidth, int numDots,
-	int y, bool busy);
+void draw_password_box_dots(SDL_Renderer *renderer, Config *config, const SDL_Rect &inputRect, int numDots, bool busy);
 
 /**
   Handle a finger or mouse down event

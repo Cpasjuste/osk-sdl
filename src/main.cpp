@@ -325,8 +325,7 @@ int main(int argc, char **args)
 					} else {
 						inputBoxRect.y = static_cast<int>(topHalf / 3.5);
 						SDL_RenderCopy(renderer, inputBoxTexture, nullptr, &inputBoxRect);
-						draw_password_box_dots(renderer, &config, inputHeight, WIDTH, passphrase.size(), inputBoxRect.y,
-							luksDev.unlockRunning());
+						draw_password_box_dots(renderer, &config, inputBoxRect, passphrase.size(), luksDev.unlockRunning());
 					}
 
 					// Hide keyboard if unlock luks thread is running

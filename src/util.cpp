@@ -181,16 +181,17 @@ void draw_circle(SDL_Renderer *renderer, SDL_Point center, int radius)
 	SDL_RenderCopy(renderer, circle, nullptr, &rect);
 }
 
-void draw_password_box_dots(SDL_Renderer *renderer, Config *config, int inputHeight, int screenWidth, int numDots, int y, bool busy)
+void draw_password_box_dots(SDL_Renderer *renderer, Config *config, const SDL_Rect &inputRect, int numDots, bool busy)
 {
-	int deflection = inputHeight / 4;
-	int ypos = y + inputHeight / 2;
+	int deflection = inputRect.h / 4;
+	int ypos = inputRect.y + inputRect.h / 2;
 	float tick = static_cast<float>(SDL_GetTicks());
 	// Draw password dots
-	int dotSize = static_cast<int>(screenWidth * 0.02);
+	int dotSize = static_cast<int>(inputRect.h / 5);
+	int padding = static_cast<int>(inputRect.h / 2);
 	for (int i = 0; i < numDots; i++) {
 		SDL_Point dotPos;
-		dotPos.x = (screenWidth / 10) + (i * dotSize * 3);
+		dotPos.x = inputRect.x + padding + (i * dotSize * 3);
 		if (busy && config->animations) {
 			dotPos.y = static_cast<int>(ypos + std::sin(tick / 100.0f + i) * deflection);
 		} else {
