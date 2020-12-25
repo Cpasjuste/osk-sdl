@@ -125,7 +125,8 @@ int main(int argc, char **args)
 		keyboardHeight = WIDTH / 2;
 	}
 
-	int inputHeight = WIDTH / 10;
+	int inputWidth = static_cast<int>(WIDTH * 0.9);
+	int inputHeight = static_cast<int>(WIDTH * 0.1);
 
 	if (SDL_SetRenderDrawColor(renderer, 255, 128, 0, SDL_ALPHA_OPAQUE) != 0) {
 		SDL_LogError(SDL_LOG_CATEGORY_VIDEO, "Could not set background color: %s", SDL_GetError());
@@ -148,7 +149,7 @@ int main(int argc, char **args)
 	}
 
 	// Initialize tooltip for password error
-	Tooltip tooltip(static_cast<int>(WIDTH * 0.9), inputHeight, &config);
+	Tooltip tooltip(inputWidth, inputHeight, &config);
 	if (tooltip.init(renderer, ErrorText)) {
 		SDL_LogError(SDL_LOG_CATEGORY_VIDEO, "Failed to initialize tooltip!");
 		atexit(SDL_Quit);
@@ -176,14 +177,14 @@ int main(int argc, char **args)
 
 	argb inputBoxColor = config.inputBoxBackground;
 
-	SDL_Surface *inputBox = make_input_box(static_cast<int>(WIDTH * 0.9), inputHeight, &inputBoxColor, inputBoxRadius);
+	SDL_Surface *inputBox = make_input_box(inputWidth, inputHeight, &inputBoxColor, inputBoxRadius);
 	SDL_Texture *inputBoxTexture = SDL_CreateTextureFromSurface(renderer, inputBox);
 
 	int topHalf = static_cast<int>(HEIGHT - (keyboard.getHeight() * keyboard.getPosition()));
 	SDL_Rect inputBoxRect = SDL_Rect {
 		.x = WIDTH / 20,
 		.y = static_cast<int>(topHalf / 3.5),
-		.w = static_cast<int>(static_cast<double>(WIDTH) * 0.9),
+		.w = inputWidth,
 		.h = inputHeight
 	};
 
