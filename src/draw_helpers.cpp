@@ -94,11 +94,7 @@ void smooth_corners_surface(SDL_Surface *surface, Uint32 color, SDL_Rect *rect, 
 
 SDL_Surface *make_input_box(int inputWidth, int inputHeight, argb *color, int inputBoxRadius)
 {
-	SDL_Rect inputRect;
-	inputRect.x = 1;
-	inputRect.y = 1;
-	inputRect.w = inputWidth + 3;
-	inputRect.h = inputHeight + 3;
+	SDL_Rect inputRect = { 0, 0, inputWidth, inputHeight };
 
 	SDL_Surface *surf;
 #if SDL_BYTEORDER == SDL_BIG_ENDIAN
@@ -109,9 +105,6 @@ SDL_Surface *make_input_box(int inputWidth, int inputHeight, argb *color, int in
 		0x000000ff, 0x0000ff00, 0x00ff0000, 0xff000000);
 #endif
 	SDL_FillRect(surf, &inputRect, SDL_MapRGBA(surf->format, color->r, color->g, color->b, color->a));
-
-	inputRect.w -= 2;
-	inputRect.h -= 2;
 
 	if (inputBoxRadius > 0)
 		smooth_corners_surface(surf, SDL_MapRGBA(surf->format, 0, 0, 0, 0), &inputRect, inputBoxRadius);
