@@ -31,9 +31,10 @@ public:
 	  Constructor
 	  @param width Width of the tooltip
 	  @param height Height of the tooltip
+	  @param cornerRadius Corner radius of the tooltip background box
 	  @param config Config object
 	  */
-	Tooltip(int width, int height, Config *config);
+	Tooltip(int width, int height, int cornerRadius, Config *config);
 	/**
 	  Initialize tooltip
 	  @param renderer Initialized SDL renderer object
@@ -54,6 +55,7 @@ private:
 	Config *config;
 	int width;
 	int height;
+	int cornerRadius;
 };
 
 #endif

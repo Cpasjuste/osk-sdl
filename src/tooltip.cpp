@@ -18,11 +18,13 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
 #include "tooltip.h"
+#include "draw_helpers.h"
 
-Tooltip::Tooltip(int width, int height, Config *config)
+Tooltip::Tooltip(int width, int height, int cornerRadius, Config *config)
 	: config(config)
 	, width(width)
 	, height(height)
+	, cornerRadius(cornerRadius)
 {
 }
 
@@ -50,6 +52,11 @@ int Tooltip::init(SDL_Renderer *renderer, const std::string &text)
 		return -1;
 	}
 	SDL_FillRect(surface, nullptr, SDL_MapRGB(surface->format, 30, 30, 30));
+
+	if (cornerRadius > 0) {
+		SDL_Rect rect = { 0, 0, width, height };
+		smooth_corners_surface(surface, SDL_MapRGBA(surface->format, 0, 0, 0, 0), &rect, cornerRadius);
+	}
 
 	TTF_Font *font = TTF_OpenFont(config->keyboardFont.c_str(), config->keyboardFontSize);
 	SDL_Surface *textSurface;

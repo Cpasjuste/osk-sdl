@@ -148,14 +148,6 @@ int main(int argc, char **args)
 		exit(EXIT_FAILURE);
 	}
 
-	// Initialize tooltip for password error
-	Tooltip tooltip(inputWidth, inputHeight, &config);
-	if (tooltip.init(renderer, ErrorText)) {
-		SDL_LogError(SDL_LOG_CATEGORY_VIDEO, "Failed to initialize tooltip!");
-		atexit(SDL_Quit);
-		exit(EXIT_FAILURE);
-	}
-
 	// Disable mouse cursor if not in testmode
 	if (SDL_ShowCursor(opts.testMode) < 0) {
 		SDL_LogWarn(SDL_LOG_CATEGORY_VIDEO, "Setting cursor visibility failed: %s", SDL_GetError());
@@ -173,6 +165,14 @@ int main(int argc, char **args)
 		SDL_LogWarn(SDL_LOG_CATEGORY_VIDEO, "inputbox-radius must be below %d and %f, it is %d", BEZIER_RESOLUTION,
 			inputHeight / 1.5, inputBoxRadius);
 		inputBoxRadius = 0;
+	}
+
+	// Initialize tooltip for password error
+	Tooltip tooltip(inputWidth, inputHeight, inputBoxRadius, &config);
+	if (tooltip.init(renderer, ErrorText)) {
+		SDL_LogError(SDL_LOG_CATEGORY_VIDEO, "Failed to initialize tooltip!");
+		atexit(SDL_Quit);
+		exit(EXIT_FAILURE);
 	}
 
 	argb inputBoxColor = config.inputBoxBackground;
@@ -319,12 +319,11 @@ int main(int argc, char **args)
 					SDL_RenderCopy(renderer, wallpaperTexture, nullptr, nullptr);
 
 					topHalf = static_cast<int>(HEIGHT - (keyboard.getHeight() * keyboard.getPosition()));
+					inputBoxRect.y = static_cast<int>(topHalf / 3.5);
 					// Only show either error box or password input box, not both
 					if (showPasswordError) {
-						int tooltipPosition = topHalf / 4;
-						tooltip.draw(renderer, WIDTH / 20, tooltipPosition);
+						tooltip.draw(renderer, inputBoxRect.x, inputBoxRect.y);
 					} else {
-						inputBoxRect.y = static_cast<int>(topHalf / 3.5);
 						SDL_RenderCopy(renderer, inputBoxTexture, nullptr, &inputBoxRect);
 						draw_password_box_dots(renderer, &config, inputBoxRect, passphrase.size(), luksDev.unlockRunning());
 					}
