@@ -115,10 +115,28 @@ bool Config::Read(const std::string &path)
 		Config::keyRadius = Config::options["key-radius"];
 	}
 
+	it = Config::options.find("inputbox-foreground");
+	if (it != Config::options.end()) {
+		std::string hex = Config::options["inputbox-foreground"];
+		Config::inputBoxForeground = parseHexString(hex);
+	}
+
+	it = Config::options.find("inputbox-foreground-error");
+	if (it != Config::options.end()) {
+		std::string hex = Config::options["inputbox-foreground-error"];
+		Config::inputBoxForegroundError = parseHexString(hex);
+	}
+
 	it = Config::options.find("inputbox-background");
 	if (it != Config::options.end()) {
 		std::string hex = Config::options["inputbox-background"];
 		Config::inputBoxBackground = parseHexString(hex);
+	}
+
+	it = Config::options.find("inputbox-background-error");
+	if (it != Config::options.end()) {
+		std::string hex = Config::options["inputbox-background-error"];
+		Config::inputBoxBackgroundError = parseHexString(hex);
 	}
 
 	it = Config::options.find("inputbox-radius");

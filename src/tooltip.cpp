@@ -51,7 +51,10 @@ int Tooltip::init(SDL_Renderer *renderer, const std::string &text)
 		SDL_LogError(SDL_LOG_CATEGORY_VIDEO, "CreateRGBSurface failed: %s", SDL_GetError());
 		return -1;
 	}
-	SDL_FillRect(surface, nullptr, SDL_MapRGB(surface->format, 30, 30, 30));
+
+	Uint32 background = SDL_MapRGB(surface->format, config->inputBoxBackgroundError.r,
+		config->inputBoxBackgroundError.g, config->inputBoxBackgroundError.b);
+	SDL_FillRect(surface, nullptr, background);
 
 	if (cornerRadius > 0) {
 		SDL_Rect rect = { 0, 0, width, height };
@@ -60,7 +63,8 @@ int Tooltip::init(SDL_Renderer *renderer, const std::string &text)
 
 	TTF_Font *font = TTF_OpenFont(config->keyboardFont.c_str(), config->keyboardFontSize);
 	SDL_Surface *textSurface;
-	SDL_Color textColor = { 255, 255, 255, 0 };
+	SDL_Color textColor = { config->inputBoxForegroundError.r, config->inputBoxForegroundError.g,
+		config->inputBoxForegroundError.b, config->inputBoxForegroundError.a };
 	textSurface = TTF_RenderText_Blended(font, text.c_str(), textColor);
 
 	SDL_Rect textRect;

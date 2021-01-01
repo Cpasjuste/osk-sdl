@@ -105,7 +105,7 @@ SDL_Surface *make_wallpaper(Config *config, int width, int height)
 SDL_Texture *circle = nullptr;
 int circleRadius = 0;
 
-void draw_circle(SDL_Renderer *renderer, SDL_Point center, int radius)
+void draw_circle(SDL_Renderer *renderer, SDL_Point center, int radius, const argb &fillColor)
 {
 	// Destroy cached texture if radius doesn't match
 	if (circle && circleRadius != radius) {
@@ -133,7 +133,7 @@ void draw_circle(SDL_Renderer *renderer, SDL_Point center, int radius)
 #endif
 
 		SDL_Surface *surface = SDL_CreateRGBSurface(0, 2 * radius, 2 * radius, 32, rmask, gmask, bmask, amask);
-		Uint32 color = SDL_MapRGB(surface->format, 229, 229, 229);
+		Uint32 color = SDL_MapRGB(surface->format, fillColor.r, fillColor.g, fillColor.b);
 		SDL_Rect rect;
 
 		int x0 = radius;
@@ -208,7 +208,7 @@ void draw_password_box_dots(SDL_Renderer *renderer, Config *config, const SDL_Re
 		} else {
 			dotPos.y = ypos;
 		}
-		draw_circle(renderer, dotPos, dotSize);
+		draw_circle(renderer, dotPos, dotSize, config->inputBoxForeground);
 	}
 	SDL_RenderSetClipRect(renderer, nullptr); // Reset clip rect
 }

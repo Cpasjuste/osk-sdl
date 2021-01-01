@@ -50,7 +50,10 @@ public:
 	argb keyBackgroundOther = parseHexString("#32363E");
 	argb keyBackgroundHighlighted = parseHexString("#FFFFFF");
 	std::string keyRadius = "0";
+	argb inputBoxForeground = parseHexString("#FFFFFF");
+	argb inputBoxForegroundError = parseHexString("#7E141A");
 	argb inputBoxBackground = parseHexString("#32363E");
+	argb inputBoxBackgroundError = parseHexString("#E76A63");
 	std::string inputBoxRadius = "0";
 	bool animations = true;
 

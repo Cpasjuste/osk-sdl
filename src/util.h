@@ -71,8 +71,9 @@ SDL_Surface *make_wallpaper(Config *config, int width, int height);
   @param renderer Initialized SDL_Renderer object
   @param center Center position of circle
   @param radius Radius of circle
+  @param fillColor Fill color of circle
  */
-void draw_circle(SDL_Renderer *renderer, SDL_Point center, int radius);
+void draw_circle(SDL_Renderer *renderer, SDL_Point center, int radius, const argb &fillColor);
 
 /**
   Handle keypresses for virtual keyboard
