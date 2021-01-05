@@ -19,13 +19,19 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "util.h"
 #include "draw_helpers.h"
+#include <getopt.h>
 #include <numeric>
 
 int fetchOpts(int argc, char **args, Opts *opts)
 {
-	int opt;
+	int opt, optIndex = 0;
 
-	while ((opt = getopt(argc, args, "td:n:c:kv")) != -1)
+	static struct option longOpts[] = {
+		{ "no-gles", no_argument, 0, 'G' },
+		{ 0, 0, 0, 0 }
+	};
+
+	while ((opt = getopt_long(argc, args, "td:n:c:kvG", longOpts, &optIndex)) != -1)
 		switch (opt) {
 		case 't':
 			opts->luksDevPath = DEFAULT_LUKSDEVPATH;
@@ -47,9 +53,12 @@ int fetchOpts(int argc, char **args, Opts *opts)
 		case 'v':
 			opts->verbose = true;
 			break;
+		case 'G':
+			opts->noGLES = true;
+			break;
 		default:
 			SDL_LogError(SDL_LOG_CATEGORY_ERROR, "Usage: osk-sdl [-t] [-k] [-d /dev/sda] [-n device_name] "
-												 "[-c /etc/osk.conf] -v");
+												 "[-c /etc/osk.conf] [-v] [-G|--no-gles]");
 			return 1;
 		}
 	if (opts->luksDevPath.empty()) {
@@ -76,6 +85,30 @@ std::string strVector2str(const std::vector<std::string> &strVector)
 		result.append(str);
 	}
 	return result;
+}
+
+int find_gles_driver_index()
+{
+	int render_driver_count = SDL_GetNumRenderDrivers();
+	if (render_driver_count < 1) {
+		SDL_LogWarn(SDL_LOG_CATEGORY_VIDEO, "Couldn't find any renderers, will fall back to default: %s", SDL_GetError());
+		return -1;
+	}
+
+	SDL_RendererInfo renderer_info;
+	for (int i = 0; i < render_driver_count; ++i) {
+		if (SDL_GetRenderDriverInfo(i, &renderer_info) != 0) {
+			SDL_LogWarn(SDL_LOG_CATEGORY_VIDEO, "Failed to get info for driver at index %i: %s", i, SDL_GetError());
+			continue;
+		}
+		if (strncmp(renderer_info.name, "opengles", strlen("opengles")) == 0) {
+			SDL_LogInfo(SDL_LOG_CATEGORY_VIDEO, "Located OpenGL ES driver at index %i", i);
+			return i;
+		}
+	}
+
+	SDL_LogWarn(SDL_LOG_CATEGORY_VIDEO, "Couldn't find OpenGL ES driver, will fall back to default");
+	return -1;
 }
 
 SDL_Surface *make_wallpaper(Config *config, int width, int height)

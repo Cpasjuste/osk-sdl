@@ -40,6 +40,9 @@ OSK-SDL is a lightweight on screen keyboard used to unlock encrypted root partit
 *-k*
 	Enable keyscript mode. Password will be output to STDOUT for use with another program such as cryptsetup-initramfs.
 
+*-G, --no-gles*
+	Do not use OpenGL ES driver unless it is the default driver
+
 # EXAMPLES
 
 *Decrypt /dev/sda1 to name "root"*

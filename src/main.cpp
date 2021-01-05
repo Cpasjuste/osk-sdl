@@ -110,7 +110,8 @@ int main(int argc, char **args)
 		exit(EXIT_FAILURE);
 	}
 
-	renderer = SDL_CreateRenderer(display, -1, 0);
+	int rendererIndex = opts.noGLES ? -1 : find_gles_driver_index();
+	renderer = SDL_CreateRenderer(display, rendererIndex, 0);
 
 	if (renderer == nullptr) {
 		SDL_LogError(SDL_LOG_CATEGORY_VIDEO, "Could not create renderer: %s", SDL_GetError());

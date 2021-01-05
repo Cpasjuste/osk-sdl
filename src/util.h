@@ -39,6 +39,7 @@ struct Opts {
 	bool testMode;
 	bool verbose;
 	bool keyscript;
+	bool noGLES;
 };
 
 /**
@@ -56,6 +57,12 @@ int fetchOpts(int argc, char **args, Opts *opts);
   @return String with all elements of strVector concatenated together
  */
 std::string strVector2str(const std::vector<std::string> &strVector);
+
+/**
+  Return the index of the OpenGL ES driver
+  @return The driver's index or -1 (the default driver) when no OpenGL ES driver can be found
+ */
+int find_gles_driver_index();
 
 /**
   Create wallpaper
