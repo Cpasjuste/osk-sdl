@@ -1,5 +1,5 @@
 /*
-Copyright (C) 2017 Martijn Braam & Clayton Craft <clayton@craftyguy.net>
+Copyright (C) 2017-2021 Martijn Braam & Clayton Craft <clayton@craftyguy.net>
 
 This file is part of osk-sdl.
 
@@ -113,6 +113,11 @@ bool Config::Read(const std::string &path)
 	it = Config::options.find("key-radius");
 	if (it != Config::options.end()) {
 		Config::keyRadius = Config::options["key-radius"];
+	}
+
+	it = Config::options.find("key-vibrate-duration");
+	if (it != Config::options.end()) {
+		Config::keyVibrateDuration = std::stoi(Config::options["key-vibrate-duration"]);
 	}
 
 	it = Config::options.find("inputbox-foreground");

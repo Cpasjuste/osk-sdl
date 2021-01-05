@@ -1,5 +1,5 @@
 /*
-Copyright (C) 2017 Martijn Braam & Clayton Craft <clayton@craftyguy.net>
+Copyright (C) 2017-2021 Martijn Braam & Clayton Craft <clayton@craftyguy.net>
 
 This file is part of osk-sdl.
 
@@ -50,6 +50,7 @@ public:
 	argb keyBackgroundOther = parseHexString("#32363E");
 	argb keyBackgroundHighlighted = parseHexString("#FFFFFF");
 	std::string keyRadius = "0";
+	int keyVibrateDuration = 100;
 	argb inputBoxForeground = parseHexString("#FFFFFF");
 	argb inputBoxForegroundError = parseHexString("#7E141A");
 	argb inputBoxBackground = parseHexString("#32363E");
