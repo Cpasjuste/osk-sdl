@@ -1,5 +1,5 @@
 /*
-Copyright (C) 2017-2020
+Copyright (C) 2017-2021
 Martijn Braam, Clayton Craft <clayton@craftyguy.net>, et al.
 
 This file is part of osk-sdl.
@@ -73,9 +73,9 @@ int main(int argc, char **args)
 
 	LuksDevice luksDev(opts.luksDevName, opts.luksDevPath);
 
+	atexit(SDL_Quit);
 	if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_EVENTS | SDL_INIT_TIMER) < 0) {
 		SDL_LogError(SDL_LOG_CATEGORY_ERROR, "SDL_Init failed: %s", SDL_GetError());
-		atexit(SDL_Quit);
 		exit(EXIT_FAILURE);
 	}
 
@@ -85,7 +85,6 @@ int main(int argc, char **args)
 		SDL_DisplayMode mode = { SDL_PIXELFORMAT_UNKNOWN, 0, 0, 0, nullptr };
 		if (SDL_GetDisplayMode(0, 0, &mode) != 0) {
 			SDL_LogError(SDL_LOG_CATEGORY_VIDEO, "SDL_GetDisplayMode failed: %s", SDL_GetError());
-			atexit(SDL_Quit);
 			exit(EXIT_FAILURE);
 		}
 		WIDTH = mode.w;
@@ -107,7 +106,6 @@ int main(int argc, char **args)
 		windowFlags);
 	if (display == nullptr) {
 		SDL_LogError(SDL_LOG_CATEGORY_VIDEO, "Could not create window/display: %s", SDL_GetError());
-		atexit(SDL_Quit);
 		exit(EXIT_FAILURE);
 	}
 
@@ -115,7 +113,6 @@ int main(int argc, char **args)
 
 	if (renderer == nullptr) {
 		SDL_LogError(SDL_LOG_CATEGORY_VIDEO, "Could not create renderer: %s", SDL_GetError());
-		atexit(SDL_Quit);
 		exit(EXIT_FAILURE);
 	}
 
@@ -130,13 +127,11 @@ int main(int argc, char **args)
 
 	if (SDL_SetRenderDrawColor(renderer, 255, 128, 0, SDL_ALPHA_OPAQUE) != 0) {
 		SDL_LogError(SDL_LOG_CATEGORY_VIDEO, "Could not set background color: %s", SDL_GetError());
-		atexit(SDL_Quit);
 		exit(EXIT_FAILURE);
 	}
 
 	if (SDL_RenderFillRect(renderer, nullptr) != 0) {
 		SDL_LogError(SDL_LOG_CATEGORY_VIDEO, "Could not fill background color: %s", SDL_GetError());
-		atexit(SDL_Quit);
 		exit(EXIT_FAILURE);
 	}
 
@@ -144,7 +139,6 @@ int main(int argc, char **args)
 	Keyboard keyboard(0, 1, WIDTH, keyboardHeight, &config);
 	if (keyboard.init(renderer)) {
 		SDL_LogError(SDL_LOG_CATEGORY_VIDEO, "Failed to initialize keyboard!");
-		atexit(SDL_Quit);
 		exit(EXIT_FAILURE);
 	}
 
@@ -171,7 +165,6 @@ int main(int argc, char **args)
 	Tooltip tooltip(inputWidth, inputHeight, inputBoxRadius, &config);
 	if (tooltip.init(renderer, ErrorText)) {
 		SDL_LogError(SDL_LOG_CATEGORY_VIDEO, "Failed to initialize tooltip!");
-		atexit(SDL_Quit);
 		exit(EXIT_FAILURE);
 	}
 
@@ -191,7 +184,6 @@ int main(int argc, char **args)
 	if (inputBoxTexture == nullptr) {
 		SDL_LogError(SDL_LOG_CATEGORY_VIDEO, "Could not create input box texture: %s",
 			SDL_GetError());
-		atexit(SDL_Quit);
 		exit(EXIT_FAILURE);
 	}
 
@@ -360,7 +352,6 @@ int main(int argc, char **args)
 
 QUIT:
 	SDL_QuitSubSystem(SDL_INIT_VIDEO | SDL_INIT_EVENTS | SDL_INIT_TIMER);
-	atexit(SDL_Quit);
 
 	if (opts.keyscript) {
 		std::string pass = strVector2str(passphrase);
