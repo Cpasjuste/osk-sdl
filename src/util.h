@@ -1,5 +1,5 @@
 /*
-Copyright (C) 2017 Martijn Braam & Clayton Craft <clayton@craftyguy.net>
+Copyright (C) 2017-2021 Martijn Braam & Clayton Craft <clayton@craftyguy.net>
 
 This file is part of osk-sdl.
 
@@ -118,4 +118,11 @@ void handleTapBegin(unsigned xTapped, unsigned yTapped, int screenHeight, Keyboa
   @param done Will be set to true if the device was unlocked, false otherwise
  */
 void handleTapEnd(unsigned xTapped, unsigned yTapped, int screenHeight, Keyboard &kbd, LuksDevice &lkd, std::vector<std::string> &passphrase, bool keyscript, bool &showPasswordError, bool &done);
+
+/**
+  Rumble a haptic device for the given duration
+  @param haptic Initialized haptic device
+  @param config Config paramters
+ */
+void hapticRumble(SDL_Haptic *haptic, Config *config);
 #endif

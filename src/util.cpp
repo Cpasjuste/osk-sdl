@@ -1,5 +1,5 @@
 /*
-Copyright (C) 2017 Martijn Braam & Clayton Craft <clayton@craftyguy.net>
+Copyright (C) 2017-2021 Martijn Braam & Clayton Craft <clayton@craftyguy.net>
 
 This file is part of osk-sdl.
 
@@ -278,5 +278,12 @@ void handleTapEnd(unsigned xTapped, unsigned yTapped, int screenHeight, Keyboard
 	std::string tapped = key.keyChar;
 	if (!lkd.unlockRunning()) {
 		done = handleVirtualKeyPress(tapped, kbd, lkd, passphrase, keyscript);
+	}
+}
+
+void hapticRumble(SDL_Haptic *haptic, Config *config)
+{
+	if (haptic && config->keyVibrateDuration) {
+		SDL_HapticRumblePlay(haptic, 1, config->keyVibrateDuration);
 	}
 }
