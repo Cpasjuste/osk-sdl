@@ -45,6 +45,7 @@ int main(int argc, char **args)
 	SDL_Event event;
 	SDL_Window *display = nullptr;
 	SDL_Renderer *renderer = nullptr;
+	SDL_Haptic *haptic = nullptr;
 	int WIDTH = 480;
 	int HEIGHT = 800;
 	std::chrono::milliseconds repeat_delay { 25 }; // Keyboard key repeat rate in ms
@@ -74,7 +75,7 @@ int main(int argc, char **args)
 	LuksDevice luksDev(opts.luksDevName, opts.luksDevPath);
 
 	atexit(SDL_Quit);
-	if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_EVENTS | SDL_INIT_TIMER) < 0) {
+	if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_EVENTS | SDL_INIT_TIMER | SDL_INIT_HAPTIC) < 0) {
 		SDL_LogError(SDL_LOG_CATEGORY_ERROR, "SDL_Init failed: %s", SDL_GetError());
 		exit(EXIT_FAILURE);
 	}
@@ -146,6 +147,18 @@ int main(int argc, char **args)
 	if (SDL_ShowCursor(opts.testMode) < 0) {
 		SDL_LogWarn(SDL_LOG_CATEGORY_VIDEO, "Setting cursor visibility failed: %s", SDL_GetError());
 		// Not stopping here, this is a pretty recoverable error.
+	}
+
+	// Initialize haptic device
+	haptic = SDL_HapticOpen(0);
+	if (haptic == nullptr) {
+		SDL_LogInfo(SDL_LOG_CATEGORY_SYSTEM, "Unable to open haptic device");
+	} else if (SDL_HapticRumbleInit(haptic) != 0) {
+		SDL_LogInfo(SDL_LOG_CATEGORY_SYSTEM, "Unable to initialize haptic device");
+		SDL_HapticClose(haptic);
+		haptic = nullptr;
+	} else {
+		SDL_LogInfo(SDL_LOG_CATEGORY_SYSTEM, "Initialized haptic device");
 	}
 
 	// Make SDL send text editing events for textboxes
@@ -239,6 +252,7 @@ int main(int argc, char **args)
 				auto xTouch = static_cast<unsigned>(event.tfinger.x * WIDTH);
 				auto yTouch = static_cast<unsigned>(event.tfinger.y * HEIGHT);
 				handleTapBegin(xTouch, yTouch, HEIGHT, keyboard);
+				hapticRumble(haptic, &config);
 				SDL_PushEvent(&renderEvent);
 				break; // SDL_FINGERDOWN
 			}
@@ -252,6 +266,7 @@ int main(int argc, char **args)
 				// handle the mouse
 			case SDL_MOUSEBUTTONDOWN: {
 				handleTapBegin(event.button.x, event.button.y, HEIGHT, keyboard);
+				hapticRumble(haptic, &config);
 				SDL_PushEvent(&renderEvent);
 				break; // SDL_MOUSEBUTTONDOWN
 			}
@@ -351,7 +366,7 @@ int main(int argc, char **args)
 	} // main loop
 
 QUIT:
-	SDL_QuitSubSystem(SDL_INIT_VIDEO | SDL_INIT_EVENTS | SDL_INIT_TIMER);
+	SDL_QuitSubSystem(SDL_INIT_VIDEO | SDL_INIT_EVENTS | SDL_INIT_TIMER | SDL_INIT_HAPTIC);
 
 	if (opts.keyscript) {
 		std::string pass = strVector2str(passphrase);
