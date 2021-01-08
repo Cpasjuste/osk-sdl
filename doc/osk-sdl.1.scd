@@ -16,7 +16,7 @@ OSK-SDL is a lightweight on screen keyboard used to unlock encrypted root partit
 
 ## Mandatory
 
-*-t*
+*-t, --testmode*
 	Run in test mode, do not attempt to initialise the whole screen.
 
 *-d <path>*
@@ -34,10 +34,10 @@ OSK-SDL is a lightweight on screen keyboard used to unlock encrypted root partit
 *-c <path>*
 	Locaton of the osk-sdl config file. Defaults to "/etc/osk.conf".
 
-*-v*
+*-v, --verbose*
 	Enable verbose output
 
-*-k*
+*-k, --keyscript*
 	Enable keyscript mode. Password will be output to STDOUT for use with another program such as cryptsetup-initramfs.
 
 *-G, --no-gles*

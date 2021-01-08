@@ -27,6 +27,9 @@ int fetchOpts(int argc, char **args, Opts *opts)
 	int opt, optIndex = 0;
 
 	static struct option longOpts[] = {
+		{ "testmode", no_argument, 0, 't' },
+		{ "keyscript", no_argument, 0, 'k' },
+		{ "verbose", no_argument, 0, 'v' },
 		{ "no-gles", no_argument, 0, 'G' },
 		{ 0, 0, 0, 0 }
 	};
@@ -57,8 +60,8 @@ int fetchOpts(int argc, char **args, Opts *opts)
 			opts->noGLES = true;
 			break;
 		default:
-			SDL_LogError(SDL_LOG_CATEGORY_ERROR, "Usage: osk-sdl [-t] [-k] [-d /dev/sda] [-n device_name] "
-												 "[-c /etc/osk.conf] [-v] [-G|--no-gles]");
+			SDL_LogError(SDL_LOG_CATEGORY_ERROR, "Usage: osk-sdl [-t|--testmode] [-k|--keyscript] [-d /dev/sda] [-n device_name] "
+												 "[-c /etc/osk.conf] [-v|--verbose] [-G|--no-gles]");
 			return 1;
 		}
 	if (opts->luksDevPath.empty()) {
