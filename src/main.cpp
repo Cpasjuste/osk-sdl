@@ -371,7 +371,8 @@ QUIT:
 
 	if (opts.keyscript) {
 		std::string pass = strVector2str(passphrase);
-		SDL_LogInfo(SDL_LOG_CATEGORY_INPUT, "%s", pass.c_str());
+		printf("%s", pass.c_str());
+		fflush(stdout);
 	}
 	return 0;
 }
