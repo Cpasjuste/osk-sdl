@@ -55,3 +55,6 @@ directories:
 	@mkdir -p ./obj
 	@mkdir -p ./bin
 
+check:
+	# Note: tests depend on a specific screen size!
+	@xvfb-run -s "-ac -screen 0 480x800x24" sh ./test/test_functional.sh
