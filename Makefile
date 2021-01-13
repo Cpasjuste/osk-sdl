@@ -1,5 +1,5 @@
 TARGET     := osk-sdl
-VERSION	   := 0.62
+VERSION	   := 0.62.1
 
 SDL2_CFLAGS := $(shell sdl2-config --cflags)
 SDL2_LIBS  := $(shell sdl2-config --libs)
