@@ -35,9 +35,20 @@ static-analysis:
 build::amd64:
   <<: *only-default
   before_script:
-    - apk -q add build-base linux-headers sdl2-dev sdl2_ttf-dev cryptsetup-dev scdoc
+    - apk -q add
+        build-base
+        cryptsetup-dev
+        linux-headers
+        mesa-dri-gallium
+        scdoc
+        sdl2-dev
+        sdl2_ttf-dev
+        ttf-dejavu
+        xdotool
+        xvfb-run
   script:
     - make -j5
+    - make check
   artifacts:
     paths:
       - bin/
