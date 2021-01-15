@@ -158,6 +158,53 @@ test_keyscript_phys() {
 	check_result "$result_file" "$expected"
 }
 
+
+##################################################
+# Test luks unlocking
+##################################################
+test_luks_phys() {
+	echo "** Testing luks unlocking with 'physical' key input"
+	local test_disk="test/luks.disk"
+	local passphrase="postmarketOS"
+	local result_file="/tmp/osk_sdl_test_phys_luks_$DISPLAY"
+	local osk_pid
+	local retval=0
+
+	# create test luks disk
+	qemu-img create -f raw "$test_disk" 20M 1>/dev/null
+	echo "$passphrase" | sudo cryptsetup --iter-time=1 luksFormat "$test_disk"
+
+	# run osk-sdl
+	osk_pid="$(run_osk_sdl true "$result_file" "-n osk-sdl-test -d $test_disk")"
+	sleep 3
+
+	# run test
+	xdotool type --delay 300 "$passphrase"
+	xdotool key Return
+	sleep 3
+	kill -9 "$osk_pid" 2>/dev/null || true
+
+	# check result
+	if [ ! -b /dev/mapper/osk-sdl-test ]; then
+		echo "ERROR: Decrypted test device not created!"
+		retval=1
+	else
+		echo "Success!"
+	fi
+
+	# clean up
+	sudo cryptsetup close osk-sdl-test || true
+	rm $test_disk || true
+
+	return $retval
+}
+
+test_keyscript_phys
 test_keyscript_mouse_letters
 test_keyscript_mouse_symbols
-test_keyscript_phys
+
+# This test requires a privileged user (for devicemapper), and so should not
+# run in a CI. The CI_JOB_ID var is set by gitlab's CI.
+if [ -z "$CI_JOB_ID" ]; then
+	test_luks_phys
+fi
