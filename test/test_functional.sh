@@ -56,13 +56,23 @@ mouse_click_symbols() {
 	xdotool mousemove 463 766 click 1
 }
 
-# $1: output file for stdout/stderr
-# $2: additional opts for osk_sdl
+# $1: set to true to run with sudo, else false
+# $2: output file for stdout/stderr
+# $3: additional opts for osk_sdl
 # returns: PID
 run_osk_sdl() {
-	# shellcheck disable=SC2086
-	./bin/osk-sdl -n test_disk -d test/luks.disk -c osk.conf $2 2>"$1" 1>&2 &
-	echo $!
+	local use_sudo="$1"
+	local out_file="$2"
+	local opts="$3 -c osk.conf"
+	if [ "$use_sudo" = true ]; then
+		# shellcheck disable=SC2086
+		sudo ./bin/osk-sdl $opts 2>"$out_file" 1>&2 &
+		echo $!
+	else
+		# shellcheck disable=SC2086
+		./bin/osk-sdl $opts 2>"$out_file" 1>&2 &
+		echo $!
+	fi
 }
 
 # $1: result file to read from
@@ -95,7 +105,7 @@ test_keyscript_mouse_letters() {
 	local expected="qwerty"
 	local result_file="/tmp/osk_sdl_test_mouse_keyscript_$DISPLAY"
 	local osk_pid
-	osk_pid="$(run_osk_sdl "$result_file" "-k")"
+	osk_pid="$(run_osk_sdl false "$result_file" "-k -n test_disk -d test/luks.disk")"
 	sleep 3
 
 	# run test
@@ -115,7 +125,7 @@ test_keyscript_mouse_symbols() {
 	local expected="@#π48"
 	local result_file="/tmp/osk_sdl_test_mouse_keyscript_$DISPLAY"
 	local osk_pid
-	osk_pid="$(run_osk_sdl "$result_file" "-k")"
+	osk_pid="$(run_osk_sdl false "$result_file" "-k -n test_disk -d test/luks.disk")"
 	sleep 3
 
 	# run test
@@ -135,7 +145,7 @@ test_keyscript_phys() {
 	local result_file="/tmp/osk_sdl_test_phys_keyscript_$DISPLAY"
 	local expected="postmarketOS"
 	local osk_pid
-	osk_pid="$(run_osk_sdl "$result_file" "-k")"
+	osk_pid="$(run_osk_sdl false "$result_file" "-k -n test_disk -d test/luks.disk")"
 	sleep 3
 
 	# run test
