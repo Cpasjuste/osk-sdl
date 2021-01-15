@@ -121,7 +121,9 @@ int main(int argc, char **args)
 	int keyboardHeight = HEIGHT / 3 * 2;
 	if (HEIGHT > WIDTH) {
 		// Keyboard height is screen width / max number of keys per row * rows
-		keyboardHeight = WIDTH / 2;
+		// Denominator below chosen to provide enough room for a 5 row layout without causing key height to
+		// shrink too much
+		keyboardHeight = WIDTH / 1.6;
 	}
 
 	int inputWidth = static_cast<int>(WIDTH * 0.9);
