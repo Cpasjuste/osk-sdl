@@ -199,6 +199,9 @@ test_luks_phys() {
 	return $retval
 }
 
+# make sure osk-sdl uses X and not some other video backend for testing
+export SDL_VIDEODRIVER=x11
+
 test_keyscript_phys
 test_keyscript_mouse_letters
 test_keyscript_mouse_symbols
