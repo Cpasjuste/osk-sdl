@@ -75,7 +75,19 @@ int main(int argc, char **args)
 	LuksDevice luksDev(opts.luksDevName, opts.luksDevPath);
 
 	atexit(SDL_Quit);
-	if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_EVENTS | SDL_INIT_TIMER | SDL_INIT_HAPTIC) < 0) {
+	Uint32 sdlFlags = SDL_INIT_VIDEO | SDL_INIT_EVENTS | SDL_INIT_TIMER;
+
+	/*
+	 * DirectFB does not work with haptic feedback, so disable it if using
+	 * the DirectFB backend
+	 */
+	if (isDirectFB()) {
+		SDL_LogInfo(SDL_LOG_CATEGORY_SYSTEM, "Using directfb, not enabling haptic feedback.");
+	} else {
+		sdlFlags |= SDL_INIT_HAPTIC;
+	}
+
+	if (SDL_Init(sdlFlags) < 0) {
 		SDL_LogError(SDL_LOG_CATEGORY_ERROR, "SDL_Init failed: %s", SDL_GetError());
 		exit(EXIT_FAILURE);
 	}
@@ -153,15 +165,17 @@ int main(int argc, char **args)
 	}
 
 	// Initialize haptic device
-	haptic = SDL_HapticOpen(0);
-	if (haptic == nullptr) {
-		SDL_LogInfo(SDL_LOG_CATEGORY_SYSTEM, "Unable to open haptic device");
-	} else if (SDL_HapticRumbleInit(haptic) != 0) {
-		SDL_LogInfo(SDL_LOG_CATEGORY_SYSTEM, "Unable to initialize haptic device");
-		SDL_HapticClose(haptic);
-		haptic = nullptr;
-	} else {
-		SDL_LogInfo(SDL_LOG_CATEGORY_SYSTEM, "Initialized haptic device");
+	if (SDL_WasInit(SDL_INIT_HAPTIC) != 0) {
+		haptic = SDL_HapticOpen(0);
+		if (haptic == nullptr) {
+			SDL_LogInfo(SDL_LOG_CATEGORY_SYSTEM, "Unable to open haptic device");
+		} else if (SDL_HapticRumbleInit(haptic) != 0) {
+			SDL_LogInfo(SDL_LOG_CATEGORY_SYSTEM, "Unable to initialize haptic device");
+			SDL_HapticClose(haptic);
+			haptic = nullptr;
+		} else {
+			SDL_LogInfo(SDL_LOG_CATEGORY_SYSTEM, "Initialized haptic device");
+		}
 	}
 
 	// Make SDL send text editing events for textboxes
