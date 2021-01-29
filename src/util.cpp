@@ -226,7 +226,11 @@ void draw_password_box_dots(SDL_Renderer *renderer, Config *config, const SDL_Re
 	int dotSize = static_cast<int>(inputRect.h / 5);
 	int padding = static_cast<int>(inputRect.h / 2);
 	int offset = 0;
-	SDL_RenderSetClipRect(renderer, &inputRect); // Prevent drawing outside the input bounds
+	/*
+	 * NOTE: Clipping is not used with DirectFB since SetClip() seems to be broken(??) on DirectFB
+	 */
+	if (!isDirectFB())
+		SDL_RenderSetClipRect(renderer, &inputRect); // Prevent drawing outside the input bounds
 	for (int i = numDots - 1; i >= 0; i--) {
 		SDL_Point dotPos;
 		dotPos.x = inputRect.x + padding + (i * dotSize * 3) - offset;
@@ -246,7 +250,8 @@ void draw_password_box_dots(SDL_Renderer *renderer, Config *config, const SDL_Re
 		}
 		draw_circle(renderer, dotPos, dotSize, config->inputBoxForeground);
 	}
-	SDL_RenderSetClipRect(renderer, nullptr); // Reset clip rect
+	if (!isDirectFB())
+		SDL_RenderSetClipRect(renderer, nullptr); // Reset clip rect
 }
 
 bool handleVirtualKeyPress(const std::string &tapped, Keyboard &kbd, LuksDevice &lkd,
