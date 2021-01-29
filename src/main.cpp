@@ -377,6 +377,8 @@ int main(int argc, char **args)
 						// Luks is finished and the password was wrong
 						showPasswordError = true;
 						passphrase.clear();
+						// Show default keyboard layer again on wrong passphrase
+						keyboard.setActiveLayer(0);
 						SDL_PushEvent(&renderEvent);
 					}
 					lastUnlockingState = luksDev.unlockRunning();
