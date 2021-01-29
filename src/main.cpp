@@ -122,7 +122,15 @@ int main(int argc, char **args)
 		exit(EXIT_FAILURE);
 	}
 
-	int rendererIndex = opts.noGLES ? -1 : find_gles_driver_index();
+	/*
+	  * Prefer using GLES, since it's better supported on mobile devices
+	  * than full GL.
+	  * NOTE: DirectFB's SW GLES implementation is broken, so don't try to
+	  * use GLES w/ DirectFB
+	  */
+	int rendererIndex = -1;
+	if (!opts.noGLES && !isDirectFB())
+		rendererIndex = find_gles_driver_index();
 	renderer = SDL_CreateRenderer(display, rendererIndex, 0);
 
 	if (renderer == nullptr) {
