@@ -323,3 +323,17 @@ void hapticRumble(SDL_Haptic *haptic, Config *config)
 		SDL_HapticRumblePlay(haptic, 1, config->keyVibrateDuration);
 	}
 }
+
+bool isDirectFB()
+{
+	char *sdlVideoEnv = getenv("SDL_VIDEODRIVER");
+	if (sdlVideoEnv && strncmp(sdlVideoEnv, "directfb", strlen("directfb")) == 0) {
+		return true;
+	}
+
+	const char *sdlCurDriver = SDL_GetCurrentVideoDriver();
+	if (sdlCurDriver && strncmp(sdlCurDriver, "directfb", strlen("directfb")) == 0) {
+		return true;
+	}
+	return false;
+}
