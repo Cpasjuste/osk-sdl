@@ -48,6 +48,9 @@ OSK-SDL is a lightweight on screen keyboard used to unlock encrypted root partit
 *Decrypt /dev/sda1 to name "root"*
 	osk-sdl -d /dev/sda1 -n root -c /etc/osk.conf
 
+# SEE ALSO
+	*osk.conf*(5)
+
 # AUTHORS
 
 *Undef* <debian@undef.tools>
