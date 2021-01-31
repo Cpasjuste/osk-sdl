@@ -120,6 +120,11 @@ bool Config::Read(const std::string &path)
 		Config::keyVibrateDuration = std::stoi(Config::options["key-vibrate-duration"]);
 	}
 
+	it = Config::options.find("key-preview-popup");
+	if (it != Config::options.end()) {
+		Config::keyPreview = (Config::options["key-preview-popup"] == "true");
+	}
+
 	it = Config::options.find("inputbox-foreground");
 	if (it != Config::options.end()) {
 		std::string hex = Config::options["inputbox-foreground"];

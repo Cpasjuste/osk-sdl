@@ -51,6 +51,7 @@ public:
 	argb keyBackgroundHighlighted = parseHexString("#FFFFFF");
 	std::string keyRadius = "0";
 	int keyVibrateDuration = 100;
+	bool keyPreview = true;
 	argb inputBoxForeground = parseHexString("#FFFFFF");
 	argb inputBoxForegroundError = parseHexString("#7E141A");
 	argb inputBoxBackground = parseHexString("#32363E");
