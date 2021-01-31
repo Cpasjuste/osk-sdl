@@ -28,7 +28,7 @@ else
 	E := @echo
 endif
 
-all: directories $(BIN_DIR)/$(TARGET) $(DOC_DIR)/osk-sdl.1
+all: directories $(BIN_DIR)/$(TARGET) $(DOC_DIR)/osk-sdl.1 $(DOC_DIR)/osk.conf.5
 
 $(OBJ_DIR)/%.o: $(SRC_DIR)/%.cpp
 	$(E) CC $<
@@ -44,6 +44,12 @@ $(DOC_DIR)/osk-sdl.1:
 	$(Q)$(DOCB) < $@.scd > $@
 	$(Q)sed -i "s:$(VERSION):@@VERSION@@:" $@.scd
 
+$(DOC_DIR)/osk.conf.5:
+	$(Q)sed -i "s:@@VERSION@@:$(VERSION):" $@.scd
+	$(E) SCDOC $<.scd
+	$(Q)$(DOCB) < $@.scd > $@
+	$(Q)sed -i "s:$(VERSION):@@VERSION@@:" $@.scd
+
 .PHONY: clean
 
 .PHONY: directories
@@ -51,6 +57,7 @@ $(DOC_DIR)/osk-sdl.1:
 clean:
 	-rm -rfv $(OBJ_DIR) $(BIN_DIR)
 	-rm -rfv $(DOC_DIR)/osk-sdl.1
+	-rm -rfv $(DOC_DIR)/osk.conf.5
 
 directories:
 	@mkdir -p ./obj
@@ -64,3 +71,4 @@ install:
 	install -Dm755 bin/osk-sdl 	"$(DESTDIR)/usr/bin/osk-sdl"
 	install -Dm644 osk.conf 	"$(DESTDIR)/etc/osk.conf"
 	install -Dm644 doc/osk-sdl.1 	"$(DESTDIR)/usr/share/man/man1/osk-sdl.1"
+	install -Dm644 doc/osk.conf.5 	"$(DESTDIR)/usr/share/man/man5/osk.conf.5"
