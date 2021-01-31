@@ -338,7 +338,7 @@ SDL_Surface *Keyboard::makeKeyboard(KeyboardLayer *layer, bool isHighlighted) co
 			x = keyboardWidth / 20 + colw * 2;
 		argb keyBackground = i == 0 ? keyBackgroundOther : keyBackgroundLetter;
 		drawRow(surface, layer->keyVector, x, y, rowKeyWidth,
-			rowHeight, layer->rows[i], keyboardWidth / 100, font, isHighlighted, true, keyForeground, keyBackground);
+			rowHeight, layer->rows[i], keyboardWidth / 100, font, isHighlighted, config->keyPreview, keyForeground, keyBackground);
 		y += rowHeight;
 		i++;
 	}
@@ -387,7 +387,7 @@ SDL_Surface *Keyboard::makeKeyboard(KeyboardLayer *layer, bool isHighlighted) co
 
 	char period[] = ".";
 	drawKey(surface, layer->keyVector, colw * 13, y, colw * 2, rowHeight,
-		period, KEYCAP_PERIOD, keyboardWidth / 100, font, isHighlighted, true, keyForeground, keyBackgroundOther);
+		period, KEYCAP_PERIOD, keyboardWidth / 100, font, isHighlighted, config->keyPreview, keyForeground, keyBackgroundOther);
 
 	char enter[] = "OK";
 	drawKey(surface, layer->keyVector, colw * 15, y, colw * 5, rowHeight,
