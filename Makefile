@@ -15,6 +15,7 @@ SRC_DIR    := src
 BIN_DIR    := bin
 OBJ_DIR    := obj
 DOC_DIR	   := doc
+DESTDIR    :=
 
 SOURCES    := ${wildcard $(SRC_DIR)/*.cpp}
 OBJECTS    := $(SOURCES:$(SRC_DIR)/%.cpp=$(OBJ_DIR)/%.o)
@@ -58,3 +59,8 @@ directories:
 check:
 	# Note: tests depend on a specific screen size!
 	@xvfb-run -s "-ac -screen 0 480x800x24" sh ./test/test_functional.sh
+
+install:
+	install -Dm755 bin/osk-sdl 	"$(DESTDIR)/usr/bin/osk-sdl"
+	install -Dm644 osk.conf 	"$(DESTDIR)/etc/osk.conf"
+	install -Dm644 doc/osk-sdl.1 	"$(DESTDIR)/usr/share/man/man1/osk-sdl.1"
