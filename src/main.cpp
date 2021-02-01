@@ -67,6 +67,8 @@ int main(int argc, char **args)
 		SDL_LogSetAllPriority(SDL_LOG_PRIORITY_INFO);
 	}
 
+	SDL_LogInfo(SDL_LOG_CATEGORY_SYSTEM, "osk-sdl v%s", VERSION);
+
 	if (!config.Read(opts.confPath)) {
 		SDL_LogError(SDL_LOG_CATEGORY_ERROR, "No valid config file specified, use -c [path]");
 		exit(EXIT_FAILURE);
