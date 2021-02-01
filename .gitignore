@@ -1,5 +1,5 @@
 /go.sh
 /.vscode/
-/bin
-/obj
 /doc/*\.?
+/_build
+/build
