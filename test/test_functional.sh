@@ -163,6 +163,16 @@ test_keyscript_phys() {
 # Test luks unlocking
 ##################################################
 test_luks_phys() {
+	# This test requires a privileged user (root, for devicemapper)
+	if [ "$(whoami)" != "root" ]; then
+		echo "This test requires elevated privileges, skipping."
+		exit 77
+	# CI_JOB_ID is set by gitlab CI
+	elif [ "$CI_JOB_ID" ]; then
+		echo "This test does not work in the gitlab CI, skipping."
+		exit 77
+	fi
+
 	echo "** Testing luks unlocking with 'physical' key input"
 	local test_disk="test/luks.disk"
 	local passphrase="postmarketOS"
@@ -215,9 +225,3 @@ export SDL_VIDEODRIVER=x11
 test_keyscript_phys
 test_keyscript_mouse_letters
 test_keyscript_mouse_symbols
-
-# This test requires a privileged user (for devicemapper), and so should not
-# run in a CI. The CI_JOB_ID var is set by gitlab's CI.
-if [ -z "$CI_JOB_ID" ]; then
-	test_luks_phys
-fi
