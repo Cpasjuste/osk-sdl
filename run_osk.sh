@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-# Copyright (C) 2017 Clayton Craft <clayton@craftyguy.net>
+# Copyright (C) 2017-2021 Clayton Craft <clayton@craftyguy.net>
 # This file is part of osk-sdl.
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -17,15 +17,18 @@
 export TSLIB_TSDEVICE=/dev/input/event3
 export DFBARGS=system=fbdev,no-cursor,disable-module=linux_input
 export TERM=xterm
-export osk_cmd="./bin/osk-sdl -d a -n a -c osk.conf"
+
+builddir=_build
+export osk_cmd="./$builddir/osk-sdl -d a -n a -c osk.conf"
 
 echo "WARNING: This script is meant to assist with debugging osk-sdl and NOT"
 echo "for unlocking rootfs!"
 
-make
+[ ! -d "$builddir" ] && meson "$builddir"
+meson compile -C "$builddir"
 
 if [ "$1" = 'g' ]; then
-  sudo -E gdb --args ${osk_cmd}
+  gdb --args "${osk_cmd}"
 else
-  sudo -E ${osk_cmd}
+  "${osk_cmd}"
 fi
