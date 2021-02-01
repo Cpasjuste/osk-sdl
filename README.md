@@ -19,4 +19,11 @@ $ meson compile -C _build
 ```
 
 ### Tests:
-Functional tests can be run with `make check`, which will use `xvfb-run`. Mesa w/ swrast is needed if running on a headless system (e.g., a CI).
+
+Functional tests require `xvfb-run`. Mesa w/ swrast is needed if running on a headless system (e.g., a CI).
+
+```
+$ meson test -C _build
+```
+
+Note: Tests which require elevated privileges will be skipped.
