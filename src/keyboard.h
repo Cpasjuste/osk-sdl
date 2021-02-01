@@ -1,5 +1,5 @@
 /*
-Copyright (C) 2017 Martijn Braam & Clayton Craft <clayton@craftyguy.net>
+Copyright (C) 2017-2021 Martijn Braam & Clayton Craft <clayton@craftyguy.net>
 
 This file is part of osk-sdl.
 
@@ -70,8 +70,9 @@ public:
 	  @param width Width to draw keyboard
 	  @param height Height to draw keyboard
 	  @param config Pointer to Config
+	  @param haptic Haptic device to rumble on key press
 	  */
-	Keyboard(int pos, int targetPos, int width, int height, Config *config);
+	Keyboard(int pos, int targetPos, int width, int height, Config *config, SDL_Haptic *haptic);
 	/**
 	  Get the character/key at the given coordinates
 	  @param x X-axis coordinate
@@ -139,6 +140,10 @@ public:
 	  Query whether keyboard is currently sliding up/down.
 	  */
 	bool isInSlideAnimation() const;
+	/**
+	  Rumble the haptic device associated with the keyboard
+	  */
+	void hapticRumble();
 
 private:
 	int keyRadius = 0;
@@ -152,6 +157,7 @@ private:
 	Config *config;
 	touchArea highlightedKey = { "", false, 0, 0, 0, 0 };
 	bool isKeyHighlighted = false;
+	SDL_Haptic *haptic;
 
 	/**
 	  Draw keyboard row

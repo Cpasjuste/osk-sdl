@@ -159,13 +159,6 @@ int main(int argc, char **args)
 		exit(EXIT_FAILURE);
 	}
 
-	// Initialize virtual keyboard
-	Keyboard keyboard(0, 1, WIDTH, keyboardHeight, &config);
-	if (keyboard.init(renderer)) {
-		SDL_LogError(SDL_LOG_CATEGORY_VIDEO, "Failed to initialize keyboard!");
-		exit(EXIT_FAILURE);
-	}
-
 	// Disable mouse cursor if not in testmode
 	if (SDL_ShowCursor(opts.testMode) < 0) {
 		SDL_LogWarn(SDL_LOG_CATEGORY_VIDEO, "Setting cursor visibility failed: %s", SDL_GetError());
@@ -184,6 +177,13 @@ int main(int argc, char **args)
 		} else {
 			SDL_LogInfo(SDL_LOG_CATEGORY_SYSTEM, "Initialized haptic device");
 		}
+	}
+
+	// Initialize virtual keyboard
+	Keyboard keyboard(0, 1, WIDTH, keyboardHeight, &config, haptic);
+	if (keyboard.init(renderer)) {
+		SDL_LogError(SDL_LOG_CATEGORY_VIDEO, "Failed to initialize keyboard!");
+		exit(EXIT_FAILURE);
 	}
 
 	// Make SDL send text editing events for textboxes

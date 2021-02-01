@@ -1,5 +1,5 @@
 /*
-Copyright (C) 2017-2020
+Copyright (C) 2017-2021
 Martijn Braam, Clayton Craft <clayton@craftyguy.net>, et al.
 
 This file is part of osk-sdl.
@@ -21,12 +21,13 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "keyboard.h"
 #include "draw_helpers.h"
 
-Keyboard::Keyboard(int pos, int targetPos, int width, int height, Config *config)
+Keyboard::Keyboard(int pos, int targetPos, int width, int height, Config *config, SDL_Haptic *haptic)
 	: position(static_cast<float>(pos))
 	, targetPosition(static_cast<float>(targetPos))
 	, keyboardWidth(width)
 	, keyboardHeight(height)
 	, config(config)
+	, haptic(haptic)
 {
 	lastAnimTicks = SDL_GetTicks();
 }
@@ -496,4 +497,11 @@ void Keyboard::unsetHighlightedKey()
 touchArea Keyboard::getHighlightedKey()
 {
 	return highlightedKey;
+}
+
+void Keyboard::hapticRumble()
+{
+	if (haptic && config->keyVibrateDuration) {
+		SDL_HapticRumblePlay(haptic, 1, config->keyVibrateDuration);
+	}
 }
