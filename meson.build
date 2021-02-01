@@ -46,7 +46,7 @@ foreach file : man_files
 	)
 endforeach
 
-executable(
+osk_sdl_exe = executable(
 	'osk-sdl',
 	src,
 	dependencies : [
@@ -56,3 +56,5 @@ executable(
 	],
 	install : true
 )
+
+subdir('test')
