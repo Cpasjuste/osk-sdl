@@ -39,6 +39,7 @@ build::amd64:
         build-base
         cryptsetup-dev
         linux-headers
+        meson
         mesa-dri-gallium
         scdoc
         sdl2-dev
@@ -47,8 +48,10 @@ build::amd64:
         xdotool
         xvfb-run
   script:
-    - make -j5
-    - make check
+    - meson _build
+    - meson compile -C _build
+    - meson test -C _build --print-errorlogs
+
   artifacts:
     paths:
-      - bin/
+      - _build/
