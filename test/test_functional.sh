@@ -222,6 +222,23 @@ fi
 # make sure osk-sdl uses X and not some other video backend for testing
 export SDL_VIDEODRIVER=x11
 
-test_keyscript_phys
-test_keyscript_mouse_letters
-test_keyscript_mouse_symbols
+case "$1" in
+	test_keyscript_phys)
+		test_keyscript_phys
+		;;
+	test_keyscript_mouse_letters)
+		test_keyscript_phys
+		;;
+	test_keyscript_mouse_symbols)
+		test_keyscript_phys
+		;;
+	test_luks_phys)
+		test_luks_phys
+		;;
+	*)
+		test_keyscript_phys
+		test_keyscript_mouse_letters
+		test_keyscript_mouse_symbols
+		test_luks_phys
+		;;
+esac
