@@ -277,7 +277,6 @@ int main(int argc, char **args)
 				auto xTouch = static_cast<unsigned>(event.tfinger.x * WIDTH);
 				auto yTouch = static_cast<unsigned>(event.tfinger.y * HEIGHT);
 				handleTapBegin(xTouch, yTouch, HEIGHT, keyboard);
-				hapticRumble(haptic, &config);
 				SDL_PushEvent(&renderEvent);
 				break; // SDL_FINGERDOWN
 			}
@@ -291,7 +290,6 @@ int main(int argc, char **args)
 				// handle the mouse
 			case SDL_MOUSEBUTTONDOWN: {
 				handleTapBegin(event.button.x, event.button.y, HEIGHT, keyboard);
-				hapticRumble(haptic, &config);
 				SDL_PushEvent(&renderEvent);
 				break; // SDL_MOUSEBUTTONDOWN
 			}

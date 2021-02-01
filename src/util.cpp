@@ -304,6 +304,9 @@ void handleTapBegin(unsigned xTapped, unsigned yTapped, int screenHeight, Keyboa
 	int offsetYTapped = yTapped - static_cast<int>(screenHeight - (kbd.getHeight() * kbd.getPosition()));
 	touchArea key = kbd.getKeyForCoordinates(xTapped, offsetYTapped);
 	kbd.setHighlightedKey(key);
+	// only rumble if an actual key was tapped
+	if (!key.keyChar.empty())
+		kbd.hapticRumble();
 }
 
 void handleTapEnd(unsigned xTapped, unsigned yTapped, int screenHeight, Keyboard &kbd, LuksDevice &lkd, std::vector<std::string> &passphrase, bool keyscript, bool &showPasswordError, bool &done)
@@ -319,13 +322,6 @@ void handleTapEnd(unsigned xTapped, unsigned yTapped, int screenHeight, Keyboard
 	std::string tapped = key.keyChar;
 	if (!lkd.unlockRunning()) {
 		done = handleVirtualKeyPress(tapped, kbd, lkd, passphrase, keyscript);
-	}
-}
-
-void hapticRumble(SDL_Haptic *haptic, Config *config)
-{
-	if (haptic && config->keyVibrateDuration) {
-		SDL_HapticRumblePlay(haptic, 1, config->keyVibrateDuration);
 	}
 }
 
