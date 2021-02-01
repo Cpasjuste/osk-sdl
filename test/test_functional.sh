@@ -63,14 +63,14 @@ mouse_click_symbols() {
 run_osk_sdl() {
 	local use_sudo="$1"
 	local out_file="$2"
-	local opts="$3 -c osk.conf"
+	local opts="$3 -c $OSK_SDL_CONF_PATH"
 	if [ "$use_sudo" = true ]; then
 		# shellcheck disable=SC2086
-		sudo ./bin/osk-sdl $opts 2>"$out_file" 1>&2 &
+		sudo "$OSK_SDL_EXE_PATH" $opts 2>"$out_file" 1>&2 &
 		echo $!
 	else
 		# shellcheck disable=SC2086
-		./bin/osk-sdl $opts 2>"$out_file" 1>&2 &
+		"$OSK_SDL_EXE_PATH" $opts 2>"$out_file" 1>&2 &
 		echo $!
 	fi
 }
@@ -198,6 +198,16 @@ test_luks_phys() {
 
 	return $retval
 }
+
+if [ -z "$OSK_SDL_EXE_PATH" ]; then
+	echo "\$OSK_SDL_EXE_PATH must be set to the path of the osk-sdl binary to test"
+	exit 1
+fi
+
+if [ -z "$OSK_SDL_CONF_PATH" ]; then
+	echo "\$OSK_SDL_CONF_PATH must be set to the path of the osk.conf to use in testing"
+	exit 1
+fi
 
 # make sure osk-sdl uses X and not some other video backend for testing
 export SDL_VIDEODRIVER=x11
