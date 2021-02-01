@@ -31,10 +31,11 @@ int fetchOpts(int argc, char **args, Opts *opts)
 		{ "keyscript", no_argument, 0, 'k' },
 		{ "verbose", no_argument, 0, 'v' },
 		{ "no-gles", no_argument, 0, 'G' },
+		{ "version", no_argument, 0, 'V' },
 		{ 0, 0, 0, 0 }
 	};
 
-	while ((opt = getopt_long(argc, args, "td:n:c:kvG", longOpts, &optIndex)) != -1)
+	while ((opt = getopt_long(argc, args, "td:n:c:kvGV", longOpts, &optIndex)) != -1)
 		switch (opt) {
 		case 't':
 			opts->luksDevPath = DEFAULT_LUKSDEVPATH;
@@ -59,6 +60,9 @@ int fetchOpts(int argc, char **args, Opts *opts)
 		case 'G':
 			opts->noGLES = true;
 			break;
+		case 'V':
+			SDL_Log("osk-sdl v%s", VERSION);
+			exit(0);
 		default:
 			SDL_LogError(SDL_LOG_CATEGORY_ERROR, "Usage: osk-sdl [-t|--testmode] [-k|--keyscript] [-d /dev/sda] [-n device_name] "
 												 "[-c /etc/osk.conf] [-v|--verbose] [-G|--no-gles]");
