@@ -1,4 +1,4 @@
-osk-sdl(1) "osk-sdl @@VERSION@@"
+osk-sdl(1) "osk-sdl"
 
 # NAME
 
