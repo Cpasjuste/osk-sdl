@@ -486,12 +486,14 @@ void Keyboard::setHighlightedKey(touchArea &area)
 {
 	highlightedKey = area;
 	isKeyHighlighted = true;
+	keyPressStartTime = SDL_GetTicks();
 }
 
-void Keyboard::unsetHighlightedKey()
+int Keyboard::unsetHighlightedKey()
 {
 	highlightedKey = { "", false, 0, 0, 0, 0 };
 	isKeyHighlighted = false;
+	return SDL_GetTicks() - keyPressStartTime;
 }
 
 touchArea Keyboard::getHighlightedKey()

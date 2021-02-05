@@ -315,11 +315,12 @@ void handleTapBegin(unsigned xTapped, unsigned yTapped, int screenHeight, Keyboa
 
 void handleTapEnd(unsigned xTapped, unsigned yTapped, int screenHeight, Keyboard &kbd, LuksDevice &lkd, std::vector<std::string> &passphrase, bool keyscript, bool &showPasswordError, bool &done)
 {
+	int duration = 0;
 	showPasswordError = false;
 	int offsetYTapped = yTapped - static_cast<int>(screenHeight - (kbd.getHeight() * kbd.getPosition()));
 	touchArea key = kbd.getKeyForCoordinates(xTapped, offsetYTapped);
 	touchArea highlightedKey = kbd.getHighlightedKey();
-	kbd.unsetHighlightedKey();
+	duration = kbd.unsetHighlightedKey();
 	if (key.x1 != highlightedKey.x1 || key.y1 != highlightedKey.y1) {
 		return;
 	}

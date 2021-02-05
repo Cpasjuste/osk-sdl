@@ -87,8 +87,9 @@ public:
 	void setHighlightedKey(touchArea &area);
 	/**
 	  Unset the key to be highlighted on the next render pass
+	  @return Duration in milliseconds that the key was highlighted for
 	  */
-	void unsetHighlightedKey();
+	int unsetHighlightedKey();
 	/**
 	  Get the currently highlighted key. If no key is highlighted, keyChar will be an empty string.
 	  @return Touch area of the key
@@ -153,6 +154,7 @@ private:
 	int keyboardWidth;
 	int keyboardHeight;
 	int activeLayer = 0;
+	int keyPressStartTime = 0;
 	std::vector<KeyboardLayer> keyboard;
 	Config *config;
 	touchArea highlightedKey = { "", false, 0, 0, 0, 0 };
