@@ -89,10 +89,11 @@ void draw_circle(SDL_Renderer *renderer, SDL_Point center, int radius, const arg
   @param lkd Initialized LuksDevice obj
   @param lkd passphrase Passphrase to modify
   @param keyscript Whether we're in keyscript mode
+  @param duration Duration in milliseconds that the key was pressed
   @return Whether we're done with the main loop
  */
 bool handleVirtualKeyPress(const std::string &tapped, Keyboard &kbd, LuksDevice &lkd,
-	std::vector<std::string> &passphrase, bool keyscript);
+	std::vector<std::string> &passphrase, bool keyscript, int duration);
 
 /**
   Draw the dots to represent hidden characters

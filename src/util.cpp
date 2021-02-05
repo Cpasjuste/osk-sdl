@@ -259,7 +259,7 @@ void draw_password_box_dots(SDL_Renderer *renderer, Config *config, const SDL_Re
 }
 
 bool handleVirtualKeyPress(const std::string &tapped, Keyboard &kbd, LuksDevice &lkd,
-	std::vector<std::string> &passphrase, bool keyscript)
+	std::vector<std::string> &passphrase, bool keyscript, int duration)
 {
 	// return pressed
 	if (tapped == "\n") {
@@ -273,7 +273,12 @@ bool handleVirtualKeyPress(const std::string &tapped, Keyboard &kbd, LuksDevice 
 	// Backspace pressed
 	else if (tapped == KEYCAP_BACKSPACE) {
 		if (!passphrase.empty()) {
-			passphrase.pop_back();
+			// clear passphrase if held for 1 second
+			if (duration >= 1000) {
+				passphrase.clear();
+			} else {
+				passphrase.pop_back();
+			}
 		}
 	}
 	// Shift pressed
@@ -326,7 +331,7 @@ void handleTapEnd(unsigned xTapped, unsigned yTapped, int screenHeight, Keyboard
 	}
 	std::string tapped = key.keyChar;
 	if (!lkd.unlockRunning()) {
-		done = handleVirtualKeyPress(tapped, kbd, lkd, passphrase, keyscript);
+		done = handleVirtualKeyPress(tapped, kbd, lkd, passphrase, keyscript, duration);
 	}
 }
 
