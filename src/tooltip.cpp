@@ -20,11 +20,12 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "tooltip.h"
 #include "draw_helpers.h"
 
-Tooltip::Tooltip(int width, int height, int cornerRadius, Config *config)
+Tooltip::Tooltip(TooltipType type, int width, int height, int cornerRadius, Config *config)
 	: config(config)
 	, width(width)
 	, height(height)
 	, cornerRadius(cornerRadius)
+	, type(type)
 {
 }
 
@@ -32,6 +33,7 @@ int Tooltip::init(SDL_Renderer *renderer, const std::string &text)
 {
 	SDL_Surface *surface;
 	Uint32 rmask, gmask, bmask, amask;
+	argb foregroundColor, backgroundColor;
 	// SDL interprets each pixel as a 32-bit number, so our masks must depend
 	//   on the endianness (byte order) of the machine
 #if SDL_BYTEORDER == SDL_BIG_ENDIAN
@@ -52,8 +54,19 @@ int Tooltip::init(SDL_Renderer *renderer, const std::string &text)
 		return -1;
 	}
 
-	Uint32 background = SDL_MapRGB(surface->format, config->inputBoxBackgroundError.r,
-		config->inputBoxBackgroundError.g, config->inputBoxBackgroundError.b);
+	switch (type) {
+	case TooltipType::error:
+		foregroundColor = config->inputBoxForegroundError;
+		backgroundColor = config->inputBoxBackgroundError;
+		break;
+	case TooltipType::info:
+	default:
+		foregroundColor = config->inputBoxForeground;
+		backgroundColor = config->inputBoxBackground;
+		break;
+	}
+
+	Uint32 background = SDL_MapRGB(surface->format, backgroundColor.r, backgroundColor.g, backgroundColor.b);
 	SDL_FillRect(surface, nullptr, background);
 
 	if (cornerRadius > 0) {
@@ -63,8 +76,7 @@ int Tooltip::init(SDL_Renderer *renderer, const std::string &text)
 
 	TTF_Font *font = TTF_OpenFont(config->keyboardFont.c_str(), config->keyboardFontSize);
 	SDL_Surface *textSurface;
-	SDL_Color textColor = { config->inputBoxForegroundError.r, config->inputBoxForegroundError.g,
-		config->inputBoxForegroundError.b, config->inputBoxForegroundError.a };
+	SDL_Color textColor = { foregroundColor.r, foregroundColor.g, foregroundColor.b, foregroundColor.a };
 	textSurface = TTF_RenderText_Blended(font, text.c_str(), textColor);
 
 	SDL_Rect textRect;

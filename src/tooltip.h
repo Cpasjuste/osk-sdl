@@ -25,16 +25,22 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <SDL2/SDL_ttf.h>
 #include <string>
 
+enum class TooltipType {
+	info,
+	error
+};
+
 class Tooltip {
 public:
 	/**
 	  Constructor
+	  @param type TooltipType, the type of tooltip to render
 	  @param width Width of the tooltip
 	  @param height Height of the tooltip
 	  @param cornerRadius Corner radius of the tooltip background box
 	  @param config Config object
 	  */
-	Tooltip(int width, int height, int cornerRadius, Config *config);
+	Tooltip(TooltipType type, int width, int height, int cornerRadius, Config *config);
 	/**
 	  Initialize tooltip
 	  @param renderer Initialized SDL renderer object
@@ -56,6 +62,7 @@ private:
 	int width;
 	int height;
 	int cornerRadius;
+	TooltipType type;
 };
 
 #endif
