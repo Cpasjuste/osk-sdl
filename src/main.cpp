@@ -36,6 +36,7 @@ Uint32 EVENT_RENDER;
 bool lastUnlockingState = false;
 bool showPasswordError = false;
 constexpr char ErrorText[] = "Incorrect passphrase";
+constexpr char EnterPassText[] = "Enter disk decryption passphrase";
 
 int main(int argc, char **args)
 {
@@ -208,6 +209,12 @@ int main(int argc, char **args)
 		exit(EXIT_FAILURE);
 	}
 
+	Tooltip enterPassTooltip(TooltipType::info, inputWidth, inputHeight, inputBoxRadius, &config);
+	if (enterPassTooltip.init(renderer, EnterPassText)) {
+		SDL_LogError(SDL_LOG_CATEGORY_VIDEO, "Failed to initialize enterPassTooltip!");
+		exit(EXIT_FAILURE);
+	}
+
 	argb inputBoxColor = config.inputBoxBackground;
 
 	SDL_Surface *inputBox = make_input_box(inputWidth, inputHeight, &inputBoxColor, inputBoxRadius);
@@ -352,9 +359,11 @@ int main(int argc, char **args)
 
 					topHalf = static_cast<int>(HEIGHT - (keyboard.getHeight() * keyboard.getPosition()));
 					inputBoxRect.y = static_cast<int>(topHalf / 3.5);
-					// Only show either error box or password input box, not both
+					// Only show either error tooltip, enter password tooltip, or password input box
 					if (showPasswordError) {
 						passErrorTooltip.draw(renderer, inputBoxRect.x, inputBoxRect.y);
+					} else if (passphrase.size() == 0) {
+						enterPassTooltip.draw(renderer, inputBoxRect.x, inputBoxRect.y);
 					} else {
 						SDL_RenderCopy(renderer, inputBoxTexture, nullptr, &inputBoxRect);
 						draw_password_box_dots(renderer, &config, inputBoxRect, passphrase.size(), luksDev.unlockRunning());
