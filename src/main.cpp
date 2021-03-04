@@ -202,9 +202,9 @@ int main(int argc, char **args)
 	}
 
 	// Initialize tooltip for password error
-	Tooltip tooltip(inputWidth, inputHeight, inputBoxRadius, &config);
-	if (tooltip.init(renderer, ErrorText)) {
-		SDL_LogError(SDL_LOG_CATEGORY_VIDEO, "Failed to initialize tooltip!");
+	Tooltip passErrorTooltip(TooltipType::error, inputWidth, inputHeight, inputBoxRadius, &config);
+	if (passErrorTooltip.init(renderer, ErrorText)) {
+		SDL_LogError(SDL_LOG_CATEGORY_VIDEO, "Failed to initialize passErrorTooltip!");
 		exit(EXIT_FAILURE);
 	}
 
@@ -354,7 +354,7 @@ int main(int argc, char **args)
 					inputBoxRect.y = static_cast<int>(topHalf / 3.5);
 					// Only show either error box or password input box, not both
 					if (showPasswordError) {
-						tooltip.draw(renderer, inputBoxRect.x, inputBoxRect.y);
+						passErrorTooltip.draw(renderer, inputBoxRect.x, inputBoxRect.y);
 					} else {
 						SDL_RenderCopy(renderer, inputBoxTexture, nullptr, &inputBoxRect);
 						draw_password_box_dots(renderer, &config, inputBoxRect, passphrase.size(), luksDev.unlockRunning());
