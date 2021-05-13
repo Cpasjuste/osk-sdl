@@ -38,9 +38,10 @@ build::amd64:
     - apk -q add
         build-base
         cryptsetup-dev
+        eudev-libs
         linux-headers
-        meson
         mesa-dri-gallium
+        meson
         scdoc
         sdl2-dev
         sdl2_ttf-dev
