@@ -60,8 +60,8 @@ int LuksDevice::unlock(void *luksDev)
 		CRYPT_ANY_SLOT,
 		lcd->passphrase.c_str(),
 		lcd->passphrase.size(),
-		// Enable TRIM support
-		CRYPT_ACTIVATE_ALLOW_DISCARDS);
+		// Enable TRIM support, disable read/write workqueues for performance on SSDs
+		CRYPT_ACTIVATE_ALLOW_DISCARDS | CRYPT_ACTIVATE_NO_READ_WORKQUEUE | CRYPT_ACTIVATE_NO_WRITE_WORKQUEUE);
 	if (ret < 0) {
 		SDL_Log("crypt_activate_by_passphrase failed on device. Errno %i", ret);
 		crypt_free(cd);
