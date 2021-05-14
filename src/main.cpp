@@ -36,6 +36,7 @@ bool lastUnlockingState = false;
 bool showPasswordError = false;
 constexpr char ErrorText[] = "Incorrect passphrase";
 constexpr char EnterPassText[] = "Enter disk decryption passphrase";
+constexpr char UnlockingDiskText[] = "Trying to unlock disk...";
 
 int main(int argc, char **args)
 {
@@ -215,6 +216,13 @@ int main(int argc, char **args)
 		exit(EXIT_FAILURE);
 	}
 
+	// Tooltip for unlocking (when animations are disabled)
+	Tooltip unlockingTooltip(TooltipType::info, inputWidth, inputHeight, inputBoxRadius, &config);
+	if (unlockingTooltip.init(renderer, UnlockingDiskText)) {
+		SDL_LogError(SDL_LOG_CATEGORY_VIDEO, "Failed to initialize unlockingTooltip!");
+		exit(EXIT_FAILURE);
+	}
+
 	argb inputBoxColor = config.inputBoxBackground;
 
 	SDL_Surface *inputBox = make_input_box(inputWidth, inputHeight, &inputBoxColor, inputBoxRadius);
@@ -364,6 +372,8 @@ int main(int argc, char **args)
 						passErrorTooltip.draw(renderer, inputBoxRect.x, inputBoxRect.y);
 					} else if (passphrase.size() == 0) {
 						enterPassTooltip.draw(renderer, inputBoxRect.x, inputBoxRect.y);
+					} else if (luksDev.unlockRunning() && !config.animations) {
+						unlockingTooltip.draw(renderer, inputBoxRect.x, inputBoxRect.y);
 					} else {
 						SDL_RenderCopy(renderer, inputBoxTexture, nullptr, &inputBoxRect);
 						draw_password_box_dots(renderer, &config, inputBoxRect, passphrase.size(), luksDev.unlockRunning());
@@ -392,9 +402,9 @@ int main(int argc, char **args)
 					}
 					lastUnlockingState = luksDev.unlockRunning();
 				}
-				// If any animations are running, continue to push render events to the
+				// If any animations are enabled and running, continue to push render events to the
 				// event queue
-				if (luksDev.unlockRunning() || keyboard.isInSlideAnimation()) {
+				if (config.animations && (luksDev.unlockRunning() || keyboard.isInSlideAnimation())) {
 					SDL_PushEvent(&renderEvent);
 				}
 			}
