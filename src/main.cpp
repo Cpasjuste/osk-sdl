@@ -87,6 +87,7 @@ int main(int argc, char **args)
 	 */
 	if (isDirectFB()) {
 		SDL_LogInfo(SDL_LOG_CATEGORY_SYSTEM, "Using directfb, not enabling haptic feedback.");
+		SDL_LogInfo(SDL_LOG_CATEGORY_SYSTEM, "Using directfb, animations have been disabled.");
 	} else {
 		sdlFlags |= SDL_INIT_HAPTIC;
 	}

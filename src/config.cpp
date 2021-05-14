@@ -18,6 +18,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
 #include "config.h"
+#include "util.h"
 #include <SDL2/SDL.h>
 #include <fstream>
 #include <iostream>
@@ -123,6 +124,8 @@ bool Config::Read(const std::string &path)
 	it = Config::options.find("key-preview-popup");
 	if (it != Config::options.end()) {
 		Config::keyPreview = (Config::options["key-preview-popup"] == "true");
+		/* Disable key preview when using Directfb */
+		Config::keyPreview = Config::keyPreview && !isDirectFB();
 	}
 
 	it = Config::options.find("inputbox-foreground");
@@ -157,6 +160,8 @@ bool Config::Read(const std::string &path)
 	it = Config::options.find("animations");
 	if (it != Config::options.end()) {
 		Config::animations = (Config::options["animations"] == "true");
+		/* Disable animations when using Directfb */
+		Config::animations = Config::animations && !isDirectFB();
 	}
 	return true;
 }
