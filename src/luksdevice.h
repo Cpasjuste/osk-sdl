@@ -35,10 +35,12 @@ public:
 	  Constructor
 	  @param devName Name of luks device
 	  @param devPath Path to luks device
+	  @param eventType SDL_EventType to push after an unlock attempt
 	  */
-	LuksDevice(std::string &devName, std::string &devPath)
+	LuksDevice(std::string &devName, std::string &devPath, Uint32 eventType)
 		: deviceName(devName)
 		, devicePath(devPath)
+		, eventType(eventType)
 	{
 	}
 	/**
@@ -68,6 +70,7 @@ private:
 	std::string passphrase;
 	bool locked = true;
 	bool running = false;
+	Uint32 eventType;
 
 	/**
 	  Unlock luks device

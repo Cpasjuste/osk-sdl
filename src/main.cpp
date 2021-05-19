@@ -75,7 +75,7 @@ int main(int argc, char **args)
 		exit(EXIT_FAILURE);
 	}
 
-	LuksDevice luksDev(opts.luksDevName, opts.luksDevPath);
+	LuksDevice luksDev(opts.luksDevName, opts.luksDevPath, renderEventType);
 
 	atexit(SDL_Quit);
 	Uint32 sdlFlags = SDL_INIT_VIDEO | SDL_INIT_EVENTS | SDL_INIT_TIMER;

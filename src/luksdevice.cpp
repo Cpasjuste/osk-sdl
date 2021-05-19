@@ -28,8 +28,11 @@ int LuksDevice::unlock()
 int LuksDevice::unlock(void *luksDev)
 {
 	struct crypt_device *cd;
-	int ret;
+	int ret = 0;
 	const auto lcd = static_cast<LuksDevice *>(luksDev);
+	SDL_Event event = {
+		.type = lcd->eventType
+	};
 
 	// Note: no mutex here, since this function makes a blocking call later on.
 	// Careful!
@@ -41,8 +44,7 @@ int LuksDevice::unlock(void *luksDev)
 	ret = crypt_init(&cd, lcd->devicePath.c_str());
 	if (ret < 0) {
 		SDL_LogError(SDL_LOG_CATEGORY_ERROR, "crypt_init() failed for %s.", lcd->devicePath.c_str());
-		lcd->running = false;
-		return ret;
+		goto DONE;
 	}
 
 	// Load header
@@ -50,8 +52,7 @@ int LuksDevice::unlock(void *luksDev)
 	if (ret < 0) {
 		SDL_LogError(SDL_LOG_CATEGORY_ERROR, "crypt_load() failed on device %s.", crypt_get_device_name(cd));
 		crypt_free(cd);
-		lcd->running = false;
-		return ret;
+		goto DONE;
 	}
 
 	ret = crypt_activate_by_passphrase(
@@ -64,17 +65,14 @@ int LuksDevice::unlock(void *luksDev)
 	if (ret < 0) {
 		SDL_Log("crypt_activate_by_passphrase failed on device. Errno %i", ret);
 		crypt_free(cd);
-		lcd->running = false;
-		return ret;
+		goto DONE;
 	}
 	SDL_Log("Successfully unlocked device %s", lcd->devicePath.c_str());
 	crypt_free(cd);
 	lcd->locked = false;
-	lcd->running = false;
-	// Push empty event to main thread (needed because main thread is using
-	// SDL_PollEvents() )
-	SDL_Event event;
-	SDL_PushEvent(&event);
 
-	return 0;
+DONE:
+	SDL_PushEvent(&event);
+	lcd->running = false;
+	return ret;
 }
