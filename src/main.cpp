@@ -32,7 +32,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <string>
 #include <unistd.h>
 
-Uint32 EVENT_RENDER;
 bool lastUnlockingState = false;
 bool showPasswordError = false;
 constexpr char ErrorText[] = "Incorrect passphrase";
@@ -53,8 +52,9 @@ int main(int argc, char **args)
 	unsigned prev_keydown_ticks = 0; // Two sep. prev_ticks required for handling
 	unsigned prev_text_ticks = 0; // textinput & keydown event types
 
+	static Uint32 renderEventType = SDL_RegisterEvents(1);
 	static SDL_Event renderEvent {
-		.type = EVENT_RENDER
+		.type = renderEventType
 	};
 
 	SDL_LogSetAllPriority(SDL_LOG_PRIORITY_ERROR);
@@ -331,7 +331,7 @@ int main(int argc, char **args)
 				break; // SDL_QUIT
 			} // switch event.type
 			// Render event handler
-			if (event.type == EVENT_RENDER) {
+			if (event.type == renderEventType) {
 				/* NOTE ON MULTI BUFFERING / RENDERING MULTIPLE TIMES:
 				   We only re-schedule render events during animation, otherwise
 				   we render once and then do nothing for a long while.
