@@ -251,14 +251,15 @@ int main(int argc, char **args)
 
 	// The Main Loop.
 	bool done = false;
+	int cur_ticks = 0;
 	while (luksDev.isLocked() && !done) {
 		if (SDL_WaitEvent(&event)) {
-			int cur_ticks = SDL_GetTicks();
 			// an event was found
 			switch (event.type) {
 			// handle the keyboard
 			case SDL_KEYDOWN:
 				// handle repeat key events
+				cur_ticks = SDL_GetTicks();
 				if ((cur_ticks - repeat_delay.count()) < prev_keydown_ticks) {
 					continue;
 				}
@@ -323,6 +324,7 @@ int main(int argc, char **args)
 				 * the keyboard repeat delay rate
 				 */
 				showPasswordError = false;
+				cur_ticks = SDL_GetTicks();
 				// Enable key repeat delay
 				if ((cur_ticks - repeat_delay.count()) > prev_text_ticks) {
 					prev_text_ticks = cur_ticks;
