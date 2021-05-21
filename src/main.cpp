@@ -76,6 +76,10 @@ int main(int argc, char **args)
 		exit(EXIT_FAILURE);
 	}
 
+	if (!opts.confOverridePath.empty() && !config.Read(opts.confOverridePath)) {
+		SDL_LogError(SDL_LOG_CATEGORY_ERROR, "Config override file could not be loaded, continuing");
+	}
+
 	LuksDevice luksDev(opts.luksDevName, opts.luksDevPath, renderEventType);
 
 	atexit(SDL_Quit);

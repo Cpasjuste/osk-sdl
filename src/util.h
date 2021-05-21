@@ -36,6 +36,7 @@ struct Opts {
 	std::string luksDevPath;
 	std::string luksDevName;
 	std::string confPath;
+	std::string confOverridePath;
 	bool testMode;
 	bool verbose;
 	bool keyscript;

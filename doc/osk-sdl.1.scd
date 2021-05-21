@@ -34,6 +34,9 @@ OSK-SDL is a lightweight on screen keyboard used to unlock encrypted root partit
 *-c <path>*
 	Locaton of the osk-sdl config file. Defaults to "/etc/osk.conf".
 
+*-o <path>*
+	Locaton of the osk-sdl config override file. Does not cause a failure if it couldn't be loaded.
+
 *-v, --verbose*
 	Enable verbose output
 
