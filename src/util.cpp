@@ -32,12 +32,13 @@ int fetchOpts(int argc, char **args, Opts *opts)
 		{ "keyscript", no_argument, 0, 'k' },
 		{ "verbose", no_argument, 0, 'v' },
 		{ "no-gles", no_argument, 0, 'G' },
+		{ "software-rendering", no_argument, 0, 's' },
 		{ "version", no_argument, 0, 'V' },
 		{ "no-keyboard", no_argument, 0, 'x' },
 		{ 0, 0, 0, 0 }
 	};
 
-	while ((opt = getopt_long(argc, args, "td:n:c:o:kvGVx", longOpts, &optIndex)) != -1)
+	while ((opt = getopt_long(argc, args, "td:n:c:o:kvsGVx", longOpts, &optIndex)) != -1)
 		switch (opt) {
 		case 't':
 			opts->luksDevPath = DEFAULT_LUKSDEVPATH;
@@ -55,6 +56,9 @@ int fetchOpts(int argc, char **args, Opts *opts)
 			break;
 		case 'o':
 			opts->confOverridePath = optarg;
+			break;
+		case 's':
+			opts->softwareRendering = true;
 			break;
 		case 'k':
 			opts->keyscript = true;
@@ -74,7 +78,8 @@ int fetchOpts(int argc, char **args, Opts *opts)
 		default:
 			SDL_LogError(SDL_LOG_CATEGORY_ERROR, "Usage: osk-sdl [-t|--testmode] [-k|--keyscript] [-d /dev/sda] [-n device_name] "
 												 "[-c /etc/osk.conf] [-o /boot/osk.conf] "
-												 "[-v|--verbose] [-G|--no-gles] [-x|--no-keyboard");
+												 "[-v|--verbose] [-G|--no-gles] [-x|--no-keyboard"
+												 "[-s|--software-rendering]");
 			return 1;
 		}
 	if (opts->luksDevPath.empty()) {
@@ -172,11 +177,7 @@ void draw_password_box_dots(SDL_Renderer *renderer, Config *config, const SDL_Re
 	int dotSize = static_cast<int>(inputRect.h / 2);
 	int padding = static_cast<int>(inputRect.h / 2);
 	int offset = 0;
-	/*
-	 * NOTE: Clipping is not used with DirectFB since SetClip() seems to be broken(??) on DirectFB
-	 */
-	if (!isDirectFB())
-		SDL_RenderSetClipRect(renderer, &inputRect); // Prevent drawing outside the input bounds
+
 	for (int i = numDots - 1; i >= 0; i--) {
 		SDL_Point dotPos;
 		dotPos.x = inputRect.x + padding + (i * dotSize) - offset;
@@ -196,8 +197,6 @@ void draw_password_box_dots(SDL_Renderer *renderer, Config *config, const SDL_Re
 		}
 		draw_dot_glyph(renderer, dotPos, dotSize, config);
 	}
-	if (!isDirectFB())
-		SDL_RenderSetClipRect(renderer, nullptr); // Reset clip rect
 }
 
 bool handleVirtualKeyPress(const std::string &tapped, Keyboard &kbd, LuksDevice &lkd,
@@ -277,20 +276,6 @@ void handleTapEnd(unsigned xTapped, unsigned yTapped, int screenHeight, Keyboard
 		/* disable toggle so osk shows up */
 		kbdToggle.setVisible(false);
 	}
-}
-
-bool isDirectFB()
-{
-	char *sdlVideoEnv = getenv("SDL_VIDEODRIVER");
-	if (sdlVideoEnv && strncmp(sdlVideoEnv, "directfb", strlen("directfb")) == 0) {
-		return true;
-	}
-
-	const char *sdlCurDriver = SDL_GetCurrentVideoDriver();
-	if (sdlCurDriver && strncmp(sdlCurDriver, "directfb", strlen("directfb")) == 0) {
-		return true;
-	}
-	return false;
 }
 
 bool hasPhysKeyboard()
