@@ -66,15 +66,6 @@ std::string strVector2str(const std::vector<std::string> &strVector);
 int find_gles_driver_index();
 
 /**
-  Create wallpaper
-  @param config Config paramters
-  @param width Width of wallpaper to generate
-  @param height Height of wallpaper to generate
-  @return Initialized SDL_Surface, else nullptr on failure
- */
-SDL_Surface *make_wallpaper(Config *config, int width, int height);
-
-/**
   Draw a circle
   @param renderer Initialized SDL_Renderer object
   @param center Center position of circle
