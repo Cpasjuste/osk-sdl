@@ -372,6 +372,14 @@ int main(int argc, char **args)
 					render_times++;
 					SDL_RenderCopy(renderer, wallpaperTexture, nullptr, nullptr);
 
+					// Hide keyboard if unlock luks thread is running
+					keyboard.setTargetPosition(!luksDev.unlockRunning());
+
+					// When *not* using animations, so draw keyboard first so tooltip is positioned correctly from the start
+					if (!config.animations) {
+						keyboard.draw(renderer, HEIGHT);
+					}
+
 					topHalf = static_cast<int>(HEIGHT - (keyboard.getHeight() * keyboard.getPosition()));
 					inputBoxRect.y = static_cast<int>(topHalf / 3.5);
 					// Only show either error tooltip, enter password tooltip, or password input box
@@ -386,10 +394,10 @@ int main(int argc, char **args)
 						draw_password_box_dots(renderer, &config, inputBoxRect, passphrase.size(), luksDev.unlockRunning());
 					}
 
-					// Hide keyboard if unlock luks thread is running
-					keyboard.setTargetPosition(!luksDev.unlockRunning());
-					// Draw keyboard last so that key previews don't get drawn over by e.g. the input box
-					keyboard.draw(renderer, HEIGHT);
+					// When using animations, draw keyboard last so that key previews don't get drawn over by e.g. the input box
+					if (config.animations) {
+						keyboard.draw(renderer, HEIGHT);
+					}
 					SDL_RenderPresent(renderer);
 					if (keyboard.isInSlideAnimation()) {
 						// No need to double-flip if we'll redraw more for animation
