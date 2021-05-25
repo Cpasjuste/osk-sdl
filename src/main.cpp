@@ -198,8 +198,8 @@ int main(int argc, char **args)
 	// Make SDL send text editing events for textboxes
 	SDL_StartTextInput();
 
-	SDL_Surface *wallpaper = make_wallpaper(&config, WIDTH, HEIGHT);
-	SDL_Texture *wallpaperTexture = SDL_CreateTextureFromSurface(renderer, wallpaper);
+	// Wallpaper is renderer draw color
+	SDL_SetRenderDrawColor(renderer, config.wallpaper.r, config.wallpaper.g, config.wallpaper.b, 255);
 
 	int inputBoxRadius = std::strtol(config.inputBoxRadius.c_str(), nullptr, 10);
 	if (inputBoxRadius >= BEZIER_RESOLUTION || inputBoxRadius > inputHeight / 1.5) {
@@ -370,7 +370,7 @@ int main(int argc, char **args)
 				int max_render_times = (rendererInfo.flags & SDL_RENDERER_ACCELERATED) ? 3 : 2;
 				while (render_times < max_render_times) {
 					render_times++;
-					SDL_RenderCopy(renderer, wallpaperTexture, nullptr, nullptr);
+					SDL_RenderClear(renderer);
 
 					// Hide keyboard if unlock luks thread is running
 					keyboard.setTargetPosition(!luksDev.unlockRunning());
