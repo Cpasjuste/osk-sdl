@@ -71,6 +71,12 @@ void Keyboard::setTargetPosition(float p)
 
 void Keyboard::updateAnimations()
 {
+	// If animations are disabled, just jump straight to target
+	if (!config->animations) {
+		position = targetPosition;
+		return;
+	}
+
 	const int animStep = 20; // 20ms -> 50 FPS
 	const int maxFallBehindSteps = 20;
 	int now = SDL_GetTicks();
@@ -84,20 +90,15 @@ void Keyboard::updateAnimations()
 	while (lastAnimTicks < now) {
 		// Vertical keyboard movement:
 		if (fabs(position - targetPosition) > 0.01) {
-			if (!(config->animations)) {
-				// If animations are disabled, just jump to target:
-				position = targetPosition;
-			} else {
-				// Gradually update the position:
-				if (position > targetPosition) {
-					position -= fmax(0.1, position - targetPosition) / 8;
-					if (position < targetPosition)
-						position = targetPosition;
-				} else if (position < targetPosition) {
-					position += fmax(0.1, targetPosition - position) / 8;
-					if (position > targetPosition)
-						position = targetPosition;
-				}
+			// Gradually update the position:
+			if (position > targetPosition) {
+				position -= fmax(0.1, position - targetPosition) / 8;
+				if (position < targetPosition)
+					position = targetPosition;
+			} else if (position < targetPosition) {
+				position += fmax(0.1, targetPosition - position) / 8;
+				if (position > targetPosition)
+					position = targetPosition;
 			}
 		} else {
 			position = targetPosition;
