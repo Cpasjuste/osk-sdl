@@ -155,8 +155,14 @@ int main(int argc, char **args)
 		keyboardHeight = WIDTH / 1.6;
 	}
 
-	int inputWidth = static_cast<int>(WIDTH * 0.9);
-	int inputHeight = static_cast<int>(WIDTH * 0.1);
+	int inputWidth, inputHeight;
+	inputWidth = static_cast<int>(WIDTH * 0.9);
+	if (opts.noKeyboard) {
+		// Reduce height when no keyboard is shown
+		inputHeight = config.keyboardFontSize + 8;
+	} else {
+		inputHeight = static_cast<int>(WIDTH * 0.1);
+	}
 
 	if (SDL_SetRenderDrawColor(renderer, 255, 128, 0, SDL_ALPHA_OPAQUE) != 0) {
 		SDL_LogError(SDL_LOG_CATEGORY_VIDEO, "Could not set background color: %s", SDL_GetError());
@@ -240,6 +246,10 @@ int main(int argc, char **args)
 		.w = inputWidth,
 		.h = inputHeight
 	};
+
+	if (opts.noKeyboard) {
+		inputBoxRect.y = static_cast<int>(topHalf / 2);
+	}
 
 	if (inputBoxTexture == nullptr) {
 		SDL_LogError(SDL_LOG_CATEGORY_VIDEO, "Could not create input box texture: %s",
