@@ -41,6 +41,7 @@ struct Opts {
 	bool verbose;
 	bool keyscript;
 	bool noGLES;
+	bool noKeyboard;
 };
 
 /**

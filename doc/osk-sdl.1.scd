@@ -46,6 +46,10 @@ OSK-SDL is a lightweight on screen keyboard used to unlock encrypted root partit
 *-G, --no-gles*
 	Do not use OpenGL ES driver unless it is the default driver. This is the default behavior when using DirectFB.
 
+*-x, --no-keyboard*
+	Do not display the keyboard, only the input box. This is only useful on devices with a physical keyboard that want
+	to use osk-sdl as a prettier prompt than "cryptsetup open"
+
 # EXAMPLES
 
 *Decrypt /dev/sda1 to name "root"*

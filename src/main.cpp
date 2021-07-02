@@ -376,7 +376,7 @@ int main(int argc, char **args)
 					keyboard.setTargetPosition(!luksDev.unlockRunning());
 
 					// When *not* using animations, so draw keyboard first so tooltip is positioned correctly from the start
-					if (!config.animations) {
+					if (!config.animations && !opts.noKeyboard) {
 						keyboard.draw(renderer, HEIGHT);
 					}
 
@@ -395,7 +395,7 @@ int main(int argc, char **args)
 					}
 
 					// When using animations, draw keyboard last so that key previews don't get drawn over by e.g. the input box
-					if (config.animations) {
+					if (config.animations && !opts.noKeyboard) {
 						keyboard.draw(renderer, HEIGHT);
 					}
 					SDL_RenderPresent(renderer);
