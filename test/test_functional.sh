@@ -158,6 +158,26 @@ test_keyscript_phys() {
 	check_result "$result_file" "$expected"
 }
 
+########################################################
+# Test key script (-k) with 'physical' key input, and -x
+########################################################
+test_keyscript_no_keyboard_phys() {
+	echo "** Testing key script with 'physical' key input"
+	local result_file="/tmp/osk_sdl_test_phys_keyscript_$DISPLAY"
+	local expected="postmarketOS"
+	local osk_pid
+	osk_pid="$(run_osk_sdl false "$result_file" "-k -n test_disk -d test/luks.disk -x")"
+	sleep 3
+
+	# run test
+	xdotool type --delay 300 "$expected"
+	xdotool key Return
+	sleep 3
+	kill -9 "$osk_pid" 2>/dev/null || true
+
+	# check result
+	check_result "$result_file" "$expected"
+}
 
 ##################################################
 # Test luks unlocking
@@ -225,6 +245,9 @@ export SDL_VIDEODRIVER=x11
 case "$1" in
 	test_keyscript_phys)
 		test_keyscript_phys
+		;;
+	test_keyscript_no_keyboard_phys)
+		test_keyscript_no_keyboard_phys
 		;;
 	test_keyscript_mouse_letters)
 		test_keyscript_phys

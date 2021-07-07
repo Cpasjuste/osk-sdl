@@ -25,6 +25,12 @@ test('Functional test - keyscript, physical keyboard input',
 	env : test_env,
 )
 
+test('Functional test - keyscript, physical keyboard input, with no keyboard option',
+	test_functional,
+	args : ['test_keyscript_no_keyboard_phys'],
+	env : test_env,
+)
+
 test('Functional test - keyscript, mouse keyboard input, letters',
 	test_functional,
 	args : ['test_keyscript_mouse_letters'],
