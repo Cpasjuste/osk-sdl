@@ -1,7 +1,7 @@
 project(
 	'osk-sdl',
 	'cpp',
-	version : '0.64',
+	version : '0.65',
 	default_options : ['warning_level=3', 'cpp_std=c++2a'],
 	meson_version : '>=0.53.0',
 )
