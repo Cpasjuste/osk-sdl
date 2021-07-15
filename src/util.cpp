@@ -19,6 +19,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "util.h"
 #include "draw_helpers.h"
+#include <errno.h>
 #include <getopt.h>
 #include <numeric>
 
@@ -324,5 +325,42 @@ bool isDirectFB()
 	if (sdlCurDriver && strncmp(sdlCurDriver, "directfb", strlen("directfb")) == 0) {
 		return true;
 	}
+	return false;
+}
+
+bool hasPhysKeyboard()
+{
+	for (const auto &file: std::filesystem::directory_iterator("/dev/input")) {
+
+		std::string dev_name = file.path().string();
+		if (dev_name.rfind("/dev/input/event", 0) != 0){
+			SDL_LogInfo(SDL_LOG_CATEGORY_SYSTEM, "Skipping non-event file: %s", dev_name.c_str());
+			continue;
+		}
+		int fd = open(dev_name.c_str(), O_RDONLY);
+		if (fd < 0) {
+			if (errno == 13) {
+				SDL_LogInfo(SDL_LOG_CATEGORY_SYSTEM, "Insufficient permissions to perform physical keyboard detection");
+				return false;
+			}
+			SDL_LogInfo(SDL_LOG_CATEGORY_SYSTEM, "Unable to open device: %s", dev_name.c_str());
+			continue;
+		}
+
+		unsigned long keyMask[KEY_MAX / 8 + 1];
+		memset(keyMask, 0, sizeof(keyMask));
+		ioctl(fd, EVIOCGBIT(EV_KEY, sizeof(keyMask)), &keyMask);
+		close(fd);
+
+		/* this contains ESC, numbers, and letters Q through D (and omits RESERVED keycode at bit 0)*/
+		unsigned long mask = 0xFFFFFFFE;
+		if ((keyMask[0] & mask) == mask) {
+			SDL_LogInfo(SDL_LOG_CATEGORY_SYSTEM, "Probably a physical keyboard: %s", dev_name.c_str());
+			return true;
+		} else {
+			SDL_LogInfo(SDL_LOG_CATEGORY_SYSTEM, "Not a physical keyboard: %s", dev_name.c_str());
+		}
+	}
+
 	return false;
 }

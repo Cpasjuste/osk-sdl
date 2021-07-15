@@ -52,6 +52,7 @@ int main(int argc, char **args)
 	std::chrono::milliseconds repeat_delay { 25 }; // Keyboard key repeat rate in ms
 	unsigned prev_keydown_ticks = 0; // Two sep. prev_ticks required for handling
 	unsigned prev_text_ticks = 0; // textinput & keydown event types
+	bool show_osk = true;
 
 	static Uint32 renderEventType = SDL_RegisterEvents(1);
 	static SDL_Event renderEvent {
@@ -64,6 +65,7 @@ int main(int argc, char **args)
 	if (fetchOpts(argc, args, &opts)) {
 		exit(EXIT_FAILURE);
 	}
+
 
 	if (opts.verbose) {
 		SDL_LogSetAllPriority(SDL_LOG_PRIORITY_INFO);
@@ -83,6 +85,14 @@ int main(int argc, char **args)
 	LuksDevice luksDev(opts.luksDevName, opts.luksDevPath, renderEventType);
 
 	atexit(SDL_Quit);
+
+	/*
+	 * default to hiding the on-screen keyboard if a physical keyboard is present
+	 */
+	if (opts.noKeyboard || hasPhysKeyboard())
+		show_osk = false;
+	SDL_LogInfo(SDL_LOG_CATEGORY_SYSTEM, "%sshowing on-screen keyboard", show_osk ? "" : "NOT ");
+
 	Uint32 sdlFlags = SDL_INIT_VIDEO | SDL_INIT_EVENTS | SDL_INIT_TIMER;
 
 	/*
@@ -157,7 +167,7 @@ int main(int argc, char **args)
 
 	int inputWidth, inputHeight;
 	inputWidth = static_cast<int>(WIDTH * 0.9);
-	if (opts.noKeyboard) {
+	if (!show_osk) {
 		// Reduce height when no keyboard is shown
 		inputHeight = config.keyboardFontSize + 8;
 	} else {
@@ -247,7 +257,7 @@ int main(int argc, char **args)
 		.h = inputHeight
 	};
 
-	if (opts.noKeyboard) {
+	if (!show_osk) {
 		inputBoxRect.y = static_cast<int>(topHalf / 2);
 	}
 
@@ -393,7 +403,7 @@ int main(int argc, char **args)
 					keyboard.setTargetPosition(!luksDev.unlockRunning());
 
 					// When *not* using animations, so draw keyboard first so tooltip is positioned correctly from the start
-					if (!config.animations && !opts.noKeyboard) {
+					if (!config.animations && show_osk) {
 						keyboard.draw(renderer, HEIGHT);
 					}
 
@@ -412,7 +422,7 @@ int main(int argc, char **args)
 					}
 
 					// When using animations, draw keyboard last so that key previews don't get drawn over by e.g. the input box
-					if (config.animations && !opts.noKeyboard) {
+					if (config.animations && show_osk) {
 						keyboard.draw(renderer, HEIGHT);
 					}
 					SDL_RenderPresent(renderer);

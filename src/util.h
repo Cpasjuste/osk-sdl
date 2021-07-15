@@ -27,6 +27,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <iostream>
 #include <string>
 #include <unistd.h>
+#include <filesystem>
+#include <fcntl.h>
+#include <linux/input.h>
 
 constexpr char DEFAULT_LUKSDEVPATH[] = "/home/user/disk";
 constexpr char DEFAULT_LUKSDEVNAME[] = "root";
@@ -131,4 +134,10 @@ void hapticRumble(SDL_Haptic *haptic, Config *config);
   @return true if using directfb, else false
  */
 bool isDirectFB();
+
+/**
+  Determine if a physical keyboard is connected
+  @return true if a physical keyboard is detected, else false
+ */
+bool hasPhysKeyboard();
 #endif
