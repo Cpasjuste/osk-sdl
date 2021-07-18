@@ -15,6 +15,7 @@ src = [
 	'src/luksdevice.cpp',
 	'src/main.cpp',
 	'src/tooltip.cpp',
+	'src/toggle.cpp',
 	'src/util.cpp',
 ]
 
