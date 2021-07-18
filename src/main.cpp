@@ -23,6 +23,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "keyboard.h"
 #include "luksdevice.h"
 #include "tooltip.h"
+#include "toggle.h"
 #include "util.h"
 #include <SDL2/SDL.h>
 #include <cmath>
@@ -244,6 +245,14 @@ int main(int argc, char **args)
 		exit(EXIT_FAILURE);
 	}
 
+	// Initialize toggle button for keyboard
+	Toggle keyboardToggle(HEIGHT/15, WIDTH/10, &config);
+	if (keyboardToggle.init(renderer, "osk")) {
+		SDL_LogError(SDL_LOG_CATEGORY_VIDEO, "Failed to initialize keyboardToggle!");
+		exit(EXIT_FAILURE);
+	}
+	keyboardToggle.setVisible(!show_osk);
+
 	argb inputBoxColor = config.inputBoxBackground;
 
 	SDL_Surface *inputBox = make_input_box(inputWidth, inputHeight, &inputBoxColor, inputBoxRadius);
@@ -277,6 +286,7 @@ int main(int argc, char **args)
 	bool done = false;
 	int cur_ticks = 0;
 	while (luksDev.isLocked() && !done) {
+		show_osk = !keyboardToggle.isVisible();
 		if (SDL_WaitEvent(&event)) {
 			// an event was found
 			switch (event.type) {
@@ -333,7 +343,7 @@ int main(int argc, char **args)
 			case SDL_FINGERUP: {
 				auto xTouch = static_cast<unsigned>(event.tfinger.x * WIDTH);
 				auto yTouch = static_cast<unsigned>(event.tfinger.y * HEIGHT);
-				handleTapEnd(xTouch, yTouch, HEIGHT, keyboard, luksDev, passphrase, opts.keyscript, showPasswordError, done);
+				handleTapEnd(xTouch, yTouch, HEIGHT, keyboard, keyboardToggle, luksDev, passphrase, opts.keyscript, showPasswordError, done);
 				SDL_PushEvent(&renderEvent);
 				break; // SDL_FINGERUP
 			}
@@ -344,7 +354,7 @@ int main(int argc, char **args)
 				break; // SDL_MOUSEBUTTONDOWN
 			}
 			case SDL_MOUSEBUTTONUP: {
-				handleTapEnd(event.button.x, event.button.y, HEIGHT, keyboard, luksDev, passphrase, opts.keyscript, showPasswordError, done);
+				handleTapEnd(event.button.x, event.button.y, HEIGHT, keyboard, keyboardToggle, luksDev, passphrase, opts.keyscript, showPasswordError, done);
 				SDL_PushEvent(&renderEvent);
 				break; // SDL_MOUSEBUTTONUP
 			}
@@ -420,6 +430,8 @@ int main(int argc, char **args)
 						SDL_RenderCopy(renderer, inputBoxTexture, nullptr, &inputBoxRect);
 						draw_password_box_dots(renderer, &config, inputBoxRect, passphrase.size(), luksDev.unlockRunning());
 					}
+					if (!show_osk)
+						keyboardToggle.draw(renderer, WIDTH-(WIDTH/10), HEIGHT-(HEIGHT/15));
 
 					// When using animations, draw keyboard last so that key previews don't get drawn over by e.g. the input box
 					if (config.animations && show_osk) {

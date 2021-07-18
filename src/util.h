@@ -22,6 +22,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "config.h"
 #include "keyboard.h"
 #include "luksdevice.h"
+#include "toggle.h"
 #include <SDL2/SDL.h>
 #include <cmath>
 #include <iostream>
@@ -120,7 +121,7 @@ void handleTapBegin(unsigned xTapped, unsigned yTapped, int screenHeight, Keyboa
   @param showPasswordError Will be set to true if a password error should be shown, false otherwise
   @param done Will be set to true if the device was unlocked, false otherwise
  */
-void handleTapEnd(unsigned xTapped, unsigned yTapped, int screenHeight, Keyboard &kbd, LuksDevice &lkd, std::vector<std::string> &passphrase, bool keyscript, bool &showPasswordError, bool &done);
+void handleTapEnd(unsigned xTapped, unsigned yTapped, int screenHeight, Keyboard &kbd, Toggle &kbdToggle, LuksDevice &lkd, std::vector<std::string> &passphrase, bool keyscript, bool &showPasswordError, bool &done);
 
 /**
   Rumble a haptic device for the given duration
