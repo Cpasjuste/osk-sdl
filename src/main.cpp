@@ -279,6 +279,13 @@ int main(int argc, char **args)
 				}
 				showPasswordError = false;
 				prev_keydown_ticks = cur_ticks;
+				if (SDL_GetModState() & KMOD_CTRL) {
+					if (event.key.keysym.sym == SDLK_u) {
+						passphrase.clear();
+						SDL_PushEvent(&renderEvent);
+						continue;
+					}
+				}
 				switch (event.key.keysym.sym) {
 				case SDLK_RETURN:
 					if (!passphrase.empty() && !luksDev.unlockRunning()) {
