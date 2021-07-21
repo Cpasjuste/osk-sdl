@@ -31,6 +31,12 @@ mouse_click_qwerty() {
 	xdotool mousemove 430 775 click 1
 }
 
+# Clicks the 'osk' toggle button.
+# *** NOTE: Depends on screen size being 480x800 !
+mouse_click_osk_toggle() {
+	xdotool mousemove 460 775 click 1
+}
+
 # Clicks out the string '@#π48' with the mouse and then clicks 'enter'.
 # *** NOTE: Depends on screen size being 480x800 !
 mouse_click_symbols() {
@@ -179,6 +185,28 @@ test_keyscript_no_keyboard_phys() {
 	check_result "$result_file" "$expected"
 }
 
+########################################################
+# Test key script (-k) with 'physical' key input, and -x
+########################################################
+test_keyscript_mouse_toggle_osk() {
+	echo "** Testing osk toggle button and 'mouse' key input"
+	local expected="qwerty"
+	local result_file="/tmp/osk_sdl_test_mouse_toggle_keyscript_$DISPLAY"
+	local osk_pid
+	osk_pid="$(run_osk_sdl false "$result_file" "-k -n test_disk -d test/luks.disk -x")"
+	sleep 3
+
+	# run test
+	mouse_click_osk_toggle
+	sleep 1
+	mouse_click_qwerty
+	sleep 3
+	kill -9 "$osk_pid" 2>/dev/null || true
+
+	# check result
+	check_result "$result_file" "$expected"
+}
+
 ##################################################
 # Test luks unlocking
 ##################################################
@@ -258,11 +286,15 @@ case "$1" in
 	test_luks_phys)
 		test_luks_phys
 		;;
+	test_keyscript_mouse_toggle_osk)
+		test_keyscript_mouse_toggle_osk
+		;;
 	*)
 		test_keyscript_phys
 		test_keyscript_no_keyboard_phys
 		test_keyscript_mouse_letters
 		test_keyscript_mouse_symbols
+		test_keyscript_mouse_toggle_osk
 		test_luks_phys
 		;;
 esac

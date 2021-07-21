@@ -43,6 +43,12 @@ test('Functional test - keyscript, mouse keyboard input, symbols',
 	env : test_env,
 )
 
+test('Functional test - keyscript, mouse keyboard input, osk toggle',
+	test_functional,
+	args : ['test_keyscript_mouse_toggle_osk'],
+	env : test_env,
+)
+
 test('Functional test - luks',
 	test_functional,
 	args : ['test_luks_phys'],
