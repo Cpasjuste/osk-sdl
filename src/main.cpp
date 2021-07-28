@@ -358,8 +358,15 @@ int main(int argc, char **args)
 				SDL_PushEvent(&renderEvent);
 				break; // SDL_MOUSEBUTTONUP
 			}
-				// handle physical keyboard
+			// handle physical keyboard
 			case SDL_TEXTINPUT: {
+				// Don't display characters for hotkey input
+				if (SDL_GetModState() & KMOD_CTRL) {
+					if (strcmp(event.text.text, "u") == 0) {
+						continue;
+					}
+				}
+
 				/*
 				 * Only register text input if time since last text input has exceeded
 				 * the keyboard repeat delay rate
