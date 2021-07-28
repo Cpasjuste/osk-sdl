@@ -378,10 +378,10 @@ int main(int argc, char **args)
 					prev_text_ticks = cur_ticks;
 					if (!luksDev.unlockRunning()) {
 						passphrase.emplace_back(event.text.text);
+						SDL_PushEvent(&renderEvent);
 						SDL_LogInfo(SDL_LOG_CATEGORY_INPUT, "Phys Keyboard Key Entered %s", event.text.text);
 					}
 				}
-				SDL_PushEvent(&renderEvent);
 				break; // SDL_TEXTINPUT
 			}
 			case SDL_QUIT:
