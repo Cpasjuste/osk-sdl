@@ -30,7 +30,7 @@ Toggle::Toggle(int width, int height, Config *config)
 {
 }
 
-Toggle::~Toggle()
+void Toggle::cleanup()
 {
 	if (texture) {
 		SDL_DestroyTexture(texture);

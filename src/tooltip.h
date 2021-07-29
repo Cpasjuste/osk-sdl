@@ -41,7 +41,11 @@ public:
 	  @param config Config object
 	  */
 	Tooltip(TooltipType type, int width, int height, int cornerRadius, Config *config);
-	~Tooltip();
+	/**
+	  Free memory allocated on creation/use of this object. The tooltip object should be considered dead after
+	  calling this, and not used.
+	*/
+	void cleanup();
 	/**
 	  Initialize tooltip
 	  @param renderer Initialized SDL renderer object

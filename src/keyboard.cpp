@@ -32,7 +32,7 @@ Keyboard::Keyboard(int pos, int targetPos, int width, int height, Config *config
 	lastAnimTicks = SDL_GetTicks();
 }
 
-Keyboard::~Keyboard()
+void Keyboard::cleanup()
 {
 	for (auto &layer : keyboard) {
 		if (layer.texture) {

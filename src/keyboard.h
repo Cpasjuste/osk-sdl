@@ -73,7 +73,11 @@ public:
 	  @param haptic Haptic device to rumble on key press
 	  */
 	Keyboard(int pos, int targetPos, int width, int height, Config *config, SDL_Haptic *haptic);
-	~Keyboard();
+	/**
+	  Free memory allocated on creation/use of this object. The keyboard object should be considered dead after
+	  calling this, and not used.
+	*/
+	void cleanup();
 	/**
 	  Get the character/key at the given coordinates
 	  @param x X-axis coordinate

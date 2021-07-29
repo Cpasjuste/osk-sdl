@@ -38,7 +38,11 @@ public:
 	  @param config Config object
 	  */
 	Toggle(int width, int height, Config *config);
-	~Toggle();
+	/**
+	  Free memory allocated on creation/use of this object. The toggle object should be considered dead after
+	  calling this, and not used.
+	*/
+	void cleanup();
 	/**
 	  Initialize toggle
 	  @param renderer Initialized SDL renderer object

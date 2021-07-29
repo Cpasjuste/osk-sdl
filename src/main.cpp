@@ -482,6 +482,12 @@ QUIT:
 	if (inputBoxTexture)
 		SDL_DestroyTexture(inputBoxTexture);
 
+	keyboardToggle.cleanup();
+	passErrorTooltip.cleanup();
+	enterPassTooltip.cleanup();
+	unlockingTooltip.cleanup();
+	keyboard.cleanup();
+
 	SDL_DestroyRenderer(renderer);
 	SDL_DestroyWindow(display);
 

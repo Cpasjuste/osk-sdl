@@ -29,7 +29,7 @@ Tooltip::Tooltip(TooltipType type, int width, int height, int cornerRadius, Conf
 {
 }
 
-Tooltip::~Tooltip()
+void Tooltip::cleanup()
 {
 	if (texture) {
 		SDL_DestroyTexture(texture);
