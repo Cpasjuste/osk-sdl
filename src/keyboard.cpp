@@ -32,6 +32,20 @@ Keyboard::Keyboard(int pos, int targetPos, int width, int height, Config *config
 	lastAnimTicks = SDL_GetTicks();
 }
 
+Keyboard::~Keyboard()
+{
+	for (auto &layer : keyboard) {
+		if (layer.texture) {
+			SDL_DestroyTexture(layer.texture);
+			layer.texture = nullptr;
+		}
+		if (layer.highlightedTexture) {
+			SDL_DestroyTexture(layer.highlightedTexture);
+			layer.highlightedTexture = nullptr;
+		}
+	}
+}
+
 int Keyboard::init(SDL_Renderer *renderer)
 {
 	loadKeymap();
@@ -218,6 +232,7 @@ void Keyboard::drawRow(SDL_Surface *surface, std::vector<touchArea> &keyVector, 
 		keyCapRect.w = keyRect.w;
 		keyCapRect.h = keyRect.h;
 		SDL_BlitSurface(textSurface, nullptr, surface, &keyCapRect);
+		SDL_FreeSurface(textSurface);
 
 		i++;
 	}
@@ -263,6 +278,7 @@ void Keyboard::drawKey(SDL_Surface *surface, std::vector<touchArea> &keyVector, 
 	keyCapRect.w = keyRect.w;
 	keyCapRect.h = keyRect.h;
 	SDL_BlitSurface(textSurface, nullptr, surface, &keyCapRect);
+	SDL_FreeSurface(textSurface);
 }
 
 SDL_Surface *Keyboard::makeKeyboard(KeyboardLayer *layer, bool isHighlighted) const
@@ -394,6 +410,8 @@ SDL_Surface *Keyboard::makeKeyboard(KeyboardLayer *layer, bool isHighlighted) co
 	char enter[] = "OK";
 	drawKey(surface, layer->keyVector, colw * 15, y, colw * 5, rowHeight,
 		enter, KEYCAP_RETURN, keyboardWidth / 100, font, isHighlighted, false, keyForeground, keyBackgroundReturn);
+
+	TTF_CloseFont(font);
 
 	return surface;
 }

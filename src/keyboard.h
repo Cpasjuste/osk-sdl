@@ -73,6 +73,7 @@ public:
 	  @param haptic Haptic device to rumble on key press
 	  */
 	Keyboard(int pos, int targetPos, int width, int height, Config *config, SDL_Haptic *haptic);
+	~Keyboard();
 	/**
 	  Get the character/key at the given coordinates
 	  @param x X-axis coordinate
