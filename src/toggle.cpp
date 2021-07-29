@@ -30,6 +30,14 @@ Toggle::Toggle(int width, int height, Config *config)
 {
 }
 
+Toggle::~Toggle()
+{
+	if (texture) {
+		SDL_DestroyTexture(texture);
+		texture = nullptr;
+	}
+}
+
 int Toggle::init(SDL_Renderer *renderer, const std::string &text)
 {
 	SDL_Surface *surface;
@@ -74,6 +82,11 @@ int Toggle::init(SDL_Renderer *renderer, const std::string &text)
 	SDL_BlitSurface(textSurface, nullptr, surface, &textRect);
 
 	texture = SDL_CreateTextureFromSurface(renderer, surface);
+
+	TTF_CloseFont(font);
+	SDL_FreeSurface(textSurface);
+	SDL_FreeSurface(surface);
+
 	return 0;
 }
 

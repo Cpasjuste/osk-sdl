@@ -38,6 +38,7 @@ public:
 	  @param config Config object
 	  */
 	Toggle(int width, int height, Config *config);
+	~Toggle();
 	/**
 	  Initialize toggle
 	  @param renderer Initialized SDL renderer object
