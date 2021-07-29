@@ -197,6 +197,7 @@ void draw_circle(SDL_Renderer *renderer, SDL_Point center, int radius, const arg
 		}
 
 		circle = SDL_CreateTextureFromSurface(renderer, surface);
+		// note: don't disable alpha blending for this texture!
 		SDL_FreeSurface(surface);
 		circleRadius = radius;
 	}

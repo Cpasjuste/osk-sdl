@@ -41,7 +41,7 @@ void Toggle::cleanup()
 int Toggle::init(SDL_Renderer *renderer, const std::string &text)
 {
 	SDL_Surface *surface;
-	Uint32 rmask, gmask, bmask, amask;
+	Uint32 rmask, gmask, bmask;
 	argb foregroundColor, backgroundColor;
 	// SDL interprets each pixel as a 32-bit number, so our masks must depend
 	//   on the endianness (byte order) of the machine
@@ -49,15 +49,12 @@ int Toggle::init(SDL_Renderer *renderer, const std::string &text)
 	rmask = 0xff000000;
 	gmask = 0x00ff0000;
 	bmask = 0x0000ff00;
-	amask = 0x000000ff;
 #else
 	rmask = 0x000000ff;
 	gmask = 0x0000ff00;
 	bmask = 0x00ff0000;
-	amask = 0xff000000;
 #endif
-	surface = SDL_CreateRGBSurface(SDL_SWSURFACE, width, height, 32, rmask, gmask,
-		bmask, amask);
+	surface = SDL_CreateRGBSurface(SDL_SWSURFACE, width, height, 32, rmask, gmask, bmask, 0);
 	if (surface == nullptr) {
 		SDL_LogError(SDL_LOG_CATEGORY_VIDEO, "CreateRGBSurface failed: %s", SDL_GetError());
 		return -1;
