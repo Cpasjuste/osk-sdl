@@ -29,6 +29,14 @@ Tooltip::Tooltip(TooltipType type, int width, int height, int cornerRadius, Conf
 {
 }
 
+Tooltip::~Tooltip()
+{
+	if (texture) {
+		SDL_DestroyTexture(texture);
+		texture = nullptr;
+	}
+}
+
 int Tooltip::init(SDL_Renderer *renderer, const std::string &text)
 {
 	SDL_Surface *surface;
@@ -87,6 +95,11 @@ int Tooltip::init(SDL_Renderer *renderer, const std::string &text)
 	SDL_BlitSurface(textSurface, nullptr, surface, &textRect);
 
 	texture = SDL_CreateTextureFromSurface(renderer, surface);
+
+	TTF_CloseFont(font);
+	SDL_FreeSurface(textSurface);
+	SDL_FreeSurface(surface);
+
 	return 0;
 }
 

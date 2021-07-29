@@ -41,6 +41,7 @@ public:
 	  @param config Config object
 	  */
 	Tooltip(TooltipType type, int width, int height, int cornerRadius, Config *config);
+	~Tooltip();
 	/**
 	  Initialize tooltip
 	  @param renderer Initialized SDL renderer object
