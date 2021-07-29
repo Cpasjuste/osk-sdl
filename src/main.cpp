@@ -158,6 +158,11 @@ int main(int argc, char **args)
 		exit(EXIT_FAILURE);
 	}
 
+	if (TTF_Init() == -1) {
+		SDL_LogError(SDL_LOG_CATEGORY_VIDEO, "TTF_Init: %s", TTF_GetError());
+		exit(EXIT_FAILURE);
+	}
+
 	int keyboardHeight = HEIGHT / 3 * 2;
 	if (HEIGHT > WIDTH) {
 		// Keyboard height is screen width / max number of keys per row * rows
@@ -479,6 +484,8 @@ QUIT:
 
 	SDL_DestroyRenderer(renderer);
 	SDL_DestroyWindow(display);
+
+	TTF_Quit();
 
 	SDL_QuitSubSystem(SDL_INIT_VIDEO | SDL_INIT_EVENTS | SDL_INIT_TIMER | SDL_INIT_HAPTIC);
 

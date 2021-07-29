@@ -325,11 +325,6 @@ SDL_Surface *Keyboard::makeKeyboard(KeyboardLayer *layer, bool isHighlighted) co
 		rowHeight = keyboardHeight / rowCount;
 	}
 
-	if (TTF_Init() == -1) {
-		SDL_LogError(SDL_LOG_CATEGORY_VIDEO, "TTF_Init: %s", TTF_GetError());
-		return nullptr;
-	}
-
 	TTF_Font *font = TTF_OpenFont(config->keyboardFont.c_str(), config->keyboardFontSize);
 	if (!font) {
 		SDL_LogError(SDL_LOG_CATEGORY_VIDEO, "TTF_OpenFont: %s", TTF_GetError());
