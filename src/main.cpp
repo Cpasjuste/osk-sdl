@@ -257,6 +257,7 @@ int main(int argc, char **args)
 
 	SDL_Surface *inputBox = make_input_box(inputWidth, inputHeight, &inputBoxColor, inputBoxRadius);
 	SDL_Texture *inputBoxTexture = SDL_CreateTextureFromSurface(renderer, inputBox);
+	SDL_FreeSurface(inputBox);
 
 	int topHalf = static_cast<int>(HEIGHT - (keyboard.getHeight() * keyboard.getPosition()));
 	SDL_Rect inputBoxRect = SDL_Rect {
@@ -473,6 +474,12 @@ int main(int argc, char **args)
 	} // main loop
 
 QUIT:
+	if (inputBoxTexture)
+		SDL_DestroyTexture(inputBoxTexture);
+
+	SDL_DestroyRenderer(renderer);
+	SDL_DestroyWindow(display);
+
 	SDL_QuitSubSystem(SDL_INIT_VIDEO | SDL_INIT_EVENTS | SDL_INIT_TIMER | SDL_INIT_HAPTIC);
 
 	if (opts.keyscript) {
