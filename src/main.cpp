@@ -251,7 +251,7 @@ int main(int argc, char **args)
 	}
 
 	// Initialize toggle button for keyboard
-	Toggle keyboardToggle(HEIGHT/15, WIDTH/10, &config);
+	Toggle keyboardToggle(WIDTH/10, HEIGHT/15, &config);
 	if (keyboardToggle.init(renderer, "osk")) {
 		SDL_LogError(SDL_LOG_CATEGORY_VIDEO, "Failed to initialize keyboardToggle!");
 		exit(EXIT_FAILURE);
