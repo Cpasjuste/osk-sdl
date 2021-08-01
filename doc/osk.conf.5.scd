@@ -72,6 +72,11 @@ present, then an alternative configuration file must be specified on the command
 *inputbox-radius* = <value>
 	Radius, in pixels, for rounding corners of input box. A value of 0 disables rounded corners.
 
+*inputbox-dot-glyph* = <value>
+	Font character glyph to used to represent each character of the passphrase. Can be set to "none" (without quotes)
+	disable displaying information about passphrase length on screen, or set to a valid utf8 character from the
+	configured font.
+
 *animations* = true|false
 	Enables or disables animations in the application. Disabling animations might help with making the application
 	more responsive on certain devices.
