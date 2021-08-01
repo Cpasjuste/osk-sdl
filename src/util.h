@@ -71,13 +71,13 @@ std::string strVector2str(const std::vector<std::string> &strVector);
 int find_gles_driver_index();
 
 /**
-  Draw a circle
+  Draw a glyph
   @param renderer Initialized SDL_Renderer object
-  @param center Center position of circle
-  @param radius Radius of circle
-  @param fillColor Fill color of circle
+  @param center Center position of glyph
+  @param size Size of glyph
+  @param config Config paramters
  */
-void draw_circle(SDL_Renderer *renderer, SDL_Point center, int radius, const argb &fillColor);
+void draw_dot_glyph(SDL_Renderer *renderer, SDL_Point center, int size, Config *config);
 
 /**
   Handle keypresses for virtual keyboard

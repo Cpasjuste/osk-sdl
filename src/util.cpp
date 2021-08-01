@@ -127,84 +127,40 @@ int find_gles_driver_index()
 	return -1;
 }
 
-SDL_Texture *circle = nullptr;
-int circleRadius = 0;
+SDL_Texture *dotGlyph = nullptr;
+int dotGlyphSize = 0;
 
-void draw_circle(SDL_Renderer *renderer, SDL_Point center, int radius, const argb &fillColor)
+void draw_dot_glyph(SDL_Renderer *renderer, SDL_Point center, int size, Config *config)
 {
+	if (config->inputBoxDotGlyph.compare("") == 0)
+		return;
+
 	// Destroy cached texture if radius doesn't match
-	if (circle && circleRadius != radius) {
-		SDL_LogWarn(SDL_LOG_CATEGORY_VIDEO, "Destroying previously cached circle texture with radius %i", circleRadius);
-		SDL_DestroyTexture(circle);
-		circle = nullptr;
-		circleRadius = 0;
+	if (dotGlyph && dotGlyphSize != size) {
+		SDL_LogWarn(SDL_LOG_CATEGORY_VIDEO, "Destroying previously cached dot glyph texture with radius %i",
+				dotGlyphSize);
+		SDL_DestroyTexture(dotGlyph);
+		dotGlyph = nullptr;
+		dotGlyphSize = 0;
 	}
 
 	// Cache a new texture if needed
-	if (!circle) {
-		SDL_LogInfo(SDL_LOG_CATEGORY_VIDEO, "Caching a new circle texture with radius %i", radius);
-		Uint32 rmask, gmask, bmask, amask;
+	if (!dotGlyph) {
+		SDL_LogInfo(SDL_LOG_CATEGORY_VIDEO, "Caching a new glyph texture with size %i", size);
+		TTF_Font *font = TTF_OpenFont(config->keyboardFont.c_str(), size);
+		SDL_Color textColor = { config->inputBoxForeground.r, config->inputBoxForeground.g, config->inputBoxForeground.b, config->inputBoxForeground.a };
+		SDL_Surface *textSurface = TTF_RenderUTF8_Blended(font, config->inputBoxDotGlyph.c_str(), textColor);
 
-#if SDL_BYTEORDER == SDL_BIG_ENDIAN
-		rmask = 0xff000000;
-		gmask = 0x00ff0000;
-		bmask = 0x0000ff00;
-		amask = 0x000000ff;
-#else
-		rmask = 0x000000ff;
-		gmask = 0x0000ff00;
-		bmask = 0x00ff0000;
-		amask = 0xff000000;
-#endif
-
-		SDL_Surface *surface = SDL_CreateRGBSurface(0, 2 * radius, 2 * radius, 32, rmask, gmask, bmask, amask);
-		Uint32 color = SDL_MapRGB(surface->format, fillColor.r, fillColor.g, fillColor.b);
-		SDL_Rect rect;
-
-		int x0 = radius;
-		int y0 = radius;
-		int x = 0;
-		int y = radius;
-		float d = 5 / 4.0 - radius;
-
-		/*
-		* This is a version of the midpoint circle algorithm that draws rects
-		* between pairs of points for fill, rather than plotting every single
-		* pixel/point within the circle.
-		* https://stackoverflow.com/a/10878576
-		* https://stackoverflow.com/a/1201304
-		* */
-		while (x < y) {
-			if (d < 2 * (radius - y)) {
-				y -= 1;
-				d += 2 * y - 1;
-			} else if (d >= 2 * x) {
-				x += 1;
-				d -= 2 * x + 1;
-			} else {
-				x += 1;
-				y -= 1;
-				d += 2 * (y - x - 1);
-			}
-			rect = { x0 - y, y0 + x, 2 * y, 1 };
-			SDL_FillRect(surface, &rect, color);
-			rect = { x0 - x, y0 + y, 2 * x, 1 };
-			SDL_FillRect(surface, &rect, color);
-			rect = { x0 - x, y0 - y, 2 * x, 1 };
-			SDL_FillRect(surface, &rect, color);
-			rect = { x0 - y, y0 - x, 2 * y, 1 };
-			SDL_FillRect(surface, &rect, color);
-		}
-
-		circle = SDL_CreateTextureFromSurface(renderer, surface);
-		// note: don't disable alpha blending for this texture!
-		SDL_FreeSurface(surface);
-		circleRadius = radius;
+		dotGlyph = SDL_CreateTextureFromSurface(renderer, textSurface);
+		SDL_FreeSurface(textSurface);
+		dotGlyphSize = size;
 	}
 
 	// Copy cached texture into display
-	SDL_Rect rect = { center.x - radius, center.y - radius, 2 * radius, 2 * radius };
-	SDL_RenderCopy(renderer, circle, nullptr, &rect);
+	int w, h;
+	SDL_QueryTexture(dotGlyph, NULL, NULL, &w, &h);
+	SDL_Rect rect = { center.x - size / 2, center.y - size / 2, w, h};
+	SDL_RenderCopy(renderer, dotGlyph, nullptr, &rect);
 }
 
 void draw_password_box_dots(SDL_Renderer *renderer, Config *config, const SDL_Rect &inputRect, int numDots, bool busy)
@@ -213,7 +169,7 @@ void draw_password_box_dots(SDL_Renderer *renderer, Config *config, const SDL_Re
 	int ypos = inputRect.y + inputRect.h / 2;
 	int xmax = inputRect.x + inputRect.w;
 	float tick = static_cast<float>(SDL_GetTicks());
-	int dotSize = static_cast<int>(inputRect.h / 5);
+	int dotSize = static_cast<int>(inputRect.h / 2);
 	int padding = static_cast<int>(inputRect.h / 2);
 	int offset = 0;
 	/*
@@ -223,7 +179,7 @@ void draw_password_box_dots(SDL_Renderer *renderer, Config *config, const SDL_Re
 		SDL_RenderSetClipRect(renderer, &inputRect); // Prevent drawing outside the input bounds
 	for (int i = numDots - 1; i >= 0; i--) {
 		SDL_Point dotPos;
-		dotPos.x = inputRect.x + padding + (i * dotSize * 3) - offset;
+		dotPos.x = inputRect.x + padding + (i * dotSize) - offset;
 		// Offset dot center so that for long passwords the last dot aligns with right edge (minus padding)
 		if (dotPos.x + padding > xmax) {
 			offset = dotPos.x + padding - xmax;
@@ -238,7 +194,7 @@ void draw_password_box_dots(SDL_Renderer *renderer, Config *config, const SDL_Re
 		} else {
 			dotPos.y = ypos;
 		}
-		draw_circle(renderer, dotPos, dotSize, config->inputBoxForeground);
+		draw_dot_glyph(renderer, dotPos, dotSize, config);
 	}
 	if (!isDirectFB())
 		SDL_RenderSetClipRect(renderer, nullptr); // Reset clip rect
