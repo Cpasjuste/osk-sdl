@@ -157,6 +157,17 @@ bool Config::Read(const std::string &path)
 		Config::inputBoxRadius = Config::options["inputbox-radius"];
 	}
 
+	it = Config::options.find("inputbox-dot-glyph");
+	if (it != Config::options.end()) {
+		std::string val = Config::options["inputbox-dot-glyph"];
+		transform(val.begin(), val.end(), val.begin(), ::tolower);
+		if (val.compare("none") == 0) {
+			Config::inputBoxDotGlyph = "";
+		} else {
+			Config::inputBoxDotGlyph = Config::options["inputbox-dot-glyph"];
+		}
+	}
+
 	it = Config::options.find("animations");
 	if (it != Config::options.end()) {
 		Config::animations = (Config::options["animations"] == "true");

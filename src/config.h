@@ -57,6 +57,7 @@ public:
 	argb inputBoxBackground = parseHexString("#32363E");
 	argb inputBoxBackgroundError = parseHexString("#E76A63");
 	std::string inputBoxRadius = "0";
+	std::string inputBoxDotGlyph = "●";
 	bool animations = true;
 
 	/**
