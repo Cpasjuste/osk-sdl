@@ -361,8 +361,12 @@ bool hasPhysKeyboard()
 		ioctl(fd, EVIOCGBIT(EV_KEY, sizeof(keyMask)), &keyMask);
 		close(fd);
 
-		/* this contains ESC, numbers, and letters Q through D (and omits RESERVED keycode at bit 0)*/
-		unsigned long mask = 0xFFFFFFFE;
+		/*
+		 * This mask is the first 32-bits advertised by an N900 keyboard. It's obviously a physical keyboard, so
+		 * matching at *least* what it shows is a good baseline. Other physical keyboards should have no trouble
+		 * matching this.
+		 */
+		unsigned long mask = 0xF3FF4000;
 		if ((keyMask[0] & mask) == mask) {
 			SDL_LogInfo(SDL_LOG_CATEGORY_SYSTEM, "Probably a physical keyboard: %s", dev_name.c_str());
 			return true;
