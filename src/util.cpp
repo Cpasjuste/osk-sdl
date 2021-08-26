@@ -339,6 +339,11 @@ bool isDirectFB()
 
 bool hasPhysKeyboard()
 {
+	if (!std::filesystem::exists("/dev/input")) {
+		SDL_LogInfo(SDL_LOG_CATEGORY_SYSTEM, "/dev/input does not exist, skipping physical keyboard check");
+		return false;
+	}
+
 	for (const auto &file: std::filesystem::directory_iterator("/dev/input")) {
 
 		std::string dev_name = file.path().string();
