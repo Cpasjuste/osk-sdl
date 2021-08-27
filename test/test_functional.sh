@@ -109,7 +109,7 @@ check_result() {
 test_keyscript_mouse_letters() {
 	echo "** Testing key script with 'mouse' key input (letter layer)"
 	local expected="qwerty"
-	local result_file="/tmp/osk_sdl_test_mouse_keyscript_$DISPLAY"
+	local result_file="/tmp/osk_sdl_test_keyscript_mouse_letters_$DISPLAY"
 	local osk_pid
 	osk_pid="$(run_osk_sdl false "$result_file" "-k -n test_disk -d test/luks.disk")"
 	sleep 3
@@ -129,7 +129,7 @@ test_keyscript_mouse_letters() {
 test_keyscript_mouse_symbols() {
 	echo "** Testing key script with 'mouse' key input (symbol layers)"
 	local expected="@#π48"
-	local result_file="/tmp/osk_sdl_test_mouse_keyscript_$DISPLAY"
+	local result_file="/tmp/osk_sdl_test_keyscript_mouse_symbols_$DISPLAY"
 	local osk_pid
 	osk_pid="$(run_osk_sdl false "$result_file" "-k -n test_disk -d test/luks.disk")"
 	sleep 3
@@ -148,7 +148,7 @@ test_keyscript_mouse_symbols() {
 ##################################################
 test_keyscript_phys() {
 	echo "** Testing key script with 'physical' key input"
-	local result_file="/tmp/osk_sdl_test_phys_keyscript_$DISPLAY"
+	local result_file="/tmp/osk_sdl_test_keyscript_phys_$DISPLAY"
 	local expected="postmarketOS"
 	local osk_pid
 	osk_pid="$(run_osk_sdl false "$result_file" "-k -n test_disk -d test/luks.disk")"
@@ -169,7 +169,7 @@ test_keyscript_phys() {
 ########################################################
 test_keyscript_no_keyboard_phys() {
 	echo "** Testing key script with 'physical' key input"
-	local result_file="/tmp/osk_sdl_test_phys_keyscript_$DISPLAY"
+	local result_file="/tmp/osk_sdl_test_keyscript_no_keyboard_phys_$DISPLAY"
 	local expected="postmarketOS"
 	local osk_pid
 	osk_pid="$(run_osk_sdl false "$result_file" "-k -n test_disk -d test/luks.disk -x")"
@@ -191,7 +191,7 @@ test_keyscript_no_keyboard_phys() {
 test_keyscript_mouse_toggle_osk() {
 	echo "** Testing osk toggle button and 'mouse' key input"
 	local expected="qwerty"
-	local result_file="/tmp/osk_sdl_test_mouse_toggle_keyscript_$DISPLAY"
+	local result_file="/tmp/osk_sdl_test_keyscript_mouse_toggle_osk_$DISPLAY"
 	local osk_pid
 	osk_pid="$(run_osk_sdl false "$result_file" "-k -n test_disk -d test/luks.disk -x")"
 	sleep 3
