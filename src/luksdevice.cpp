@@ -34,6 +34,17 @@ int LuksDevice::unlock(void *luksDev)
 		.type = lcd->eventType
 	};
 
+	uint32_t flags = CRYPT_ACTIVATE_ALLOW_DISCARDS; // Enable TRIM support
+
+	// If supported by libcryptsetup (2.3.4 and above), disable read/write workqueues
+	// for performance on SSDs
+#ifdef CRYPT_ACTIVATE_NO_READ_WORKQUEUE
+	flags |= CRYPT_ACTIVATE_NO_READ_WORKQUEUE;
+#endif
+#ifdef CRYPT_ACTIVATE_NO_WRITE_WORKQUEUE
+	flags |= CRYPT_ACTIVATE_NO_WRITE_WORKQUEUE;
+#endif
+
 	// Note: no mutex here, since this function makes a blocking call later on.
 	// Careful!
 	lcd->running = true;
@@ -60,8 +71,7 @@ int LuksDevice::unlock(void *luksDev)
 		CRYPT_ANY_SLOT,
 		lcd->passphrase.c_str(),
 		lcd->passphrase.size(),
-		// Enable TRIM support, disable read/write workqueues for performance on SSDs
-		CRYPT_ACTIVATE_ALLOW_DISCARDS | CRYPT_ACTIVATE_NO_READ_WORKQUEUE | CRYPT_ACTIVATE_NO_WRITE_WORKQUEUE);
+		flags);
 	if (ret < 0) {
 		SDL_Log("crypt_activate_by_passphrase failed on device. Errno %i", ret);
 		crypt_free(cd);
