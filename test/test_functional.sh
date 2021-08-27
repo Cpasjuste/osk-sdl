@@ -69,7 +69,7 @@ mouse_click_symbols() {
 run_osk_sdl() {
 	local use_sudo="$1"
 	local out_file="$2"
-	local opts="$3 -c $OSK_SDL_CONF_PATH"
+	local opts="$3 -c $OSK_SDL_CONF_PATH -t"
 	if [ "$use_sudo" = true ]; then
 		# shellcheck disable=SC2086
 		sudo "$OSK_SDL_EXE_PATH" $opts 2>"$out_file" 1>&2 &
